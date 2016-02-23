@@ -1,0 +1,19 @@
+{
+    "name": "php-ds/php-ds",
+    "license": "MIT",
+    "keywords": [],
+    "authors": [
+        {
+            "name": "Rudi Theunissen",
+            "email": "rudolf.theunissen@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6"
+    },
+    "autoload": {
+        "psr-4" : {
+            "": "src"
+        }
+    }
+}
