@@ -1,7 +1,7 @@
 <?php
 namespace Ds;
 
-interface Collection
+interface Collection extends \Countable, \JsonSerializable
 {
     /**
      * Clears all elements in the Collection.

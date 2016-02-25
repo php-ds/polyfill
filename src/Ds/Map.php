@@ -94,6 +94,14 @@ final class Map implements Collection
     public function isEmpty(): bool {}
 
     /**
+     *
+     */
+    public function jsonSerialize()
+    {
+
+    }
+
+    /**
      * Returns a set of all the keys in the map.
      *
      * @return Set

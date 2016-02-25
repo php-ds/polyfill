@@ -150,6 +150,14 @@ final class Set implements Collection
     public function join(string $glue = null): string {}
 
     /**
+     *
+     */
+    public function jsonSerialize()
+    {
+
+    }
+
+    /**
      * Returns the last value in the set.
      *
      * @return mixed the last value in the set.

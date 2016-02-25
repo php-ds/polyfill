@@ -46,6 +46,14 @@ final class PriorityQueue implements Collection
     public function isEmpty(): bool {}
 
     /**
+     *
+     */
+    public function jsonSerialize()
+    {
+
+    }
+
+    /**
      * Returns the value with the highest priority in the priority queue.
      *
      * @return mixed

@@ -74,6 +74,14 @@ final class Deque implements Sequence
     public function join(string $glue = null): string {}
 
     /**
+     *
+     */
+    public function jsonSerialize()
+    {
+
+    }
+
+    /**
      * @inheritDoc
      */
     public function last() {}

@@ -48,6 +48,14 @@ final class Queue implements Collection
     public function isEmpty(): bool {}
 
     /**
+     *
+     */
+    public function jsonSerialize()
+    {
+
+    }
+
+    /**
      * Returns the value at the front of the queue without removing it.
      *
      * @return
