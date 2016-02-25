@@ -42,7 +42,7 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      *                      is less than or equal to the current capacity.
      */
     public function allocate(int $capacity) {
-        $this->capacity = max($this->capacity, $capacity);
+        $this->capacity = max($this->capacity, $capacity) ?? 0;
     }
 
     /**
