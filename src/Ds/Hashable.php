@@ -17,5 +17,5 @@ interface Hashable
      *
      * @return bool true if equal, false otherwise.
      */
-    function equals(Hashable $obj): bool;
+    function equals($obj): bool;
 }
