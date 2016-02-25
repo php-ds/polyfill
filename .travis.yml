@@ -1,0 +1,11 @@
+language: php
+
+php:
+  - 7.0
+  - nightly
+
+install:
+  - composer install --no-interaction
+
+script:
+  - composer test
