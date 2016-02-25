@@ -103,7 +103,7 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
             throw new UnderflowException();
         }
 
-        return $this->internal[count($this) - 1];
+        return end($this->internal);
     }
 
     /**
