@@ -6,9 +6,11 @@ use UnderflowException;
 final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
 {
     /**
-     *
+     * @var int
+     * 
+     * The minimum capacity of a stack is 10
      */
-    private $capacity;
+    private $capacity = 10;
 
     /**
      *
