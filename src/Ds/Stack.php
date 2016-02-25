@@ -7,7 +7,7 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
 {
     /**
      * @var int
-     * 
+     *
      * The minimum capacity of a stack is 10
      */
     private $capacity = 10;
@@ -22,13 +22,11 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      *
      * @param array|\Traversable $values
      */
-    public function __construct($values = null) {
-        if ($values === null) {
-            $this->capacity = 10;
-
-        } else {
+    public function __construct($values = null)
+    {
+        if ($values) {
             if (is_integer($values)) {
-                $this->capacity = $values;
+                $this->allocate($values);
             } else {
                 $this->pushAll($values);
             }
@@ -43,7 +41,8 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      *                      allocated. Capacity will stay the same if this value
      *                      is less than or equal to the current capacity.
      */
-    public function allocate(int $capacity) {
+    public function allocate(int $capacity)
+    {
         $this->capacity = max($this->capacity, $capacity);
     }
 
@@ -52,14 +51,16 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      *
      * @return int
      */
-    public function capacity(): int {
+    public function capacity(): int
+    {
         return $this->capacity;
     }
 
     /**
      * @inheritDoc
      */
-    public function clear() {
+    public function clear()
+    {
         $this->internal = [];
         $this->capacity = 10;
     }
@@ -67,21 +68,24 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
     /**
      * @inheritDoc
      */
-    public function copy() {
+    public function copy()
+    {
         return new Stack($this->internal);
     }
 
     /**
      * @inheritDoc
      */
-    public function count(): int {
+    public function count(): int
+    {
         return count($this->internal);
     }
 
     /**
      * @inheritDoc
      */
-    public function isEmpty(): bool {
+    public function isEmpty(): bool
+    {
         return count($this->internal) === 0;
     }
 
@@ -100,7 +104,8 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      *
      * @throws \UnderflowException if the stack is empty.
      */
-    public function peek() {
+    public function peek()
+    {
         if ($this->isEmpty()) {
             throw new UnderflowException();
         }
@@ -115,7 +120,8 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      *
      * @throws \UnderflowException if the stack is empty.
      */
-    public function pop() {
+    public function pop()
+    {
         if ($this->isEmpty()) {
             throw new UnderflowException();
         }
@@ -128,13 +134,14 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      *
      * @param mixed ...$values
      */
-    public function push(...$values) {
-        if ($values) {
-            if (count($this->internal) + count($values) > $this->capacity) {
-                $this->capacity = floor($this->capacity * 1.5);
+    public function push(...$values)
+    {
+        foreach ($values as $value) {
+            if (count($this->internal) === $this->capacity) {
+                $this->capacity *= 1.5;
             }
 
-            array_push($this->internal, ...$values);
+            $this->internal[] = $value;
         }
     }
 
@@ -153,7 +160,8 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
     /**
      * @inheritDoc
      */
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return array_reverse($this->internal);
     }
 
