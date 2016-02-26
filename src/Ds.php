@@ -50,4 +50,14 @@ class Ds
     public static function priority_queue(): Ds\PriorityQueue {
         return new Ds\PriorityQueue();
     }
+
+    /**
+     * @param mixed $key
+     * @param mixed $value
+     *
+     * @return \Ds\Pair
+     */
+    public static function pair($key, $value): Ds\Pair {
+        return new Ds\Pair($key, $value);
+    }
 }
