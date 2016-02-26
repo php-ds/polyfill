@@ -40,7 +40,7 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      */
     public function capacity(): int
     {
-        return $this->internal->capacity;
+        return $this->internal->capacity();
     }
 
     /**
