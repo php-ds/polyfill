@@ -50,6 +50,13 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
         return $this->capacity;
     }
 
+    private function checkTruncate()
+    {
+        if (count($this) < $this->capacity / 4) {
+            $this->capacity /= 2;
+        }
+    }
+
     /**
      * @inheritDoc
      */
@@ -134,10 +141,7 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
      */
     public function get(int $index)
     {
-        if ($index < 0 || $index >= count($this)) {
-            throw new OutOfRangeException();
-        }
-
+        $this->checkRange($index);
         return $this->internal[$index];
     }
 
@@ -206,7 +210,10 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
             throw new UnderflowException();
         }
 
-        return array_pop($this->internal);
+        $value = array_pop($this->internal);
+        $this->checkTruncate();
+
+        return $value;
     }
 
     /**
@@ -252,11 +259,12 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
      */
     public function remove(int $index)
     {
-        if ($index < 0 || $index >= count($this)) {
-            throw new OutOfRangeException();
-        }
+        $this->checkRange($index);
 
-        return array_splice($this->internal, $index, 1, null)[0];
+        $value = array_splice($this->internal, $index, 1, null)[0];
+        $this->checkTruncate();
+
+        return $value;
     }
 
     /**
@@ -282,9 +290,9 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
             $b = $t;
         };
 
+        // Reverses a range within the internal array
         $reverse = function (int $a, int $b) use ($swap) {
-            $b--;
-            while ($a < $b) {
+            while (--$b > $a) {
                 $swap($this->internal[$a++], $this->internal[$b--]);
             }
         };
@@ -292,6 +300,7 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
         $n = count($this);
         $r = $rotations;
 
+        // Normalize the number of rotations
         if ($r < 0) {
             $r = $n - (abs($r) % $n);
         } else {
@@ -310,10 +319,7 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
      */
     public function set(int $index, $value)
     {
-        if ($index < 0 || $index >= count($this)) {
-            throw new OutOfRangeException();
-        }
-
+        $this->checkRange($index);
         $this->internal[$index] = $value;
     }
 
@@ -326,7 +332,10 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
             throw new UnderflowException();
         }
 
-        return array_shift($this->internal);
+        $value = array_shift($this->internal);
+        $this->checkTruncate();
+
+        return $value;
     }
 
     /**
@@ -417,12 +426,20 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
         }
     }
 
+    private function checkRange(int $index)
+    {
+       if ($index < 0 || $index >= count($this)) {
+            throw new OutOfRangeException();
+        }
+    }
+
     /**
      *
      */
-    public function offsetGet($offset)
+    public function &offsetGet($offset)
     {
-        return $this->get($offset);
+        $this->checkRange($offset);
+        return $this->internal[$offset];
     }
 
     /**
@@ -441,6 +458,10 @@ final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        return $offset >= 0 && $offset < count($this) && $this->get($offset) !== null;
+        if ($offset < 0 || $offset >= count($this)) {
+            return false;
+        }
+
+        return $this->get($offset) !== null;
     }
 }
