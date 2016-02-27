@@ -1,10 +1,13 @@
 <?php
 namespace Ds;
 
+use Ds\Traits\CollectionTrait;
 use UnderflowException;
 
 final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
 {
+    use CollectionTrait;
+
     /**
      * @var Vector
      */
