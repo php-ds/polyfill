@@ -1,6 +1,12 @@
 <?php
+
 namespace Ds;
 
+/**
+ * Sequence Interface
+ *
+ * @package Ds
+ */
 interface Sequence extends Collection
 {
     /**
