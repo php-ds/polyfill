@@ -10,10 +10,9 @@ use Ds\Traits\SequenceTrait;
  *
  * @package Ds
  */
-final class Deque implements Sequence, \IteratorAggregate, \ArrayAccess
+final class Deque implements \IteratorAggregate, \ArrayAccess, Sequence
 {
     use SequenceTrait;
-
     use CollectionTrait;
 
     /**

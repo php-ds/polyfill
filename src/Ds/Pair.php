@@ -1,7 +1,7 @@
 <?php
 namespace Ds;
 
-use \OutOfBoundsException;
+use OutOfBoundsException;
 
 /**
  * A pair which represents a key, and an associated value.
@@ -21,6 +21,8 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      */
     private $value;
 
+    private $init = false;
+
     /**
      * Constructor
      *
@@ -31,12 +33,13 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      */
     public function __construct($key, $value)
     {
-        if (is_null($this->key) === false) {
+        if ($this->init) {
             throw new \Error();
         }
 
-        $this->key = $key;
+        $this->key   = $key;
         $this->value = $value;
+        $this->init  = true;
     }
 
     /**
@@ -57,17 +60,19 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      */
     public function offsetSet($offset, $value)
     {
-        if ($offset === 0 || $offset === 'key') {
-            $target = 'key';
-        } elseif ($offset === 1 || $offset === 'value') {
-            $target = 'value';
-        }
+        switch ($offset) {
+            case 0:
+            case 'key':
+                $this->key = $value;
+                break;
+            case 1:
+            case 'value':
+                $this->value = $value;
+                break;
 
-        if (!is_null($this->$target)) {
-            throw new \Error();
+            default:
+                throw new \Error();
         }
-
-        $this->$target = $value;
     }
 
     /**
@@ -75,12 +80,17 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      */
     public function offsetGet($offset)
     {
-        if ($offset === 0 || $offset === 'key') {
-            return $this->key;
-        }
+        switch ($offset) {
+            case 0:
+            case 'key':
+                return $this->key;
 
-        if ($offset === 1 || $offset === 'value') {
-            return $this->value;
+            case 1:
+            case 'value':
+                return $this->value;
+
+            default:
+                throw new OutOfBoundsException();
         }
     }
 
@@ -97,24 +107,23 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      */
     public function offsetExists($offset)
     {
-        if ($offset === 0 || $offset === 'key') {
-            return !is_null($this->key);
-        }
+        switch ($offset) {
+            case 0:
+            case 'key':
+                return isset($this->key);
 
-        if ($offset === 1 || $offset === 'value') {
-            return !is_null($this->value);
-        }
+            case 1:
+            case 'value':
+                return isset($this->value);
 
-        return false;
+            default:
+                return false;
+        }
     }
 
     public function __isset($name)
     {
-        try {
-            return $this->__get($name) ? true : false;
-        } catch (OutOfBoundsException $e) {
-            return false;
-        }
+        return isset($this->$name);
     }
 
     /**
@@ -126,13 +135,16 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      */
     public function __get($name)
     {
-        if ($name === 'key') {
-            return $this->key;
-        } elseif ($name ==='value') {
-            return $this->value;
-        }
+        switch ($name) {
+            case 'key':
+                return $this->key;
 
-        throw new OutOfBoundsException();
+            case 'value':
+                return $this->value;
+
+            default:
+                throw new OutOfBoundsException();
+        }
     }
 
     /**

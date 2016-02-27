@@ -10,7 +10,7 @@ use Ds\Traits\SequenceTrait;
  *
  * @package Ds
  */
-final class Vector implements Sequence, \IteratorAggregate, \ArrayAccess
+final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
 {
     use CollectionTrait;
     use SequenceTrait;

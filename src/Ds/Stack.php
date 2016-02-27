@@ -4,7 +4,7 @@ namespace Ds;
 use Ds\Traits\CollectionTrait;
 use UnderflowException;
 
-final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
+final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
 {
     use CollectionTrait;
 

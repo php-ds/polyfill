@@ -1,7 +1,7 @@
 <?php
 namespace Ds;
 
-final class Set implements Collection
+final class Set implements \IteratorAggregate, Collection
 {
     /**
      * Creates a new set using the values of an array or Traversable object.
@@ -240,4 +240,8 @@ final class Set implements Collection
      * @return Set
      */
     public function union(Set $set): Set {}
+
+    public function getIterator() {
+
+    }
 }

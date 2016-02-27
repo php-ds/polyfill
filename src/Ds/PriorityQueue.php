@@ -1,7 +1,7 @@
 <?php
 namespace Ds;
 
-final class PriorityQueue implements Collection
+final class PriorityQueue implements \IteratorAggregate, Collection
 {
     /**
      * Initializes a new priority queue.
@@ -79,4 +79,9 @@ final class PriorityQueue implements Collection
      * @inheritDoc
      */
     public function toArray(): array {}
+
+    public function getIterator()
+    {
+
+    }
 }

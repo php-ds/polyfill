@@ -1,23 +1,32 @@
 <?php
 namespace Ds;
 
-final class Map implements Collection
+final class Bucket {
+    public $key;
+    public $value;
+
+    public function __construct($key, $value) {
+        $this->key   = $key;
+        $this->value = $value;
+    }
+}
+
+final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 {
+    /**
+     *
+     */
+    const MIN_CAPACITY = 8;
 
     /**
      * @var array
      */
-    private $internal = [];
+    private $buckets = [];
 
     /**
      * @var int
      */
-    private $capacity = 8;
-
-    /**
-     *
-     */
-    private $count = 0;
+    private $capacity = self::MIN_CAPACITY;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -35,6 +44,11 @@ final class Map implements Collection
         }
 	}
 
+    private function fixedCapacity(int $size)
+    {
+        return max(self::MIN_CAPACITY, pow(2, ceil(log($size, 2))));
+    }
+
     /**
      * Ensures that enough memory is allocated for a specified capacity. This
      * potentially reduces the number of reallocations as the size increases.
@@ -45,7 +59,7 @@ final class Map implements Collection
      */
     public function allocate(int $capacity)
 	{
-
+        $this->capacity = max($this->capacity, $this->fixedCapacity($capacity));
 	}
 
     /**
@@ -55,7 +69,7 @@ final class Map implements Collection
      */
     public function capacity(): int
 	{
-
+        return $this->capacity;
 	}
 
     /**
@@ -63,7 +77,8 @@ final class Map implements Collection
      */
     public function clear()
 	{
-
+        $this->buckets  = [];
+        $this->capacity = self::MIN_CAPACITY;
 	}
 
     private function getHash($value)
@@ -71,7 +86,7 @@ final class Map implements Collection
         return 0;
     }
 
-    private function keysAreEquals($a, $b): bool
+    private function identical($a, $b): bool
     {
         if (is_object($a) && $a instanceof Hashable){
             return $a->equals($b);
@@ -80,42 +95,16 @@ final class Map implements Collection
         return $a === $b;
     }
 
-    private function &lookupKey($key)
+    private function &lookup($key)
     {
-        $hash = $this->getHash($key);
-
-        if ( ! isset($this->internal[$hash])) {
-            return null;
-        }
-
-        $buckets = $this->internal[$hash];
-
-        foreach ($buckets as &$bucket) {
-            if ($this->keysAreEquals($bucket['key'], $key)) {
+        foreach ($this->buckets as $bucket) {
+            if ($this->identical($bucket->key, $key)) {
                 return $bucket;
             }
         }
 
-        return null;
-    }
-
-    private function &lookupValue($value)
-    {
-        $hash = $this->getHash($key);
-
-        if ( ! isset($this->internal[$hash])) {
-            return null;
-        }
-
-        $buckets = $this->internal[$hash];
-
-        foreach ($buckets as &$bucket) {
-            if ($bucket['value'] === $value) {
-                return $bucket;
-            }
-        }
-
-        return null;
+        $bucket = null;
+        return $bucket;
     }
 
     /**
@@ -133,7 +122,7 @@ final class Map implements Collection
         }
 
         foreach ($keys as $key) {
-            if ( ! $this->lookupKey($key)) {
+            if ( ! $this->lookup($key)) {
                 return false;
             }
         }
@@ -149,16 +138,20 @@ final class Map implements Collection
      * @return bool true if at least one value was provided and the map
      *              contains all given values, false otherwise.
      */
-    public function containsValues(...$values): bool
+    public function containsValue(...$values): bool
 	{
         if ( ! $values) {
             return false;
         }
 
         foreach ($values as $value) {
-            if ( ! $this->lookupValue($value)) {
-                return false;
+            foreach ($this->buckets as $bucket) {
+                if ($bucket->value === $value) {
+                    continue 2;
+                }
             }
+
+            return false;
         }
 
         return true;
@@ -169,7 +162,7 @@ final class Map implements Collection
      */
     public function copy()
 	{
-        return new self($this->internal);
+        return new self($this);
 	}
 
     /**
@@ -177,7 +170,7 @@ final class Map implements Collection
      */
     public function count(): int
 	{
-        return $this->count;
+        return count($this->buckets);
 	}
 
     /**
@@ -194,15 +187,12 @@ final class Map implements Collection
 	{
         $filtered = new self();
 
-        foreach ($this->internal as $hash => $buckets) {
-            foreach ($buckets as $bucket) {
+        foreach ($this->buckets as $bucket) {
+            $k = $bucket->key;
+            $v = $bucket->value;
 
-                $k = $bucket['key'];
-                $v = $bucket['value'];
-
-                if ($callback ? $callback($k, $v) : $v) {
-                    $filtered->put($k, $v);
-                }
+            if ($callback ? $callback($k, $v) : $v) {
+                $filtered->put($k, $v);
             }
         }
 
@@ -223,20 +213,15 @@ final class Map implements Collection
      */
     public function get($key, $default = null)
 	{
-        $bucket = $this->lookupKey($key);
-
-        if ($bucket === null) {
-            // Key does not exist
-
-            if (func_num_args() === 1) {
-                // No default was given
-                throw new \OutOfBoundsException();
-            }
-
-            return $default;
+        if (($bucket = $this->lookup($key))) {
+            return $bucket->value;
         }
 
-        return $bucket['value'];
+        if (func_num_args() === 1) {
+            throw new \OutOfBoundsException();
+        }
+
+        return $default;
 	}
 
     /**
@@ -244,7 +229,7 @@ final class Map implements Collection
      */
     public function isEmpty(): bool
 	{
-        return $this->count === 0;
+        return count($this->buckets) === 0;
 	}
 
     /**
@@ -264,10 +249,8 @@ final class Map implements Collection
 	{
         $set = new Set();
 
-        foreach ($this->internal as $hash => $buckets) {
-            foreach ($buckets as $bucket) {
-                $set->add($bucket['key']);
-            }
+        foreach ($this->buckets as $bucket) {
+            $set[] = $bucket->key;
         }
 
         return $set;
@@ -282,9 +265,15 @@ final class Map implements Collection
      *
      * @return Map
      */
-    public function map(callable $callback = null): Map
+    public function map(callable $callback): Map
 	{
+        $mapped = new self();
 
+        foreach ($this->buckets as $bucket) {
+            $mapped[$bucket->key] = $callback($bucket->key, $bucket->value);
+        }
+
+        return $mapped;
 	}
 
     /**
@@ -294,8 +283,27 @@ final class Map implements Collection
      */
     public function pairs(): Sequence
 	{
+        $sequence = new Vector();
 
+        foreach ($this->buckets as $bucket) {
+            $sequence[] = new Pair($bucket->key, $bucket->value);
+        }
+
+        return $sequence;
 	}
+
+    private function adjustCapacity()
+    {
+        $size = count($this);
+
+        if ($size > $this->capacity) {
+            $this->capacity *= 2;
+        }
+
+        if ($size <= $this->capacity / 4) {
+            $this->capacity = max(self::MIN_CAPACITY, $this->capacity / 2);
+        }
+    }
 
     /**
      * Associates a key with a value, replacing a previous association if there
@@ -306,27 +314,15 @@ final class Map implements Collection
      */
     public function put($key, $value)
 	{
-        $bucket = $this->lookupKey($key);
+        $bucket = $this->lookup($key);
 
         if ($bucket) {
-            $bucket['key'] = $key;
-            $bucket['value'] = $value;
+            $bucket->value = $value;
             return;
         }
 
-        $hash = $this->getHash($key);
-
-        if ( ! isset($this->internal[$hash])) {
-            $this->internal[$hash] = [];
-        }
-
-        // Chain already exists for this hash
-        $this->internal[$hash][] = [
-            'key'   => $key,
-            'value' => $value,
-        ];
-
-        $this->count++;
+        $this->buckets[] = new Bucket($key, $value);
+        $this->adjustCapacity();
 	}
 
     /**
@@ -355,7 +351,13 @@ final class Map implements Collection
      */
     public function reduce(callable $callback, $initial = null)
 	{
+        $carry = $initial;
 
+        foreach ($this->buckets as $bucket) {
+            $carry = $callback($carry, $bucket->key, $bucket->value);
+        }
+
+        return $carry;
 	}
 
     /**
@@ -372,14 +374,20 @@ final class Map implements Collection
      */
     public function remove($key, $default = null)
 	{
-        $bucket = $this->lookupKey($key);
+        foreach ($this->buckets as $position => $bucket) {
 
-        if ($bucket) {
-            unset($bucket);
-            $this->count--;
-            return;
+            // Check if the bucket is the one we're looking for
+            if ($this->identical($bucket->key, $key)) {
+
+                // Delete bucket, return its value
+                $value = $bucket->value;
+                unset($this->buckets[$position]);
+                $this->adjustCapacity();
+                return $value;
+            }
         }
 
+        // Check if a default was provided
         if (func_num_args() === 1) {
             throw new \OutOfBoundsException();
         }
@@ -392,7 +400,13 @@ final class Map implements Collection
      */
     public function reverse(): Map
 	{
+        $reversed = new self();
 
+        foreach (array_reverse($this->buckets) as $bucket) {
+            $reversed[$bucket->key] = $bucket->value;
+        }
+
+        return $reversed;
 	}
 
     /**
@@ -418,7 +432,13 @@ final class Map implements Collection
      */
     public function slice(int $offset, int $length = null): Map
 	{
+        $slice = new self();
 
+        foreach (array_slice($this->buckets, $offset, $length) as $bucket) {
+            $slice[$bucket->key] = $bucket->value;
+        }
+
+        return $slice;
 	}
 
     /**
@@ -432,7 +452,23 @@ final class Map implements Collection
      */
     public function sort(callable $comparator = null): Map
 	{
+        $copy = $this->copy();
 
+        if ($comparator) {
+            usort($copy->buckets, function($a, $b) use ($comparator) {
+                return $comparator(
+                    new Pair($a->key, $a->value),
+                    new Pair($b->key, $b->value)
+                );
+            });
+
+        } else {
+            usort($copy->buckets, function($a, $b) {
+                return $a->key <=> $b->key;
+            });
+        }
+
+        return $copy;
 	}
 
     /**
@@ -442,10 +478,8 @@ final class Map implements Collection
 	{
         $array = [];
 
-        foreach ($this->internal as $hash => $buckets) {
-            foreach ($buckets as $bucket) {
-                $array[$bucket['key']] = $bucket['value'];
-            }
+        foreach ($this->buckets as $bucket) {
+            $array[$bucket->key] = $bucket->value;
         }
 
         return $array;
@@ -458,14 +492,83 @@ final class Map implements Collection
      */
     public function values(): Sequence
 	{
-        $vector = new Vector();
+        $sequence = new Vector();
 
-        foreach ($this->internal as $hash => $buckets) {
-            foreach ($buckets as $bucket) {
-                $vector->push($bucket['value']);
-            }
+        foreach ($this->buckets as $bucket) {
+            $sequence[] = $bucket->value;
         }
 
-        return $vector;
+        return $sequence;
 	}
+
+
+    /**
+     *
+     */
+    public function getIterator()
+    {
+        foreach ($this->buckets as $bucket) {
+            yield $bucket->key => $bucket->value;
+        }
+    }
+
+    /**
+     *
+     */
+    public function __debugInfo()
+    {
+        $debug = [];
+
+        foreach ($this->buckets as $bucket) {
+            $debug[] = [$bucket->key, $bucket->value];
+        }
+
+        return $debug;
+    }
+
+    /**
+     *
+     */
+    public function __toString()
+    {
+        return 'object(' . get_class($this) . ')';
+    }
+
+    /**
+     *
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->put($offset, $value);
+    }
+
+    /**
+     *
+     */
+    public function &offsetGet($offset)
+    {
+        $bucket = $this->lookup($offset);
+
+        if ($bucket) {
+            return $bucket->value;
+        }
+
+        throw new OutOfBoundsException();
+    }
+
+    /**
+     *
+     */
+    public function offsetUnset($offset)
+    {
+        $this->remove($offset, null);
+    }
+
+    /**
+     *
+     */
+    public function offsetExists($offset)
+    {
+        return $this->get($offset, null) !== null;
+    }
 }

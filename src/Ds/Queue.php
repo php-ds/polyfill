@@ -1,7 +1,7 @@
 <?php
 namespace Ds;
 
-final class Queue implements Collection
+final class Queue implements \IteratorAggregate, Collection
 {
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -80,4 +80,8 @@ final class Queue implements Collection
      * @inheritDoc
      */
     public function toArray(): array {}
+
+    public function getIterator() {
+
+    }
 }
