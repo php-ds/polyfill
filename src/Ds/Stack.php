@@ -9,6 +9,13 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
     use CollectionTrait;
 
     /**
+     * @var int
+     *
+     * The minimum capacity of a stack is 10
+     */
+    private $defaultCapacity = 10;
+
+    /**
      * @var Vector
      */
     private $internal;
@@ -47,46 +54,6 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
     }
 
     /**
-     * @inheritDoc
-     */
-    public function clear()
-    {
-        $this->internal->clear();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function copy()
-    {
-        return new self($this->internal);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function count(): int
-    {
-        return count($this->internal);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isEmpty(): bool
-    {
-        return $this->internal->isEmpty();
-    }
-
-    /**
-     *
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    /**
      * Returns the value at the top of the stack without removing it.
      *
      * @return mixed
@@ -109,7 +76,6 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
     {
         return $this->internal->pop();
     }
-
 
     /**
      * Pushes zero or more values onto the top of the stack.
@@ -142,7 +108,7 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
      */
     public function getIterator()
     {
-        while ( ! $this->isEmpty()) {
+        while (!$this->isEmpty()) {
             yield $this->pop();
         }
     }
@@ -197,5 +163,15 @@ final class Stack implements Collection, \IteratorAggregate, \ArrayAccess
     public function offsetExists($offset)
     {
         throw new \Error();
+    }
+
+    /**
+     * Default Capacity
+     *
+     * @return int
+     */
+    private function defaultCapacity(): int
+    {
+        return $this->defaultCapacity;
     }
 }

@@ -14,7 +14,7 @@ trait CollectionTrait
      */
     public function clear()
     {
-        $this->internal = [];
+        $this->internal = is_object($this->internal) ? new $this->internal : [];
         $this->capacity = $this->defaultCapacity();
     }
 
@@ -56,7 +56,7 @@ trait CollectionTrait
      */
     public function jsonSerialize()
     {
-        return $this->internal;
+        return $this->toArray();
     }
 
     /**
