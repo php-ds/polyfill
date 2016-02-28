@@ -1,19 +1,11 @@
 <?php
 namespace Ds;
 
-final class Bucket {
-    public $key;
-    public $value;
-
-    public function __construct($key, $value) {
-        $this->key   = $key;
-        $this->value = $value;
-    }
-}
+use UnderflowException;
 
 final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 {
-    use Traits\SquareCapacity;
+    use Traits\SquaredCapacity;
 
     /**
      *
@@ -23,7 +15,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @var array
      */
-    private $buckets = [];
+    private $pairs = [];
 
     /**
      * @var int
@@ -85,15 +77,131 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
 	{
-        $this->buckets  = [];
+        $this->pairs  = [];
         $this->capacity = self::MIN_CAPACITY;
 	}
 
-    private function getHash($value)
+    /**
+     *
+     */
+    public function removeAll($keys)
     {
-        return 0;
+        foreach ($keys as $key) {
+            $this->remove($key);
+        }
     }
 
+    /**
+     *
+     */
+    public function first(): Pair
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+
+        return $this->pairs[0]->copy();
+    }
+
+    /**
+     *
+     */
+    public function last(): Pair
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+
+        return end($this->pairs)->copy();
+    }
+
+    /**
+     *
+     */
+    public function skip(int $position): Pair
+    {
+        if ($position < 0 || $position >= count($this)) {
+            throw new OutOfRangeException();
+        }
+
+        return $this->pairs[$position]->copy();
+    }
+
+    /**
+     *
+     */
+    public function merge(Map $map): Map
+    {
+        $merged = new Map();
+
+        foreach ($this as $key => $value) {
+            $merged->put($key, $value);
+        }
+
+        foreach ($map as $key => $value) {
+            $merged->put($key, $value);
+        }
+
+        return $merged;
+    }
+
+    /**
+     *
+     */
+    public function intersect(Map $map): Map
+    {
+        $intersect = new Map();
+
+        foreach ($this as $key => $value) {
+            if ($map->containsKey($key)) {
+                $intersect->put($key, $value);
+            }
+        }
+
+        return $intersect;
+    }
+
+    /**
+     *
+     */
+    public function diff(Map $map): Map
+    {
+        $diff = new Map();
+
+        foreach ($this as $key => $value) {
+            if ( ! $map->containsKey($value)) {
+                $diff->put($key, $value);
+            }
+        }
+
+        return $diff;
+    }
+
+    /**
+     *
+     */
+    public function xor(Map $map): Map
+    {
+        $xor = new Map();
+
+        foreach ($this as $key => $value) {
+            if ( ! $map->containsKey($value)) {
+                $xor->add($value);
+            }
+        }
+
+        foreach ($map as $key => $value) {
+            if ( ! $this->containsKey($value)) {
+                $xor->add($value);
+            }
+        }
+
+        return $xor;
+    }
+
+    /**
+     *
+     */
     private function identical($a, $b): bool
     {
         if (is_object($a) && $a instanceof Hashable){
@@ -103,16 +211,19 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         return $a === $b;
     }
 
+    /**
+     *
+     */
     private function &lookup($key)
     {
-        foreach ($this->buckets as $bucket) {
-            if ($this->identical($bucket->key, $key)) {
-                return $bucket;
+        foreach ($this->pairs as $pair) {
+            if ($this->identical($pair->key, $key)) {
+                return $pair;
             }
         }
 
-        $bucket = null;
-        return $bucket;
+        $pair = null;
+        return $pair;
     }
 
     /**
@@ -153,8 +264,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         foreach ($values as $value) {
-            foreach ($this->buckets as $bucket) {
-                if ($bucket->value === $value) {
+            foreach ($this->pairs as $pair) {
+                if ($pair->value === $value) {
                     continue 2;
                 }
             }
@@ -178,7 +289,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function count(): int
 	{
-        return count($this->buckets);
+        return count($this->pairs);
 	}
 
     /**
@@ -195,9 +306,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $filtered = new self();
 
-        foreach ($this->buckets as $bucket) {
-            $k = $bucket->key;
-            $v = $bucket->value;
+        foreach ($this->pairs as $pair) {
+            $k = $pair->key;
+            $v = $pair->value;
 
             if ($callback ? $callback($k, $v) : $v) {
                 $filtered->put($k, $v);
@@ -221,8 +332,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function get($key, $default = null)
 	{
-        if (($bucket = $this->lookup($key))) {
-            return $bucket->value;
+        if (($pair = $this->lookup($key))) {
+            return $pair->value;
         }
 
         if (func_num_args() === 1) {
@@ -237,7 +348,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function isEmpty(): bool
 	{
-        return count($this->buckets) === 0;
+        return count($this->pairs) === 0;
 	}
 
     /**
@@ -257,8 +368,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $set = new Set();
 
-        foreach ($this->buckets as $bucket) {
-            $set[] = $bucket->key;
+        foreach ($this->pairs as $pair) {
+            $set[] = $pair->key;
         }
 
         return $set;
@@ -277,8 +388,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $mapped = new self();
 
-        foreach ($this->buckets as $bucket) {
-            $mapped[$bucket->key] = $callback($bucket->key, $bucket->value);
+        foreach ($this->pairs as $pair) {
+            $mapped[$pair->key] = $callback($pair->key, $pair->value);
         }
 
         return $mapped;
@@ -293,8 +404,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $sequence = new Vector();
 
-        foreach ($this->buckets as $bucket) {
-            $sequence[] = new Pair($bucket->key, $bucket->value);
+        foreach ($this->pairs as $pair) {
+            $sequence[] = $pair->copy();
         }
 
         return $sequence;
@@ -322,14 +433,14 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function put($key, $value)
 	{
-        $bucket = $this->lookup($key);
+        $pair = $this->lookup($key);
 
-        if ($bucket) {
-            $bucket->value = $value;
+        if ($pair) {
+            $pair->value = $value;
             return;
         }
 
-        $this->buckets[] = new Bucket($key, $value);
+        $this->pairs[] = new Pair($key, $value);
         $this->adjustCapacity();
 	}
 
@@ -361,8 +472,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $carry = $initial;
 
-        foreach ($this->buckets as $bucket) {
-            $carry = $callback($carry, $bucket->key, $bucket->value);
+        foreach ($this->pairs as $pair) {
+            $carry = $callback($carry, $pair->key, $pair->value);
         }
 
         return $carry;
@@ -382,14 +493,14 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function remove($key, $default = null)
 	{
-        foreach ($this->buckets as $position => $bucket) {
+        foreach ($this->pairs as $position => $pair) {
 
-            // Check if the bucket is the one we're looking for
-            if ($this->identical($bucket->key, $key)) {
+            // Check if the pair is the one we're looking for
+            if ($this->identical($pair->key, $key)) {
 
-                // Delete bucket, return its value
-                $value = $bucket->value;
-                unset($this->buckets[$position]);
+                // Delete pair, return its value
+                $value = $pair->value;
+                unset($this->pairs[$position]);
                 $this->adjustCapacity();
                 return $value;
             }
@@ -410,8 +521,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $reversed = new self();
 
-        foreach (array_reverse($this->buckets) as $bucket) {
-            $reversed[$bucket->key] = $bucket->value;
+        foreach (array_reverse($this->pairs) as $pair) {
+            $reversed[$pair->key] = $pair->value;
         }
 
         return $reversed;
@@ -442,8 +553,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $slice = new self();
 
-        foreach (array_slice($this->buckets, $offset, $length) as $bucket) {
-            $slice[$bucket->key] = $bucket->value;
+        foreach (array_slice($this->pairs, $offset, $length) as $pair) {
+            $slice[$pair->key] = $pair->value;
         }
 
         return $slice;
@@ -463,15 +574,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $copy = $this->copy();
 
         if ($comparator) {
-            usort($copy->buckets, function($a, $b) use ($comparator) {
-                return $comparator(
-                    new Pair($a->key, $a->value),
-                    new Pair($b->key, $b->value)
-                );
-            });
-
+            usort($copy->pairs, $comparator);
         } else {
-            usort($copy->buckets, function($a, $b) {
+            usort($copy->pairs, function($a, $b) {
                 return $a->key <=> $b->key;
             });
         }
@@ -486,8 +591,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $array = [];
 
-        foreach ($this->buckets as $bucket) {
-            $array[$bucket->key] = $bucket->value;
+        foreach ($this->pairs as $pair) {
+            $array[$pair->key] = $pair->value;
         }
 
         return $array;
@@ -502,21 +607,20 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         $sequence = new Vector();
 
-        foreach ($this->buckets as $bucket) {
-            $sequence[] = $bucket->value;
+        foreach ($this->pairs as $pair) {
+            $sequence[] = $pair->value;
         }
 
         return $sequence;
 	}
-
 
     /**
      *
      */
     public function getIterator()
     {
-        foreach ($this->buckets as $bucket) {
-            yield $bucket->key => $bucket->value;
+        foreach ($this->pairs as $pair) {
+            yield $pair->key => $pair->value;
         }
     }
 
@@ -527,8 +631,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $debug = [];
 
-        foreach ($this->buckets as $bucket) {
-            $debug[] = [$bucket->key, $bucket->value];
+        foreach ($this->pairs as $pair) {
+            $debug[] = [$pair->key, $pair->value];
         }
 
         return $debug;
@@ -555,10 +659,10 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function &offsetGet($offset)
     {
-        $bucket = $this->lookup($offset);
+        $pair = $this->lookup($offset);
 
-        if ($bucket) {
-            return $bucket->value;
+        if ($pair) {
+            return $pair->value;
         }
 
         throw new OutOfBoundsException();
@@ -577,6 +681,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function offsetExists($offset)
     {
-        return $this->get($offset, null) !== null;
+        return isset($this->get($offset, null));
     }
 }

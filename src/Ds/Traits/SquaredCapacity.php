@@ -1,11 +1,10 @@
 <?php
-
 namespace Ds\Traits;
 
 /**
  *
  */
-trait SquareCapacity
+trait SquaredCapacity
 {
     /**
      *

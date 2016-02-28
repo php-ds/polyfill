@@ -1,5 +1,4 @@
 <?php
-
 namespace Ds\Traits;
 
 use OutOfRangeException;

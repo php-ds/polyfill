@@ -4,26 +4,44 @@ namespace Ds;
 final class Set implements \IteratorAggregate, Collection
 {
     /**
+     *
+     */
+    private $internal;
+
+    /**
      * Creates a new set using the values of an array or Traversable object.
      * The keys of either will not be preserved.
      *
      * @param array|\Traversable $values
      */
-    public function __construct($values = null) {}
+    public function __construct($values = null)
+    {
+        $this->internal = new Map();
+    }
 
     /**
      * Adds zero or more values to the set.
      *
      * @param mixed ...$values
      */
-    public function add(...$values) {}
+    public function add(...$values)
+    {
+        foreach ($values as $value) {
+            $this->internal[$value] = null;
+        }
+    }
 
     /**
      * Adds all values in an array or iterable object to the set.
      *
      * @param array|\Traversable $values
      */
-    public function addAll($values) {}
+    public function addAll($values)
+    {
+        foreach ($values as $value) {
+            $this->internal[$value] = null;
+        }
+    }
 
     /**
      * Ensures that enough memory is allocated for a specified capacity. This
@@ -33,19 +51,28 @@ final class Set implements \IteratorAggregate, Collection
      *                      allocated. Capacity will stay the same if this value
      *                      is less than or equal to the current capacity.
      */
-    public function allocate(int $capacity) {}
+    public function allocate(int $capacity)
+    {
+        $this->internal->allocate($capacity);
+    }
 
     /**
      * Returns the current capacity of the set.
      *
      * @return int
      */
-    public function capacity(): int {}
+    public function capacity(): int
+    {
+        $this->internal->capacity();
+    }
 
     /**
      * @inheritDoc
      */
-    public function clear() {}
+    public function clear()
+    {
+        $this->internal->clear();
+    }
 
     /**
      * Determines whether the set contains all of zero or more values.
@@ -55,42 +82,89 @@ final class Set implements \IteratorAggregate, Collection
      * @return bool true if at least one value was provided and the set
      *              contains all given values, false otherwise.
      */
-    public function contains(...$values): bool {}
+    public function contains(...$values): bool
+    {
+        if ( ! $values) {
+            return false;
+        }
+
+        foreach ($values as $value) {
+            if ( ! $this->internal->containsKey($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * @inheritDoc
      */
-    public function copy() {}
+    public function copy()
+    {
+        return new Set($this);
+    }
 
     /**
      * @inheritDoc
      */
-    public function count(): int {}
+    public function count(): int
+    {
+        return count($this->internal);
+    }
 
     /**
      * Creates a new set using values from this set that aren't in another set.
      *
      * Formally: A \ B = {x ∈ A | x ∉ B}
-     * Bitwise:  A - B
      *
      * @param Set $set
      *
      * @return Set
      */
-    public function difference(Set $set): Set {}
+    public function diff(Set $set): Set
+    {
+        $diff = new Set();
+
+        foreach ($this as $value) {
+            if ( ! $set->contains($value)) {
+                $diff->add($value);
+            }
+        }
+
+        return $diff;
+
+
+    }
 
     /**
      * Creates a new set using values in either this set or in another set,
      * but not in both.
      *
      * Formally: A ⊖ B = {x : x ∈ (A \ B) ∪ (B \ A)}
-     * Bitwise:  A ^ B
      *
      * @param Set $set
      *
      * @return Set
      */
-    public function exclusive(Set $set): Set {}
+    public function xor(Set $set): Set
+    {
+        $xor = new Set();
+
+        foreach ($this as $value) {
+            if ( ! $set->contains($value)) {
+                $xor->add($value);
+            }
+        }
+
+        foreach ($set as $value) {
+            if ( ! $this->contains($value)) {
+                $xor->add($value);
+            }
+        }
+
+        return $xor;
+    }
 
     /**
      * Returns a new set containing only the values for which a callback
@@ -102,23 +176,50 @@ final class Set implements \IteratorAggregate, Collection
      *
      * @return Set
      */
-    public function filter(callable $callback = null): Set {}
+    public function filter(callable $callback = null): Set
+    {
+        $filtered = new Set();
+
+        if ($callback) {
+
+            //
+            foreach ($this as $value) {
+                if ($callback($value)) {
+                    $filtered->add($value);
+                }
+            }
+        } else {
+
+            //
+            foreach ($this as $value) {
+                if ($value) {
+                    $filtered->add($value);
+                }
+            }
+        }
+
+        return $filtered;
+    }
 
     /**
      * Returns the first value in the set.
      *
      * @return mixed the first value in the set.
      */
-    public function first() {}
+    public function first()
+    {
+        return $this->internal->first()->key;
+    }
 
     /**
      * Returns the value at a specified position in the set.
      *
-     * Note: O(n) if a value has been removed at a position < n, otherwise O(1).
-     *
      * @throws \OutOfRangeException
      */
-    public function get(int $position) {}
+    public function get(int $position)
+    {
+        return $this->internal->skip($position)->key;
+    }
 
     /**
      * Creates a new set using values common to both this set and another set.
@@ -126,18 +227,31 @@ final class Set implements \IteratorAggregate, Collection
      * aren't in the other set.
      *
      * Formally: A ∩ B = {x : x ∈ A ∧ x ∈ B}
-     * Bitwise:  A & B
      *
      * @param Set $set
      *
      * @return Set
      */
-    public function intersection(Set $set): Set {}
+    public function intersect(Set $set): Set
+    {
+        $intersect = new Set();
+
+        foreach ($this as $value) {
+            if ($set->contains($value)) {
+                $intersect->add($value);
+            }
+        }
+
+        return $intersect;
+    }
 
     /**
      * @inheritDoc
      */
-    public function isEmpty(): bool {}
+    public function isEmpty(): bool
+    {
+        return $this->internal->isEmpty();
+    }
 
     /**
      * Joins all values of the set into a string, adding an optional 'glue'
@@ -147,14 +261,9 @@ final class Set implements \IteratorAggregate, Collection
      *
      * @return string
      */
-    public function join(string $glue = null): string {}
-
-    /**
-     *
-     */
-    public function jsonSerialize()
+    public function join(string $glue = null): string
     {
-
+        return implode($glue, $this->toArray());
     }
 
     /**
@@ -162,7 +271,10 @@ final class Set implements \IteratorAggregate, Collection
      *
      * @return mixed the last value in the set.
      */
-    public function last() {}
+    public function last()
+    {
+        return $this->internal->last()->key;
+    }
 
     /**
      * Iteratively reduces the set to a single value using a callback.
@@ -175,19 +287,38 @@ final class Set implements \IteratorAggregate, Collection
      * @return mixed The carry value of the final iteration, or the initial
      *               value if the set was empty.
      */
-    public function reduce(callable $callback, $initial = null) {}
+    public function reduce(callable $callback, $initial = null)
+    {
+        $carry = $initial;
+
+        foreach ($this as $value) {
+            $carry = $callback($carry, $value);
+        }
+
+        return $carry;
+    }
 
     /**
      * Removes zero or more values from the set.
      *
      * @param mixed ...$values
      */
-    public function remove(...$values) {}
+    public function remove(...$values)
+    {
+        foreach ($values as $value) {
+            $this->internal->remove($value);
+        }
+    }
 
     /**
      * Returns a reversed copy of the set.
      */
-    public function reverse(): Set {}
+    public function reverse(): Set
+    {
+        $reversed = new Set();
+        $reversed->internal = $this->internal->reverse();
+        return $reversed;
+    }
 
     /**
      * Returns a subset of a given length starting at a specified offset.
@@ -210,7 +341,12 @@ final class Set implements \IteratorAggregate, Collection
      *
      * @return Set
      */
-    public function slice(int $offset, int $length = null): Set {}
+    public function slice(int $offset, int $length = null): Set
+    {
+        $sliced = new Set();
+        $sliced->internal = $this->internal->slice($offset, $length);
+        return $sliced;
+    }
 
     /**
      * Returns a sorted copy of the set, based on an optional callable
@@ -221,27 +357,51 @@ final class Set implements \IteratorAggregate, Collection
      *
      * @return Sequence
      */
-    public function sort(callable $comparator = null) {}
+    public function sort(callable $comparator = null)
+    {
+        $this->internal->sort($comparator);
+    }
 
     /**
      * @inheritDoc
      */
-    public function toArray(): array {}
+    public function toArray(): array
+    {
+        return $this->internal->keys()->toArray();
+    }
 
     /**
      * Creates a new set that contains the values of this set as well as the
      * values of another set.
      *
      * Formally: A ∪ B = {x: x ∈ A ∨ x ∈ B}
-     * Bitwise:  A | B
      *
      * @param Set $set
      *
      * @return Set
      */
-    public function union(Set $set): Set {}
+    public function union(Set $set): Set
+    {
+        $union = new Set();
 
-    public function getIterator() {
+        foreach ($set as $value) {
+            $union->add($value);
+        }
 
+        foreach ($this as $value) {
+            $union->add($value);
+        }
+
+        return $union;
+    }
+
+    /**
+     *
+     */
+    public function getIterator()
+    {
+        foreach ($this->internal as $key => $value) {
+            yield $key;
+        }
     }
 }
