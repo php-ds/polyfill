@@ -19,17 +19,10 @@ trait Sequence
     private $internal = [];
 
     /**
-     * @var int
-     */
-    private $capacity;
-
-    /**
      * @inheritDoc
      */
     public function __construct($values = null)
     {
-        $this->capacity = self::MIN_CAPACITY;
-
         if ($values) {
             if (is_integer($values)) {
                 $this->allocate($values);
@@ -53,36 +46,6 @@ trait Sequence
     public function count(): int
     {
         return count($this->internal);
-    }
-
-    /**
-     *
-     */
-    abstract protected function increaseCapacity();
-
-    /**
-     *
-     */
-    private function adjustCapacity()
-    {
-        $size = count($this);
-
-        if ($size >= $this->capacity) {
-            $this->increaseCapacity();
-
-        } else {
-            if ($size < $this->capacity / 4) {
-                $this->capacity = max(self::MIN_CAPACITY, $this->capacity / 2);
-            }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function capacity(): int
-    {
-        return $this->capacity;
     }
 
     /**

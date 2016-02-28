@@ -3,6 +3,8 @@ namespace Ds;
 
 final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
 {
+    use Traits\Collection;
+
     /**
      *
      */
@@ -16,11 +18,6 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     public function __construct($values = null)
     {
         $this->internal = new Deque($values);
-    }
-
-    public function __debugInfo()
-    {
-        return $this->toArray();
     }
 
     /**
@@ -71,22 +68,6 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * @inheritDoc
-     */
-    public function isEmpty(): bool
-    {
-        return $this->internal->isEmpty();
-    }
-
-    /**
-     *
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    /**
      * Returns the value at the front of the queue without removing it.
      *
      * @return
@@ -116,6 +97,9 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
         $this->internal->push(...$values);
     }
 
+    /**
+     *
+     */
     public function pushAll($values)
     {
         $this->internal->pushAll($values);

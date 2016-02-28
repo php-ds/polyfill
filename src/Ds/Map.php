@@ -19,11 +19,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     private $pairs = [];
 
     /**
-     * @var int
-     */
-    private $capacity = self::MIN_CAPACITY;
-
-    /**
      * Creates an instance using the values of an array or Traversable object.
      *
      * @param array|\Traversable $values
@@ -37,29 +32,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
                 $this->putAll($values);
             }
         }
-	}
-
-    /**
-     * Ensures that enough memory is allocated for a specified capacity. This
-     * potentially reduces the number of reallocations as the size increases.
-     *
-     * @param int $capacity The number of values for which capacity should be
-     *                      allocated. Capacity will stay the same if this value
-     *                      is less than or equal to the current capacity.
-     */
-    public function allocate(int $capacity)
-    {
-        $this->capacity = max($this->square($capacity), $this->capacity);
-    }
-
-    /**
-     * Returns the current capacity of the map.
-     *
-     * @return int
-     */
-    public function capacity(): int
-	{
-        return $this->capacity;
 	}
 
     /**

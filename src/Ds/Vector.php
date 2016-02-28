@@ -10,6 +10,7 @@ final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
 {
     use Traits\Collection;
     use Traits\Sequence;
+    use Traits\Capacity;
 
     const MIN_CAPACITY = 10;
 

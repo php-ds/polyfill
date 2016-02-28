@@ -17,19 +17,8 @@ final class Deque implements \IteratorAggregate, \ArrayAccess, Sequence
     /**
      *
      */
-    public function allocate(int $capacity)
-    {
-        $this->capacity = max($this->square($capacity), $this->capacity);
-    }
-
-    /**
-     *
-     */
     protected function increaseCapacity()
     {
-        $this->capacity = max(
-            $this->square($this->capacity),
-            $this->square(count($this) + 1)
-        );
+        $this->capacity = $this->square(max($this->capacity, count($this)) + 1);
     }
 }
