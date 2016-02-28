@@ -2,6 +2,7 @@
 namespace Ds;
 
 use UnderflowException;
+use OutOfRangeException;
 
 final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 {
@@ -120,7 +121,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function skip(int $position): Pair
     {
-        if ($position < 0 || $position >= count($this)) {
+        if ($position < 0 || $position >= count($this->pairs)) {
             throw new OutOfRangeException();
         }
 
@@ -369,7 +370,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $set = new Set();
 
         foreach ($this->pairs as $pair) {
-            $set[] = $pair->key;
+            $set->add($pair->key);
         }
 
         return $set;
@@ -500,7 +501,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
                 // Delete pair, return its value
                 $value = $pair->value;
-                unset($this->pairs[$position]);
+                array_splice($this->pairs, $position, 1, null);
                 $this->adjustCapacity();
                 return $value;
             }
@@ -551,13 +552,19 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function slice(int $offset, int $length = null): Map
 	{
-        $slice = new self();
+        $map = new Map();
 
-        foreach (array_slice($this->pairs, $offset, $length) as $pair) {
-            $slice[$pair->key] = $pair->value;
+        if (func_num_args() === 1) {
+            $slice = array_slice($this->pairs, $offset);
+        } else {
+            $slice = array_slice($this->pairs, $offset, $length);
         }
 
-        return $slice;
+        foreach ($slice as $pair) {
+            $map->put($pair->key, $pair->value);
+        }
+
+        return $map;
 	}
 
     /**
@@ -681,6 +688,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function offsetExists($offset)
     {
-        return isset($this->get($offset, null));
+        return $this->get($offset, null) !== null;
     }
 }

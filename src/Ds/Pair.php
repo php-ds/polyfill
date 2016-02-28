@@ -1,27 +1,20 @@
 <?php
 namespace Ds;
 
-use OutOfBoundsException;
-
 /**
  * A pair which represents a key, and an associated value.
- *
- * The key can be accessed using $p[0], $p['key'], or $p->key.
- * The value can be accessed using $p[1], $p['value'], or $p->value.
  */
-final class Pair implements \ArrayAccess, \JsonSerializable
+final class Pair implements \JsonSerializable
 {
     /**
      * @param mixed $key The pair's key
      */
-    private $key;
+    public $key;
 
     /**
      * @param mixed $value The pair's value
      */
-    private $value;
-
-    private $init = false;
+    public $value;
 
     /**
      * Constructor
@@ -31,15 +24,37 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      *
      * @throws \Error
      */
-    public function __construct($key, $value)
+    public function __construct($key = null, $value = null)
     {
-        if ($this->init) {
-            throw new \Error();
+        $this->key = $key;
+        $this->value = $value;
+    }
+
+    /**
+     *
+     */
+    public function __get($name)
+    {
+        if ($name === 'key') {
+            $this->key = null;
+            return $this->key;
         }
 
-        $this->key   = $key;
-        $this->value = $value;
-        $this->init  = true;
+        if ($name === 'value') {
+            $this->value = null;
+            return $this->value;
+        }
+    }
+
+    public function copy()
+    {
+        return new self($this->key, $this->value);
+    }
+
+
+    public function __debugInfo()
+    {
+        return $this->toArray();
     }
 
     /**
@@ -47,104 +62,15 @@ final class Pair implements \ArrayAccess, \JsonSerializable
      */
     public function toArray(): array
     {
-        return [$this->key, $this->value];
+        return ['key' => $this->key, 'value' => $this->value];
     }
 
+    /**
+     *
+     */
     public function jsonSerialize()
     {
         return $this->toArray();
-    }
-
-    /**
-     *
-     */
-    public function offsetSet($offset, $value)
-    {
-        switch ($offset) {
-            case 0:
-            case 'key':
-                $this->key = $value;
-                break;
-            case 1:
-            case 'value':
-                $this->value = $value;
-                break;
-
-            default:
-                throw new \Error();
-        }
-    }
-
-    /**
-     * Offset Get
-     */
-    public function offsetGet($offset)
-    {
-        switch ($offset) {
-            case 0:
-            case 'key':
-                return $this->key;
-
-            case 1:
-            case 'value':
-                return $this->value;
-
-            default:
-                throw new OutOfBoundsException();
-        }
-    }
-
-    /**
-     * Offset Unset
-     */
-    public function offsetUnset($offset)
-    {
-        throw new \Error();
-    }
-
-    /**
-     * Offset Exists
-     */
-    public function offsetExists($offset)
-    {
-        switch ($offset) {
-            case 0:
-            case 'key':
-                return isset($this->key);
-
-            case 1:
-            case 'value':
-                return isset($this->value);
-
-            default:
-                return false;
-        }
-    }
-
-    public function __isset($name)
-    {
-        return isset($this->$name);
-    }
-
-    /**
-     * Get
-     *
-     * @param string $name
-     *
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        switch ($name) {
-            case 'key':
-                return $this->key;
-
-            case 'value':
-                return $this->value;
-
-            default:
-                throw new OutOfBoundsException();
-        }
     }
 
     /**

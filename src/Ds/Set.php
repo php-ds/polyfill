@@ -1,8 +1,13 @@
 <?php
 namespace Ds;
 
-final class Set implements \IteratorAggregate, Collection
+use OutOfBoundsException;
+use Error;
+
+final class Set implements \IteratorAggregate, \ArrayAccess, Collection
 {
+    use Traits\Collection;
+
     /**
      *
      */
@@ -17,6 +22,14 @@ final class Set implements \IteratorAggregate, Collection
     public function __construct($values = null)
     {
         $this->internal = new Map();
+
+        if ($values) {
+            if (is_integer($values)) {
+                $this->allocate($values);
+            } else {
+                $this->addAll($values);
+            }
+        }
     }
 
     /**
@@ -38,8 +51,10 @@ final class Set implements \IteratorAggregate, Collection
      */
     public function addAll($values)
     {
-        foreach ($values as $value) {
-            $this->internal[$value] = null;
+        if ($values) {
+            foreach ($values as $value) {
+                $this->internal[$value] = null;
+            }
         }
     }
 
@@ -63,7 +78,7 @@ final class Set implements \IteratorAggregate, Collection
      */
     public function capacity(): int
     {
-        $this->internal->capacity();
+        return $this->internal->capacity();
     }
 
     /**
@@ -306,7 +321,7 @@ final class Set implements \IteratorAggregate, Collection
     public function remove(...$values)
     {
         foreach ($values as $value) {
-            $this->internal->remove($value);
+            $this->internal->remove($value, null);
         }
     }
 
@@ -355,11 +370,13 @@ final class Set implements \IteratorAggregate, Collection
      * @param callable|null $comparator Accepts two values to be compared.
      *                                  Should return the result of a <=> b.
      *
-     * @return Sequence
+     * @return Set
      */
-    public function sort(callable $comparator = null)
+    public function sort(callable $comparator = null): Set
     {
-        $this->internal->sort($comparator);
+        $set = new Set();
+        $set->internal = $this->internal->sort($comparator);
+        return $set;
     }
 
     /**
@@ -367,7 +384,7 @@ final class Set implements \IteratorAggregate, Collection
      */
     public function toArray(): array
     {
-        return $this->internal->keys()->toArray();
+        return iterator_to_array($this);
     }
 
     /**
@@ -384,11 +401,11 @@ final class Set implements \IteratorAggregate, Collection
     {
         $union = new Set();
 
-        foreach ($set as $value) {
+        foreach ($this as $value) {
             $union->add($value);
         }
 
-        foreach ($this as $value) {
+        foreach ($set as $value) {
             $union->add($value);
         }
 
@@ -403,5 +420,30 @@ final class Set implements \IteratorAggregate, Collection
         foreach ($this->internal as $key => $value) {
             yield $key;
         }
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if ($offset === null) {
+            $this->add($value);
+            return;
+        }
+
+        throw new OutOfBoundsException();
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->internal->skip($offset)->key;
+    }
+
+    public function offsetExists($offset)
+    {
+        throw new Error();
+    }
+
+    public function offsetUnset($offset)
+    {
+        throw new Error();
     }
 }

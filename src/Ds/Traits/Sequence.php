@@ -320,6 +320,10 @@ trait Sequence
      */
     public function slice(int $offset, int $length = null): self
     {
+        if (func_num_args() === 1) {
+            return new self(array_slice($this->internal, $offset));
+        }
+
         return new self(array_slice($this->internal, $offset, $length));
     }
 
