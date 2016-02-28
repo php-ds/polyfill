@@ -19,7 +19,10 @@
     },
     "autoload": {
         "psr-4" : {
-            "": "src/"
-        }
+            "Ds\\": "src/Ds/"
+        },
+        "files": [
+            "src/ds.php"
+        ]
     }
 }
