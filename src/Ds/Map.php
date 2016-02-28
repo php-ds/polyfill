@@ -13,6 +13,8 @@ final class Bucket {
 
 final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 {
+    use Traits\SquareCapacity;
+
     /**
      *
      */
@@ -44,11 +46,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 	}
 
-    private function fixedCapacity(int $size)
-    {
-        return max(self::MIN_CAPACITY, pow(2, ceil(log($size, 2))));
-    }
-
     /**
      * Ensures that enough memory is allocated for a specified capacity. This
      * potentially reduces the number of reallocations as the size increases.
@@ -58,9 +55,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *                      is less than or equal to the current capacity.
      */
     public function allocate(int $capacity)
-	{
-        $this->capacity = max($this->capacity, $this->fixedCapacity($capacity));
-	}
+    {
+        $this->capacity = max($this->square($capacity), $this->capacity);
+    }
 
     /**
      * Returns the current capacity of the map.
@@ -71,6 +68,17 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 	{
         return $this->capacity;
 	}
+
+    /**
+     *
+     */
+    protected function increaseCapacity()
+    {
+        $this->capacity = max(
+            $this->square($this->capacity + 1),
+            $this->square(count($this) + 1)
+        );
+    }
 
     /**
      * @inheritDoc

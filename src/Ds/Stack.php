@@ -1,19 +1,12 @@
 <?php
 namespace Ds;
 
-use Ds\Traits\CollectionTrait;
 use UnderflowException;
+use Error;
 
 final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
 {
-    use CollectionTrait;
-
-    /**
-     * @var int
-     *
-     * The minimum capacity of a stack is 10
-     */
-    private $defaultCapacity = 10;
+    use Traits\Collection;
 
     /**
      * @var Vector
@@ -28,6 +21,18 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     public function __construct($values = null)
     {
         $this->internal = new Vector($values);
+    }
+
+    /**
+     *
+     */
+    public function clear()
+    {
+        $this->internal->clear();
+    }
+
+    public function count(): int {
+        return count($this->internal);
     }
 
     /**
@@ -108,25 +113,9 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function getIterator()
     {
-        while (!$this->isEmpty()) {
+        while ( ! $this->isEmpty()) {
             yield $this->pop();
         }
-    }
-
-    /**
-     *
-     */
-    public function __debugInfo()
-    {
-        return $this->toArray();
-    }
-
-    /**
-     *
-     */
-    public function __toString()
-    {
-        return 'object(' . get_class($this) . ')';
     }
 
     /**
@@ -137,7 +126,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
         if ($offset === null) {
             $this->push($value);
         } else {
-            throw new \Error();
+            throw new Error();
         }
     }
 
@@ -146,7 +135,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function offsetGet($offset)
     {
-        throw new \Error();
+        throw new Error();
     }
 
     /**
@@ -154,7 +143,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function offsetUnset($offset)
     {
-        throw new \Error();
+        throw new Error();
     }
 
     /**
@@ -162,16 +151,6 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function offsetExists($offset)
     {
-        throw new \Error();
-    }
-
-    /**
-     * Default Capacity
-     *
-     * @return int
-     */
-    private function defaultCapacity(): int
-    {
-        return $this->defaultCapacity;
+        throw new Error();
     }
 }

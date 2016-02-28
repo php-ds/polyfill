@@ -2,32 +2,35 @@
 
 namespace Ds\Traits;
 
-use \OutOfRangeException;
-use \UnderflowException;
+use OutOfRangeException;
+use UnderflowException;
+use Traversable;
+use Error;
 
 /**
- * SequenceTrait
+ * Sequence
  *
  * @package Ds\Traits
  */
-trait SequenceTrait
+trait Sequence
 {
-    /**
-     * @var int
-     */
-    private $capacity;
-
     /**
      * @var array
      */
     private $internal = [];
 
     /**
+     * @var int
+     */
+    private $capacity;
+
+    /**
      * @inheritDoc
      */
     public function __construct($values = null)
     {
-        $this->capacity = $this->defaultCapacity();
+        $this->capacity = self::MIN_CAPACITY;
+
         if ($values) {
             if (is_integer($values)) {
                 $this->allocate($values);
@@ -38,11 +41,41 @@ trait SequenceTrait
     }
 
     /**
-     * @inheritDoc
+     *
      */
-    public function allocate(int $capacity)
+    public function toArray(): array
     {
-        $this->capacity = max($capacity, $this->capacity);
+        return $this->internal;
+    }
+
+    /**
+     *
+     */
+    public function count(): int
+    {
+        return count($this->internal);
+    }
+
+    /**
+     *
+     */
+    abstract protected function increaseCapacity();
+
+    /**
+     *
+     */
+    private function adjustCapacity()
+    {
+        $size = count($this);
+
+        if ($size >= $this->capacity) {
+            $this->increaseCapacity();
+
+        } else {
+            if ($size < $this->capacity / 4) {
+                $this->capacity = max(self::MIN_CAPACITY, $this->capacity / 2);
+            }
+        }
     }
 
     /**
@@ -58,12 +91,12 @@ trait SequenceTrait
      */
     public function contains(...$values): bool
     {
-        if (!$values) {
+        if ( ! $values) {
             return false;
         }
 
         foreach ($values as $value) {
-            if (!in_array($value, $this->internal, true)) {
+            if ($this->find($value) === false) {
                 return false;
             }
         }
@@ -109,7 +142,6 @@ trait SequenceTrait
     public function get(int $index)
     {
         $this->checkRange($index);
-
         return $this->internal[$index];
     }
 
@@ -138,7 +170,7 @@ trait SequenceTrait
      */
     public function last()
     {
-        if (empty($this->internal)) {
+        if ($this->isEmpty()) {
             throw new UnderflowException();
         }
 
@@ -158,12 +190,12 @@ trait SequenceTrait
      */
     public function pop()
     {
-        if (empty($this->internal)) {
+        if ($this->isEmpty()) {
             throw new UnderflowException();
         }
 
         $value = array_pop($this->internal);
-        $this->checkCapacity();
+        $this->adjustCapacity();
 
         return $value;
     }
@@ -173,14 +205,10 @@ trait SequenceTrait
      */
     public function push(...$values)
     {
-        if ( ! $values) {
-            return;
+        if ($values) {
+            array_push($this->internal, ...$values);
+            $this->adjustCapacity();
         }
-
-        $required = count($this->internal) + count($values);
-        $this->checkCapacity($required);
-
-        array_push($this->internal, ...$values);
     }
 
     /**
@@ -188,8 +216,8 @@ trait SequenceTrait
      */
     public function pushAll($values)
     {
-        if (!is_array($values) && !$values instanceof \Traversable) {
-            throw new \Error();
+        if ( ! is_array($values) && ! $values instanceof Traversable) {
+            throw new Error();
         }
 
         $this->push(...$values);
@@ -211,7 +239,7 @@ trait SequenceTrait
         $this->checkRange($index);
 
         $value = array_splice($this->internal, $index, 1, null)[0];
-        $this->checkCapacity();
+        $this->adjustCapacity();
 
         return $value;
     }
@@ -230,14 +258,37 @@ trait SequenceTrait
      */
     public function rotate(int $rotations)
     {
-        while ($rotations !== 0) {
-            if ($rotations > 0) {
-                $this->push($this->shift());
-                $rotations--;
-            } else {
-                $this->unshift($this->pop());
-                $rotations++;
+        if ($this->isEmpty()) {
+            return;
+        }
+
+        $swap = function (&$a, &$b) {
+            $t = $a;
+            $a = $b;
+            $b = $t;
+        };
+
+        // Reverses a range within the internal array
+        $reverse = function (int $a, int $b) use ($swap) {
+            while (--$b > $a) {
+                $swap($this->internal[$a++], $this->internal[$b--]);
             }
+        };
+
+        $n = count($this);
+        $r = $rotations;
+
+        // Normalize the number of rotations
+        if ($r < 0) {
+            $r = $n - (abs($r) % $n);
+        } else {
+            $r = $r % $n;
+        }
+
+        if ($r > 0) {
+            $reverse(0,  $r);
+            $reverse($r, $n);
+            $reverse(0,  $n);
         }
     }
 
@@ -247,9 +298,7 @@ trait SequenceTrait
     public function set(int $index, $value)
     {
         $this->checkRange($index);
-
         $this->internal[$index] = $value;
-//        $this->rebase();
     }
 
     /**
@@ -262,7 +311,7 @@ trait SequenceTrait
         }
 
         $value = array_shift($this->internal);
-        $this->checkCapacity();
+        $this->adjustCapacity();
 
         return $value;
     }
@@ -296,7 +345,10 @@ trait SequenceTrait
      */
     public function unshift(...$values)
     {
-        $this->internal = array_merge($values, $this->internal);
+        if ($values) {
+            array_unshift($this->internal, ...$values);
+            $this->adjustCapacity();
+        }
     }
 
     /**
@@ -312,19 +364,65 @@ trait SequenceTrait
     }
 
     /**
-     * Default Capacity
      *
-     * @return int
      */
-    private function defaultCapacity(): int
+    public function getIterator()
     {
-        return 0;
+        foreach ($this->internal as $value) {
+            yield $value;
+        }
     }
 
     /**
-     * Check Capacity
      *
-     * @param int|null $required
      */
-    private function checkCapacity(int $required = null) {}
+    public function clear()
+    {
+        $this->internal = [];
+        $this->capacity = self::MIN_CAPACITY;
+    }
+
+    /**
+     *
+     */
+    public function offsetSet($offset, $value)
+    {
+        if ($offset === null) {
+            $this->push($value);
+        } else {
+            $this->set($offset, $value);
+        }
+    }
+
+    /**
+     * Offset Get
+     */
+    public function &offsetGet($offset)
+    {
+        $this->checkRange($offset);
+        return $this->internal[$offset];
+    }
+
+    /**
+     * Offset Unset
+     */
+    public function offsetUnset($offset)
+    {
+        // Unset should be quiet, so we shouldn't allow 'remove' to throw.
+        if (is_integer($offset) && $offset >= 0 && $offset < count($this)) {
+            $this->remove($offset);
+        }
+    }
+
+    /**
+     * Offset Exists
+     */
+    public function offsetExists($offset)
+    {
+        if ($offset < 0 || $offset >= count($this)) {
+            return false;
+        }
+
+        return $this->get($offset) !== null;
+    }
 }
