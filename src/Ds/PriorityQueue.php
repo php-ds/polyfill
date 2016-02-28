@@ -44,17 +44,6 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
-     *
-     */
-    protected function increaseCapacity()
-    {
-        $this->capacity = max(
-            $this->square($this->capacity),
-            $this->square(count($this))
-        );
-    }
-
-    /**
      * @inheritDoc
      */
     public function clear()
@@ -201,6 +190,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function push($value, int $priority)
     {
+        $this->adjustCapacity();
         $leaf = count($this->heap);
 
         $this->heap[] = new PriorityNode($value, $priority, $this->stamp++);
@@ -215,8 +205,6 @@ final class PriorityQueue implements \IteratorAggregate, Collection
             $this->swap($parent, $leaf);
             $leaf = $parent;
         }
-
-        $this->adjustCapacity();
     }
 
     /**

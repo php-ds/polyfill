@@ -1,5 +1,10 @@
 <?php
 
+//
+if (extension_loaded('ds')) {
+    return;
+}
+
 class ds
 {
     /**

@@ -28,4 +28,12 @@ trait SquaredCapacity
     {
         $this->capacity = max($this->square($capacity), $this->capacity);
     }
+
+    /**
+     *
+     */
+    protected function increaseCapacity()
+    {
+        $this->capacity = $this->square(max(count($this), $this->capacity + 1));
+    }
 }

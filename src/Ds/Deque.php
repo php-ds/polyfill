@@ -17,8 +17,8 @@ final class Deque implements \IteratorAggregate, \ArrayAccess, Sequence
     /**
      *
      */
-    protected function increaseCapacity()
-    {
-        $this->capacity = $this->square(max($this->capacity, count($this)) + 1);
-    }
+    // protected function increaseCapacity()
+    // {
+    //     $this->capacity = $this->square(max($this->capacity, count($this)) + 1);
+    // }
 }

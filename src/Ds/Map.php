@@ -6,6 +6,7 @@ use OutOfRangeException;
 
 final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 {
+    use Traits\Collection;
     use Traits\SquaredCapacity;
 
     /**
@@ -33,17 +34,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             }
         }
 	}
-
-    /**
-     *
-     */
-    protected function increaseCapacity()
-    {
-        $this->capacity = max(
-            $this->square($this->capacity + 1),
-            $this->square(count($this) + 1)
-        );
-    }
 
     /**
      * @inheritDoc
@@ -315,22 +305,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
         return $default;
 	}
-
-    /**
-     * @inheritDoc
-     */
-    public function isEmpty(): bool
-	{
-        return count($this->pairs) === 0;
-	}
-
-    /**
-     *
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
 
     /**
      * Returns a set of all the keys in the map.
@@ -615,14 +589,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $debug;
-    }
-
-    /**
-     *
-     */
-    public function __toString()
-    {
-        return 'object(' . get_class($this) . ')';
     }
 
     /**
