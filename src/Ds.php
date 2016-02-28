@@ -1,6 +1,6 @@
 <?php
 
-class Ds
+class ds
 {
     /**
      * @return Ds\Vector
