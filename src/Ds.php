@@ -55,7 +55,7 @@ class ds
      * @param mixed $key
      * @param mixed $value
      *
-     * @return \Ds\Pair
+     * @return Ds\Pair
      */
     public static function pair($key, $value): Ds\Pair {
         return new Ds\Pair($key, $value);
