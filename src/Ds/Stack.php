@@ -31,6 +31,17 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
         $this->internal->clear();
     }
 
+    /**
+     *
+     */
+    public function copy()
+    {
+        return new self(array_reverse($this->internal));
+    }
+
+    /**
+     *
+     */
     public function count(): int {
         return count($this->internal);
     }
