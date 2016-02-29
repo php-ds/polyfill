@@ -11,6 +11,11 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      *
      */
+    const MIN_CAPACITY = Map::MIN_CAPACITY;
+
+    /**
+     *
+     */
     private $internal;
 
     /**
@@ -142,9 +147,11 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
         $diff = new Set();
 
         foreach ($this as $value) {
-            if ( ! $set->contains($value)) {
-                $diff->add($value);
+            if ($set->contains($value)) {
+                continue;
             }
+
+            $diff->add($value);
         }
 
         return $diff;

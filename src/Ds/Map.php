@@ -132,9 +132,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $diff = new Map();
 
         foreach ($this as $key => $value) {
-            if ( ! $map->containsKey($value)) {
-                $diff->put($key, $value);
+            if ($map->containsKey($key)) {
+                continue;
             }
+
+            $diff->put($key, $value);
         }
 
         return $diff;
@@ -148,14 +150,14 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $xor = new Map();
 
         foreach ($this as $key => $value) {
-            if ( ! $map->containsKey($value)) {
-                $xor->add($value);
+            if ( ! $map->containsKey($key)) {
+                $xor->put($key, $value);
             }
         }
 
         foreach ($map as $key => $value) {
-            if ( ! $this->containsKey($value)) {
-                $xor->add($value);
+            if ( ! $this->containsKey($key)) {
+                $xor->put($key, $value);
             }
         }
 
@@ -358,19 +360,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         return $sequence;
 	}
 
-    private function adjustCapacity()
-    {
-        $size = count($this);
-
-        if ($size > $this->capacity) {
-            $this->capacity *= 2;
-        }
-
-        if ($size <= $this->capacity / 4) {
-            $this->capacity = max(self::MIN_CAPACITY, $this->capacity / 2);
-        }
-    }
-
     /**
      * Associates a key with a value, replacing a previous association if there
      * was one.
@@ -387,8 +376,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             return;
         }
 
-        $this->pairs[] = new Pair($key, $value);
         $this->adjustCapacity();
+        $this->pairs[] = new Pair($key, $value);
 	}
 
     /**
@@ -447,8 +436,10 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
                 // Delete pair, return its value
                 $value = $pair->value;
+
                 array_splice($this->pairs, $position, 1, null);
                 $this->adjustCapacity();
+
                 return $value;
             }
         }
