@@ -1,9 +1,14 @@
 <?php
 namespace Ds;
 
-use UnderflowException;
 use Error;
+use UnderflowException;
 
+/**
+ * Stack
+ *
+ * @package Ds
+ */
 final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
 {
     use Traits\Collection;
@@ -24,7 +29,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * Clear all elements in the Stack
      */
     public function clear()
     {
@@ -32,7 +37,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function copy()
     {
@@ -40,9 +45,12 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Returns the number of elements in the Stack
      *
+     * @return int
      */
-    public function count(): int {
+    public function count(): int
+    {
         return count($this->internal);
     }
 
@@ -74,7 +82,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return mixed
      *
-     * @throws \UnderflowException if the stack is empty.
+     * @throws UnderflowException if the stack is empty.
      */
     public function peek()
     {
@@ -86,7 +94,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return mixed
      *
-     * @throws \UnderflowException if the stack is empty.
+     * @throws UnderflowException if the stack is empty.
      */
     public function pop()
     {
@@ -104,7 +112,11 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Adds all values in an array or iterable object to the sequence.
      *
+     * @param array|\Traversable $values
+     *
+     * @throws Error
      */
     public function pushAll($values)
     {
@@ -120,17 +132,19 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * Get iterator
      */
     public function getIterator()
     {
-        while ( ! $this->isEmpty()) {
+        while ($this->isEmpty() === false) {
             yield $this->pop();
         }
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetSet($offset, $value)
     {
@@ -142,7 +156,9 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetGet($offset)
     {
@@ -150,7 +166,9 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetUnset($offset)
     {
@@ -158,7 +176,9 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetExists($offset)
     {

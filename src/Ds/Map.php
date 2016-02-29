@@ -1,21 +1,24 @@
 <?php
 namespace Ds;
 
-use UnderflowException;
+use OutOfBoundsException;
 use OutOfRangeException;
+use UnderflowException;
 
+/**
+ * Class Map
+ *
+ * @package Ds
+ */
 final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 {
     use Traits\Collection;
     use Traits\SquaredCapacity;
 
-    /**
-     *
-     */
     const MIN_CAPACITY = 8;
 
     /**
-     * @var array
+     * @var Pair[]
      */
     private $pairs = [];
 
@@ -45,7 +48,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Removes all Pairs from the Map
      *
+     * @param mixed[] $keys
      */
     public function removeAll($keys)
     {
@@ -55,7 +60,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Return the first Pair from the Map
      *
+     * @return Pair
+     *
+     * @throws UnderflowException
      */
     public function first(): Pair
     {
@@ -67,7 +76,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Return the last Pair from the Map
      *
+     * @return Pair
+     *
+     * @throws UnderflowException
      */
     public function last(): Pair
     {
@@ -79,7 +92,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Return the pair at a specified position in the Map
      *
+     * @param int $position
+     *
+     * @return Pair
+     *
+     * @throws OutOfRangeException
      */
     public function skip(int $position): Pair
     {
@@ -91,7 +110,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Merge an array of values with the current Map
      *
+     * @param mixed[] $values
+     *
+     * @return Map
      */
     public function merge($values): Map
     {
@@ -109,7 +132,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Intersect
      *
+     * @param Map $map
+     *
+     * @return Map
      */
     public function intersect(Map $map): Map
     {
@@ -125,7 +152,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Diff
      *
+     * @param Map $map
+     *
+     * @return Map
      */
     public function diff(Map $map): Map
     {
@@ -143,7 +174,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * XOR
      *
+     * @param Map $map
+     *
+     * @return Map
      */
     public function xor(Map $map): Map
     {
@@ -165,7 +200,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Identical
      *
+     * @param mixed $a
+     * @param mixed $b
+     *
+     * @return bool
      */
     private function identical($a, $b): bool
     {
@@ -177,7 +217,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Lookup
      *
+     * @param $key
+     *
+     * @return Pair|null
      */
     private function &lookup($key)
     {
@@ -188,6 +232,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         $pair = null;
+
         return $pair;
     }
 
@@ -292,7 +337,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return mixed The associated value or fallback default if provided.
      *
-     * @throws \OutOfBoundsException if no default was provided and the key is
+     * @throws OutOfBoundsException if no default was provided and the key is
      *                               not associated with a value.
      */
     public function get($key, $default = null)
@@ -302,7 +347,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         if (func_num_args() === 1) {
-            throw new \OutOfBoundsException();
+            throw new OutOfBoundsException();
         }
 
         return $default;
@@ -559,7 +604,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * Get iterator
      */
     public function getIterator()
     {
@@ -569,7 +614,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * Debug Info
      */
     public function __debugInfo()
     {
@@ -583,7 +628,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function offsetSet($offset, $value)
     {
@@ -591,7 +636,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws OutOfBoundsException
      */
     public function &offsetGet($offset)
     {
@@ -605,7 +652,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function offsetUnset($offset)
     {
@@ -613,7 +660,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function offsetExists($offset)
     {

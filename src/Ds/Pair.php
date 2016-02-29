@@ -3,6 +3,8 @@ namespace Ds;
 
 /**
  * A pair which represents a key, and an associated value.
+ *
+ * @package Ds
  */
 final class Pair implements \JsonSerializable
 {
@@ -21,8 +23,6 @@ final class Pair implements \JsonSerializable
      *
      * @param mixed $key
      * @param mixed $value
-     *
-     * @throws \Error
      */
     public function __construct($key = null, $value = null)
     {
@@ -31,7 +31,11 @@ final class Pair implements \JsonSerializable
     }
 
     /**
+     * Get
      *
+     * @param mixed $name
+     *
+     * @return mixed|null
      */
     public function __get($name)
     {
@@ -46,12 +50,21 @@ final class Pair implements \JsonSerializable
         }
     }
 
-    public function copy()
+    /**
+     * Returns a copy of the Pair
+     *
+     * @return Pair
+     */
+    public function copy(): Pair
     {
         return new self($this->key, $this->value);
     }
 
-
+    /**
+     * Debug Info
+     *
+     * @return array
+     */
     public function __debugInfo()
     {
         return $this->toArray();

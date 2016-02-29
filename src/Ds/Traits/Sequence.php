@@ -33,7 +33,7 @@ trait Sequence
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function toArray(): array
     {
@@ -41,7 +41,7 @@ trait Sequence
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function merge($values): \Ds\Sequence
     {
@@ -52,7 +52,7 @@ trait Sequence
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function count(): int
     {
@@ -115,6 +115,7 @@ trait Sequence
     public function get(int $index)
     {
         $this->checkRange($index);
+
         return $this->internal[$index];
     }
 
@@ -341,7 +342,7 @@ trait Sequence
     }
 
     /**
-     *
+     * Get Iterator
      */
     public function getIterator()
     {
@@ -360,7 +361,7 @@ trait Sequence
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function offsetSet($offset, $value)
     {
@@ -372,7 +373,7 @@ trait Sequence
     }
 
     /**
-     * Offset Get
+     * @inheritdoc
      */
     public function &offsetGet($offset)
     {
@@ -381,7 +382,7 @@ trait Sequence
     }
 
     /**
-     * Offset Unset
+     * @inheritdoc
      */
     public function offsetUnset($offset)
     {
@@ -392,7 +393,7 @@ trait Sequence
     }
 
     /**
-     * Offset Exists
+     * @inheritdoc
      */
     public function offsetExists($offset)
     {

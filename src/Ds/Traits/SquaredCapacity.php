@@ -2,7 +2,9 @@
 namespace Ds\Traits;
 
 /**
+ * SquaredCapacity
  *
+ * @package Ds\Traits
  */
 trait SquaredCapacity
 {
@@ -30,7 +32,7 @@ trait SquaredCapacity
     }
 
     /**
-     *
+     * Increase Capacity
      */
     protected function increaseCapacity()
     {

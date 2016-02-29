@@ -93,7 +93,7 @@ interface Sequence extends Collection
      * @param int   $index
      * @param mixed ...$values
      *
-     * @throws OutOfRangeException if the index is not in the range [0, n]
+     * @throws \OutOfRangeException if the index is not in the range [0, n]
      */
     function insert(int $index, ...$values);
 
@@ -127,7 +127,11 @@ interface Sequence extends Collection
     function map(callable $callback): Sequence;
 
     /**
+     * Merge an array of values with the current sequence
      *
+     * @param array|\Traversable $values
+     *
+     * @return Sequence
      */
     function merge($values): Sequence;
 
@@ -170,6 +174,8 @@ interface Sequence extends Collection
     /**
      * Removes and returns the value at a given index in the sequence.
      *
+     * @param int $index this index to remove.
+     *
      * @return mixed the removed value.
      *
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
@@ -178,6 +184,8 @@ interface Sequence extends Collection
 
     /**
      * Returns a reversed copy of the sequence.
+     *
+     * @return Sequence
      */
     function reverse(): Sequence;
 

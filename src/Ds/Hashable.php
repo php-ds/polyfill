@@ -1,6 +1,11 @@
 <?php
 namespace Ds;
 
+/**
+ * Hashable Interface
+ *
+ * @package Ds
+ */
 interface Hashable
 {
     /**

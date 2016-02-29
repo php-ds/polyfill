@@ -2,7 +2,9 @@
 namespace Ds\Traits;
 
 /**
+ * Capacity
  *
+ * @package Ds\Traits
  */
 trait Capacity
 {
@@ -22,12 +24,12 @@ trait Capacity
     }
 
     /**
-     *
+     * Increase Capacity
      */
     abstract protected function increaseCapacity();
 
     /**
-     *
+     * Adjust Capacity
      */
     private function adjustCapacity()
     {

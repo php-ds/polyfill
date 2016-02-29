@@ -32,7 +32,9 @@ trait Collection
     }
 
     /**
+     * Creates a copy of the collection, equivalent to 'clone'.
      *
+     * @return Collection
      */
     public function copy()
     {

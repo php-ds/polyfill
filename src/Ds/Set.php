@@ -1,20 +1,23 @@
 <?php
 namespace Ds;
 
-use OutOfBoundsException;
 use Error;
+use OutOfBoundsException;
+use OutOfRangeException;
 
+/**
+ * Set
+ *
+ * @package Ds
+ */
 final class Set implements \IteratorAggregate, \ArrayAccess, Collection
 {
     use Traits\Collection;
 
-    /**
-     *
-     */
     const MIN_CAPACITY = Map::MIN_CAPACITY;
 
     /**
-     *
+     * @var Map
      */
     private $internal;
 
@@ -87,7 +90,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * @inheritDoc
+     * Clear all elements in the Set
      */
     public function clear()
     {
@@ -126,7 +129,9 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * @inheritDoc
+     * Returns the number of elements in the Stack
+     *
+     * @return int
      */
     public function count(): int
     {
@@ -155,8 +160,6 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $diff;
-
-
     }
 
     /**
@@ -236,7 +239,11 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Returns the value at a specified position in the set.
      *
-     * @throws \OutOfRangeException
+     * @param int $position
+     *
+     * @return mixed|null
+     *
+     * @throws OutOfRangeException
      */
     public function get(int $position)
     {
@@ -334,11 +341,14 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
 
     /**
      * Returns a reversed copy of the set.
+     *
+     * @return Set
      */
     public function reverse(): Set
     {
         $reversed = new Set();
         $reversed->internal = $this->internal->reverse();
+
         return $reversed;
     }
 
@@ -367,6 +377,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $sliced = new Set();
         $sliced->internal = $this->internal->slice($offset, $length);
+
         return $sliced;
     }
 
@@ -383,6 +394,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $set = new Set();
         $set->internal = $this->internal->sort($comparator);
+
         return $set;
     }
 
@@ -420,7 +432,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * Get iterator
      */
     public function getIterator()
     {
@@ -429,6 +441,11 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
         }
     }
 
+    /**
+     * @inheritdoc
+     *
+     * @throws OutOfBoundsException
+     */
     public function offsetSet($offset, $value)
     {
         if ($offset === null) {
@@ -439,16 +456,29 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
         throw new OutOfBoundsException();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function offsetGet($offset)
     {
         return $this->internal->skip($offset)->key;
     }
 
+    /**
+     * @inheritdoc
+     *
+     * @throws Error
+     */
     public function offsetExists($offset)
     {
         throw new Error();
     }
 
+    /**
+     * @inheritdoc
+     *
+     * @throws Error
+     */
     public function offsetUnset($offset)
     {
         throw new Error();

@@ -1,12 +1,18 @@
 <?php
 namespace Ds;
 
+use \Error;
+
+/**
+ * Queue
+ * @package Ds
+ */
 final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
 {
     use Traits\Collection;
 
     /**
-     *
+     * @var Deque
      */
     private $internal;
 
@@ -98,7 +104,11 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Adds all values in an array or iterable object to the sequence.
      *
+     * @param array|\Traversable $values
+     *
+     * @throws Error
      */
     public function pushAll($values)
     {
@@ -114,7 +124,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * Get iterator
      */
     public function getIterator()
     {
@@ -123,8 +133,11 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
         }
     }
 
+
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetSet($offset, $value)
     {
@@ -136,7 +149,9 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetGet($offset)
     {
@@ -144,7 +159,9 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetUnset($offset)
     {
@@ -152,7 +169,9 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * @inheritdoc
      *
+     * @throws Error
      */
     public function offsetExists($offset)
     {

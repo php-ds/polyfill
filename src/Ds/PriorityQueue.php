@@ -4,14 +4,32 @@ namespace Ds;
 use UnderflowException;
 
 /**
+ * PriorityNode
  *
+ * @package Ds
  */
 final class PriorityNode
 {
+    /**
+     * @var mixed
+     */
     public $value;
+
+    /**
+     * @var int
+     */
     public $priority;
+
+    /**
+     * @var int
+     */
     public $stamp;
 
+    /**
+     * @param mixed $value
+     * @param int   $priority
+     * @param int   $stamp
+     */
     public function __construct($value, int $priority, int $stamp)
     {
         $this->value    = $value;
@@ -21,7 +39,9 @@ final class PriorityNode
 }
 
 /**
+ * PriorityQueue
  *
+ * @package Ds
  */
 final class PriorityQueue implements \IteratorAggregate, Collection
 {
@@ -99,7 +119,11 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
+     * Left
      *
+     * @param int $index
+     *
+     * @return int
      */
     private function left(int $index): int
     {
@@ -107,7 +131,11 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
+     * Right
      *
+     * @param int $index
+     *
+     * @return int
      */
     private function right(int $index): int
     {
@@ -115,13 +143,25 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
+     * Parent
      *
+     * @param int $index
+     *
+     * @return int
      */
     private function parent(int $index): int
     {
         return ($index - 1) / 2;
     }
 
+    /**
+     * Compare
+     *
+     * @param int $a
+     * @param int $b
+     *
+     * @return bool
+     */
     private function compare(int $a, int $b)
     {
         $x = $this->heap[$a];
@@ -132,7 +172,10 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
+     * Swap
      *
+     * @param int $a
+     * @param int $b
      */
     private function swap(int $a, int $b)
     {
@@ -141,6 +184,13 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         $this->heap[$b] = $temp;
     }
 
+    /**
+     * Get Largest Leaf
+     *
+     * @param int $parent
+     *
+     * @return int
+     */
     private function getLargestLeaf(int $parent)
     {
         $left  = $this->left($parent);
@@ -153,6 +203,11 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         return $left;
     }
 
+    /**
+     * Sift Down
+     *
+     * @param int $node
+     */
     private function siftDown(int $node)
     {
         $last = floor(count($this->heap) / 2);
@@ -171,11 +226,21 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         }
     }
 
+    /**
+     * Set Root
+     *
+     * @param PriorityNode $node
+     */
     private function setRoot(PriorityNode $node)
     {
         $this->heap[0] = $node;
     }
 
+    /**
+     * Get Root
+     *
+     * @return PriorityNode
+     */
     private function getRoot(): PriorityNode
     {
         return $this->heap[0];
@@ -211,7 +276,9 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
+     * Sift Up
      *
+     * @param int $leaf
      */
     private function siftUp(int $leaf)
     {
@@ -260,7 +327,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
-     *
+     * Get iterator
      */
     public function getIterator()
     {
