@@ -93,7 +93,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      *
      */
-    public function merge(Map $map): Map
+    public function merge($values): Map
     {
         $merged = new Map();
 
@@ -101,7 +101,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             $merged->put($key, $value);
         }
 
-        foreach ($map as $key => $value) {
+        foreach ($values as $key => $value) {
             $merged->put($key, $value);
         }
 
