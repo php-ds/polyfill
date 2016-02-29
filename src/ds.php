@@ -1,10 +1,5 @@
 <?php
 
-//
-if (extension_loaded('ds')) {
-    return;
-}
-
 /**
  * ds
  */
@@ -79,12 +74,12 @@ class ds
     }
 
     /**
-     * @param mixed $key
-     * @param mixed $value
+     * @param mixed|null $key
+     * @param mixed|null $value
      *
      * @return Ds\Pair
      */
-    public static function pair($key, $value): Ds\Pair
+    public static function pair($key = null, $value = null): Ds\Pair
     {
         return new Ds\Pair($key, $value);
     }
