@@ -43,6 +43,17 @@ trait Sequence
     /**
      *
      */
+    public function merge($values): \Ds\Sequence
+    {
+        $merged = $this->copy();
+        $merged->pushAll($values);
+
+        return $merged;
+    }
+
+    /**
+     *
+     */
     public function count(): int
     {
         return count($this->internal);
@@ -69,7 +80,7 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function filter(callable $callback = null): self
+    public function filter(callable $callback = null): \Ds\Sequence
     {
         if ($callback) {
             return new self(array_filter($this->internal, $callback));
@@ -142,7 +153,7 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function map(callable $callback): self
+    public function map(callable $callback): \Ds\Sequence
     {
         return new self(array_map($callback, $this->internal));
     }
@@ -209,7 +220,7 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function reverse(): self
+    public function reverse(): \Ds\Sequence
     {
         return new self(array_reverse($this->internal));
 
@@ -281,7 +292,7 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function slice(int $offset, int $length = null): self
+    public function slice(int $offset, int $length = null): \Ds\Sequence
     {
         if (func_num_args() === 1) {
             return new self(array_slice($this->internal, $offset));
@@ -293,7 +304,7 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function sort(callable $comparator = null): self
+    public function sort(callable $comparator = null): \Ds\Sequence
     {
         $internal = $this->internal;
 

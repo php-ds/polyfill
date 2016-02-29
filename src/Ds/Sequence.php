@@ -53,7 +53,7 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function filter(callable $callback = null);
+    function filter(callable $callback = null): Sequence;
 
     /**
      * Returns the index of a given value, or false if it could not be found.
@@ -124,7 +124,12 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function map(callable $callback);
+    function map(callable $callback): Sequence;
+
+    /**
+     *
+     */
+    function merge($values): Sequence;
 
     /**
      * Removes the last value in the sequence, and returns it.
@@ -174,7 +179,7 @@ interface Sequence extends Collection
     /**
      * Returns a reversed copy of the sequence.
      */
-    function reverse();
+    function reverse(): Sequence;
 
     /**
      * Rotates the sequence by a given number of rotations, which is equivalent
@@ -225,7 +230,7 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function slice(int $offset, int $length = null);
+    function slice(int $offset, int $length = null): Sequence;
 
     /**
      * Returns a sorted copy of the sequence, based on an optional callable
@@ -236,7 +241,7 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function sort(callable $comparator = null);
+    function sort(callable $comparator = null): Sequence;
 
     /**
      * Adds zero or more values to the front of the sequence.
