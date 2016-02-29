@@ -25,7 +25,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @param array|\Traversable $values
      */
     public function __construct($values = null)
-	{
+    {
         if ($values) {
             if (is_integer($values)) {
                 $this->allocate($values);
@@ -33,16 +33,16 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
                 $this->putAll($values);
             }
         }
-	}
+    }
 
     /**
      * @inheritDoc
      */
     public function clear()
-	{
+    {
         $this->pairs  = [];
         $this->capacity = self::MIN_CAPACITY;
-	}
+    }
 
     /**
      *
@@ -200,7 +200,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *              contains all given keys, false otherwise.
      */
     public function containsKey(...$keys): bool
-	{
+    {
         if ( ! $keys) {
             return false;
         }
@@ -212,7 +212,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return true;
-	}
+    }
 
     /**
      * Returns whether an association for all of zero or more values exist.
@@ -223,7 +223,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *              contains all given values, false otherwise.
      */
     public function containsValue(...$values): bool
-	{
+    {
         if ( ! $values) {
             return false;
         }
@@ -239,23 +239,23 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return true;
-	}
+    }
 
     /**
      * @inheritDoc
      */
     public function copy()
-	{
+    {
         return new self($this);
-	}
+    }
 
     /**
      * @inheritDoc
      */
     public function count(): int
-	{
+    {
         return count($this->pairs);
-	}
+    }
 
     /**
      * Returns a new map containing only the values for which a callback
@@ -268,7 +268,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return Map
      */
     public function filter(callable $callback = null): Map
-	{
+    {
         $filtered = new self();
 
         foreach ($this->pairs as $pair) {
@@ -281,7 +281,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $filtered;
-	}
+    }
 
     /**
      * Returns the value associated with a key, or an optional default if the
@@ -296,7 +296,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *                               not associated with a value.
      */
     public function get($key, $default = null)
-	{
+    {
         if (($pair = $this->lookup($key))) {
             return $pair->value;
         }
@@ -306,7 +306,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $default;
-	}
+    }
 
     /**
      * Returns a set of all the keys in the map.
@@ -314,7 +314,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return Set
      */
     public function keys(): Set
-	{
+    {
         $set = new Set();
 
         foreach ($this->pairs as $pair) {
@@ -322,7 +322,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $set;
-	}
+    }
 
     /**
      * Returns a new map using the results of applying a callback to each value.
@@ -334,7 +334,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return Map
      */
     public function map(callable $callback): Map
-	{
+    {
         $mapped = new self();
 
         foreach ($this->pairs as $pair) {
@@ -342,7 +342,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $mapped;
-	}
+    }
 
     /**
      * Returns a sequence of pairs representing all associations.
@@ -350,7 +350,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return Sequence
      */
     public function pairs(): Sequence
-	{
+    {
         $sequence = new Vector();
 
         foreach ($this->pairs as $pair) {
@@ -358,7 +358,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $sequence;
-	}
+    }
 
     /**
      * Associates a key with a value, replacing a previous association if there
@@ -368,7 +368,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @param mixed $value
      */
     public function put($key, $value)
-	{
+    {
         $pair = $this->lookup($key);
 
         if ($pair) {
@@ -378,7 +378,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
         $this->adjustCapacity();
         $this->pairs[] = new Pair($key, $value);
-	}
+    }
 
     /**
      * Creates associations for all keys and corresponding values of either an
@@ -387,11 +387,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @param array|\Traversable $values
      */
     public function putAll($values)
-	{
+    {
         foreach ($values as $key => $value) {
             $this->put($key, $value);
         }
-	}
+    }
 
     /**
      * Iteratively reduces the map to a single value using a callback.
@@ -405,7 +405,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *               value if the map was empty.
      */
     public function reduce(callable $callback, $initial = null)
-	{
+    {
         $carry = $initial;
 
         foreach ($this->pairs as $pair) {
@@ -413,7 +413,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $carry;
-	}
+    }
 
     /**
      * Removes a key's association from the map and returns the associated value
@@ -428,7 +428,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *                               not associated with a value.
      */
     public function remove($key, $default = null)
-	{
+    {
         foreach ($this->pairs as $position => $pair) {
 
             // Check if the pair is the one we're looking for
@@ -450,13 +450,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $default;
-	}
+    }
 
     /**
      * Returns a reversed copy of the map.
      */
     public function reverse(): Map
-	{
+    {
         $reversed = new self();
 
         foreach (array_reverse($this->pairs) as $pair) {
@@ -464,7 +464,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $reversed;
-	}
+    }
 
     /**
      * Returns a sub-sequence of a given length starting at a specified offset.
@@ -488,7 +488,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return Map
      */
     public function slice(int $offset, int $length = null): Map
-	{
+    {
         $map = new Map();
 
         if (func_num_args() === 1) {
@@ -502,7 +502,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $map;
-	}
+    }
 
     /**
      * Returns a sorted copy of the map, based on an optional callable
@@ -514,7 +514,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return Map
      */
     public function sort(callable $comparator = null): Map
-	{
+    {
         $copy = $this->copy();
 
         if ($comparator) {
@@ -526,13 +526,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $copy;
-	}
+    }
 
     /**
      * @inheritDoc
      */
     public function toArray(): array
-	{
+    {
         $array = [];
 
         foreach ($this->pairs as $pair) {
@@ -540,7 +540,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $array;
-	}
+    }
 
     /**
      * Returns a sequence of all the associated values in the Map.
@@ -548,7 +548,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return Sequence
      */
     public function values(): Sequence
-	{
+    {
         $sequence = new Vector();
 
         foreach ($this->pairs as $pair) {
@@ -556,7 +556,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $sequence;
-	}
+    }
 
     /**
      *
