@@ -15,7 +15,7 @@ final class Deque implements \IteratorAggregate, \ArrayAccess, Sequence
     const MIN_CAPACITY = 8;
 
     /**
-     *
+     * @inheritdoc
      */
     protected function increaseCapacity()
     {

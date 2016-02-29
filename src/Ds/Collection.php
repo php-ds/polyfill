@@ -1,6 +1,11 @@
 <?php
 namespace Ds;
 
+/**
+ * Collection Interface
+ *
+ * @package Ds
+ */
 interface Collection extends \Traversable, \Countable, \JsonSerializable
 {
     /**

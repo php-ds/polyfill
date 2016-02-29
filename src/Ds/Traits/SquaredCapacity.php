@@ -2,14 +2,20 @@
 namespace Ds\Traits;
 
 /**
+ * SquaredCapacity
  *
+ * @package Ds\Traits
  */
 trait SquaredCapacity
 {
     use Capacity;
 
     /**
+     * Square
      *
+     * @param int $capacity
+     *
+     * @return int
      */
     private function square(int $capacity): int
     {
@@ -30,7 +36,7 @@ trait SquaredCapacity
     }
 
     /**
-     *
+     * Increase Capacity
      */
     protected function increaseCapacity()
     {

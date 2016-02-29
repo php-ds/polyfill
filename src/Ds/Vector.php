@@ -15,7 +15,12 @@ final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
     const MIN_CAPACITY = 10;
 
     /**
+     * Ensures that enough memory is allocated for a specified capacity. This
+     * potentially reduces the number of reallocations as the size increases.
      *
+     * @param int $capacity The number of values for which capacity should be
+     *                      allocated. Capacity will stay the same if this value
+     *                      is less than or equal to the current capacity.
      */
     public function allocate(int $capacity)
     {
@@ -23,7 +28,7 @@ final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
     }
 
     /**
-     *
+     * Increase capacity
      */
     protected function increaseCapacity()
     {
