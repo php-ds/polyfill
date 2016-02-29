@@ -11,7 +11,11 @@ trait SquaredCapacity
     use Capacity;
 
     /**
+     * Square
      *
+     * @param int $capacity
+     *
+     * @return int
      */
     private function square(int $capacity): int
     {
