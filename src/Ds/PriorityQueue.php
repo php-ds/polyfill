@@ -3,13 +3,16 @@ namespace Ds;
 
 use UnderflowException;
 
+/**
+ *
+ */
 final class PriorityNode
 {
     public $value;
     public $priority;
     public $stamp;
 
-    public function __construct($value, $priority, $stamp)
+    public function __construct($value, int $priority, int $stamp)
     {
         $this->value    = $value;
         $this->priority = $priority;
@@ -17,20 +20,26 @@ final class PriorityNode
     }
 }
 
+/**
+ *
+ */
 final class PriorityQueue implements \IteratorAggregate, Collection
 {
     use Traits\Collection;
     use Traits\SquaredCapacity;
 
+    /**
+     * @var int
+     */
     const MIN_CAPACITY = 8;
 
     /**
-     *
+     * @var array
      */
     private $heap;
 
     /**
-     *
+     * @var int
      */
     private $stamp;
 
@@ -39,7 +48,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function __construct()
     {
-        $this->heap  = [];
+        $this->heap = [];
         $this->stamp = 0;
     }
 
@@ -74,22 +83,6 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
-     * @inheritDoc
-     */
-    public function isEmpty(): bool
-    {
-        return count($this->heap) === 0;
-    }
-
-    /**
-     *
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    /**
      * Returns the value with the highest priority in the priority queue.
      *
      * @return mixed
@@ -105,16 +98,25 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         return $this->heap[0]->value;
     }
 
+    /**
+     *
+     */
     private function left(int $index): int
     {
         return ($index * 2) + 1;
     }
 
+    /**
+     *
+     */
     private function right(int $index): int
     {
         return ($index * 2) + 2;
     }
 
+    /**
+     *
+     */
     private function parent(int $index): int
     {
         return ($index - 1) / 2;
@@ -125,15 +127,58 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         $x = $this->heap[$a];
         $y = $this->heap[$b];
 
-        //
+        // Compare priority, using insertion stamp as fallback.
         return ($x->priority <=> $y->priority) ?: ($y->stamp <=> $x->stamp);
     }
 
+    /**
+     *
+     */
     private function swap(int $a, int $b)
     {
-        $node = $this->heap[$a];
+        $temp = $this->heap[$a];
         $this->heap[$a] = $this->heap[$b];
-        $this->heap[$b] = $node;
+        $this->heap[$b] = $temp;
+    }
+
+    private function getLargestLeaf(int $parent)
+    {
+        $left  = $this->left($parent);
+        $right = $left + 1;
+
+        if ($right < count($this->heap) && $this->compare($left, $right) < 0) {
+            return $right;
+        }
+
+        return $left;
+    }
+
+    private function siftDown(int $node)
+    {
+        $last = floor(count($this->heap) / 2);
+
+        for ($parent = $node; $parent < $last; $parent = $leaf) {
+
+            // Determine the largest leaf to potentially swap with the parent.
+            $leaf = $this->getLargestLeaf($parent);
+
+            // Done if the parent is not greater than its largest leaf
+            if ($this->compare($parent, $leaf) > 0) {
+                break;
+            }
+
+            $this->swap($parent, $leaf);
+        }
+    }
+
+    private function setRoot(PriorityNode $node)
+    {
+        $this->heap[0] = $node;
+    }
+
+    private function getRoot(): PriorityNode
+    {
+        return $this->heap[0];
     }
 
     /**
@@ -143,43 +188,44 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function pop()
     {
-        $value = $this->peek();
-
-        $last = array_pop($this->heap);
-
-        $size = count($this->heap);
-
-        if ($size === 0) {
-            return $value;
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
         }
 
-        $this->heap[0] = $last;
+        // Last leaf of the heap to become the new root.
+        $leaf = array_pop($this->heap);
 
-        $node = 0;
+        if ( ! $this->heap) {
+            return $leaf->value;
+        }
 
-        while ($node < floor($size / 2)) {
+        // Cache the current root value to return before replacing with next.
+        $value = $this->getRoot()->value;
 
-            $left  = $this->left($node);
-            $right = $this->right($node);
+        // Replace the root, then sift down.
+        $this->setRoot($leaf);
+        $this->siftDown(0);
+        $this->adjustCapacity();
 
-            // Determine which leaf is the largest
-            if ($right < $size && $this->compare($right, $left) > 0) {
-                $leaf = $right;
-            } else {
-                $leaf = $left;
-            }
+        return $value;
+    }
 
-            // Check if we should swap the leaf with the current node
-            if ($this->compare($leaf, $node) < 0) {
+    /**
+     *
+     */
+    private function siftUp(int $leaf)
+    {
+         for (; $leaf > 0; $leaf = $parent) {
+
+            $parent = $this->parent($leaf);
+
+            // Done when parent priority is greater.
+            if ($this->compare($leaf, $parent) < 0) {
                 break;
             }
 
-            $this->swap($leaf, $node);
-            $node = $leaf;
+            $this->swap($parent, $leaf);
         }
-
-        $this->adjustCapacity();
-        return $value;
     }
 
     /**
@@ -191,20 +237,10 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     public function push($value, int $priority)
     {
         $this->adjustCapacity();
-        $leaf = count($this->heap);
 
+        // Add new leaf, then sift up to maintain heap,
         $this->heap[] = new PriorityNode($value, $priority, $this->stamp++);
-
-        while ($leaf > 0) {
-            $parent = $this->parent($leaf);
-
-            if ($this->compare($leaf, $parent) < 0) {
-                break;
-            }
-
-            $this->swap($parent, $leaf);
-            $leaf = $parent;
-        }
+        $this->siftUp(count($this->heap) - 1);
     }
 
     /**
