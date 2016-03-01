@@ -12,7 +12,10 @@ interface Sequence extends Collection
      * Creates a new sequence using the values of either an array or iterable
      * object. The keys of either will not be preserved.
      *
-     * @param array|\Traversable $values
+     * Should an integer be provided the Sequence will allocate the memory
+     * capacity to the size of $values.
+     *
+     * @param array|\Traversable|int|null $values
      */
     function __construct($values = null);
 

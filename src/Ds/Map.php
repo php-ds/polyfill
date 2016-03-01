@@ -3,6 +3,7 @@ namespace Ds;
 
 use OutOfBoundsException;
 use OutOfRangeException;
+use Traversable;
 use UnderflowException;
 
 /**
@@ -25,16 +26,17 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Creates an instance using the values of an array or Traversable object.
      *
-     * @param array|\Traversable $values
+     * Should an integer be provided the Map will allocate the memory capacity
+     * to the size of $values.
+     *
+     * @param array|\Traversable|int|null $values
      */
     public function __construct($values = null)
     {
-        if ($values) {
-            if (is_integer($values)) {
-                $this->allocate($values);
-            } else {
-                $this->putAll($values);
-            }
+        if (is_array($values) || $values instanceof Traversable) {
+            $this->putAll($values);
+        } elseif (is_integer($values)) {
+            $this->allocate($values);
         }
     }
 

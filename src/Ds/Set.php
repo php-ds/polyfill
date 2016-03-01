@@ -2,6 +2,7 @@
 namespace Ds;
 
 use Error;
+use Traversable;
 use OutOfBoundsException;
 use OutOfRangeException;
 
@@ -25,18 +26,20 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      * Creates a new set using the values of an array or Traversable object.
      * The keys of either will not be preserved.
      *
-     * @param array|\Traversable $values
+     *
+     * Should an integer be provided the Set will allocate the memory capacity
+     * to the size of $values.
+     *
+     * @param array|\Traversable|int|null $values
      */
     public function __construct($values = null)
     {
         $this->internal = new Map();
 
-        if ($values) {
-            if (is_integer($values)) {
-                $this->allocate($values);
-            } else {
-                $this->addAll($values);
-            }
+        if (is_array($values) || $values instanceof Traversable) {
+            $this->addAll($values);
+        } elseif (is_integer($values)) {
+            $this->allocate($values);
         }
     }
 

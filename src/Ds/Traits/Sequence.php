@@ -23,12 +23,10 @@ trait Sequence
      */
     public function __construct($values = null)
     {
-        if ($values) {
-            if (is_integer($values)) {
-                $this->allocate($values);
-            } else {
-                $this->pushAll($values);
-            }
+        if (is_array($values) || $values instanceof Traversable) {
+            $this->pushAll($values);
+        } elseif (is_integer($values)) {
+            $this->allocate($values);
         }
     }
 
