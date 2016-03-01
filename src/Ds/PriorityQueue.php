@@ -282,8 +282,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     private function siftUp(int $leaf)
     {
-            for (; $leaf > 0; $leaf = $parent) {
-
+        for (; $leaf > 0; $leaf = $parent) {
             $parent = $this->parent($leaf);
 
             // Done when parent priority is greater.
