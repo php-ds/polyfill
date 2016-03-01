@@ -43,7 +43,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
     {
-        $this->pairs  = [];
+        $this->pairs = [];
         $this->capacity = self::MIN_CAPACITY;
     }
 
@@ -209,7 +209,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     private function identical($a, $b): bool
     {
-        if (is_object($a) && $a instanceof Hashable){
+        if (is_object($a) && $a instanceof Hashable) {
             return $a->equals($b);
         }
 
