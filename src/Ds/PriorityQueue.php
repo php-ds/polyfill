@@ -160,7 +160,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      * @param int $a
      * @param int $b
      *
-     * @return bool
+     * @return integer
      */
     private function compare(int $a, int $b)
     {
@@ -282,7 +282,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     private function siftUp(int $leaf)
     {
-         for (; $leaf > 0; $leaf = $parent) {
+            for (; $leaf > 0; $leaf = $parent) {
 
             $parent = $this->parent($leaf);
 

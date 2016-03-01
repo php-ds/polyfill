@@ -1,10 +1,10 @@
 <?php
 namespace Ds\Traits;
 
-use OutOfRangeException;
-use UnderflowException;
-use Traversable;
 use Error;
+use OutOfRangeException;
+use Traversable;
+use UnderflowException;
 
 /**
  * Sequence
@@ -236,14 +236,14 @@ trait Sequence
             return;
         }
 
-        $swap = function (&$a, &$b) {
+        $swap = function(&$a, &$b) {
             $t = $a;
             $a = $b;
             $b = $t;
         };
 
         // Reverses a range within the internal array
-        $reverse = function (int $a, int $b) use ($swap) {
+        $reverse = function(int $a, int $b) use ($swap) {
             while (--$b > $a) {
                 $swap($this->internal[$a++], $this->internal[$b--]);
             }
