@@ -248,7 +248,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function containsKey(...$keys): bool
     {
-        if ( ! $keys) {
+        if (empty($keys)) {
             return false;
         }
 
@@ -271,7 +271,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function containsValue(...$values): bool
     {
-        if ( ! $values) {
+        if (empty($values)) {
             return false;
         }
 
@@ -516,21 +516,23 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Returns a sub-sequence of a given length starting at a specified offset.
      *
-     * @param int $offset If the offset is non-negative, the map will start
-     *                    at that offset in the map. If offset is negative,
-     *                    the map will start that far from the end.
+     * @param int $offset      If the offset is non-negative, the map will 
+     *                         start at that offset in the map. If offset is 
+     *                         negative, the map will start that far from the 
+     *                         end.
      *
-     * @param int $length If a length is given and is positive, the resulting
-     *                    set will have up to that many pairs in it.
-     *                    If the requested length results in an overflow, only
-     *                    pairs up to the end of the map will be included.
+     * @param int|null $length If a length is given and is positive, the 
+     *                         resulting set will have up to that many pairs in 
+     *                         it. If the requested length results in an 
+     *                         overflow, only pairs up to the end of the map 
+     *                         will be included.
+     * 
+     *                         If a length is given and is negative, the map
+     *                         will stop that many pairs from the end.
      *
-     *                    If a length is given and is negative, the map
-     *                    will stop that many pairs from the end.
-     *
-     *                    If a length is not provided, the resulting map
-     *                    will contains all pairs between the offset and the
-     *                    end of the map.
+     *                        If a length is not provided, the resulting map
+     *                        will contains all pairs between the offset and 
+     *                        the end of the map.
      *
      * @return Map
      */
