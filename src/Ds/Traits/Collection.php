@@ -34,7 +34,7 @@ trait Collection
     /**
      * Creates a copy of the collection, equivalent to 'clone'.
      *
-     * @return Collection
+     * @return \Ds\Collection
      */
     public function copy()
     {
@@ -42,7 +42,18 @@ trait Collection
     }
 
     /**
+     * Returns an array representation of the collection.
      *
+     * The format of the returned array is implementation-dependent.
+     * Some implementations may throw an exception if an array representation
+     * could not be created.
+     *
+     * @return array
+     */
+    abstract public function toArray(): array;
+
+    /**
+     * Debug Info
      */
     public function __debugInfo()
     {
@@ -50,7 +61,7 @@ trait Collection
     }
 
     /**
-     *
+     * To String
      */
     public function __toString()
     {
