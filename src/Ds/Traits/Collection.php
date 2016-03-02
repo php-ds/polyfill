@@ -34,7 +34,7 @@ trait Collection
     /**
      * Creates a copy of the collection, equivalent to 'clone'.
      *
-     * @return \Ds\Collection
+     * @return $this
      */
     public function copy()
     {
