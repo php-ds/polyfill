@@ -114,21 +114,14 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Merge an array of values with the current Map
      *
-     * @param mixed[] $values
+     * @param array|\Traversable $values
      *
      * @return Map
      */
     public function merge($values): Map
     {
-        $merged = new Map();
-
-        foreach ($this as $key => $value) {
-            $merged->put($key, $value);
-        }
-
-        foreach ($values as $key => $value) {
-            $merged->put($key, $value);
-        }
+        $merged = $this->copy();
+        $merged->putAll($values);
 
         return $merged;
     }
