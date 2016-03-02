@@ -6,7 +6,7 @@
 class ds
 {
     /**
-     * @param array|\Traversable $values
+     * @param array|\Traversable|int|null $values
      *
      * @return Ds\Vector
      */
@@ -16,7 +16,7 @@ class ds
     }
 
     /**
-     * @param array|\Traversable $values
+     * @param array|\Traversable|int|null $values
      *
      * @return Ds\Deque
      */
@@ -26,7 +26,7 @@ class ds
     }
 
     /**
-     * @param array|\Traversable $values
+     * @param array|\Traversable|int|null $values
      *
      * @return Ds\Set
      */
@@ -36,7 +36,7 @@ class ds
     }
 
     /**
-     * @param array|\Traversable $values
+     * @param array|\Traversable|int|null $values
      *
      * @return Ds\Map
      */
@@ -46,7 +46,7 @@ class ds
     }
 
     /**
-     * @param array|\Traversable $values
+     * @param array|\Traversable|int|null $values
      *
      * @return Ds\Stack
      */
@@ -56,7 +56,7 @@ class ds
     }
 
     /**
-     * @param array|\Traversable $values
+     * @param array|\Traversable|int|null $values
      *
      * @return Ds\Queue
      */
