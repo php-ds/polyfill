@@ -68,8 +68,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function __construct()
     {
-        $this->heap = [];
-        $this->stamp = 0;
+        $this->clear();
     }
 
     /**
