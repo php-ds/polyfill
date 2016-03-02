@@ -68,7 +68,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function __construct()
     {
-        $this->heap = [];
+        $this->heap  = [];
         $this->stamp = 0;
     }
 
@@ -77,8 +77,8 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function clear()
     {
-        $this->heap = [];
-        $this->stamp = 0;
+        $this->heap     = [];
+        $this->stamp    = 0;
         $this->capacity = self::MIN_CAPACITY;
     }
 
@@ -88,7 +88,8 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     public function copy()
     {
         $copy = new PriorityQueue();
-        $copy->heap = $this->heap;
+        
+        $copy->heap     = $this->heap;
         $copy->capacity = $this->capacity;
 
         return $copy;
@@ -179,7 +180,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     private function swap(int $a, int $b)
     {
-        $temp = $this->heap[$a];
+        $temp           = $this->heap[$a];
         $this->heap[$a] = $this->heap[$b];
         $this->heap[$b] = $temp;
     }
@@ -260,7 +261,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         // Last leaf of the heap to become the new root.
         $leaf = array_pop($this->heap);
 
-        if ( ! $this->heap) {
+        if (empty($this->heap)) {
             return $leaf->value;
         }
 
@@ -314,7 +315,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function toArray(): array
     {
-        $heap = $this->heap;
+        $heap  = $this->heap;
         $array = [];
 
         while ( ! $this->isEmpty()) {
