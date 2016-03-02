@@ -26,7 +26,7 @@ final class Pair implements \JsonSerializable
      */
     public function __construct($key = null, $value = null)
     {
-        $this->key = $key;
+        $this->key   = $key;
         $this->value = $value;
     }
 
