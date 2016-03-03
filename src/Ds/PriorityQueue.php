@@ -82,7 +82,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     /**
      * Reset the PriorityQueue to an initialised state.
      */
-    private reset()
+    private function reset()
     {
         $this->heap     = [];
         $this->stamp    = 0;
