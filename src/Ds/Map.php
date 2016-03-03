@@ -142,7 +142,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function intersect(Map $map): Map
     {
-        return $this->filter(function($key, $value) use ($map) {
+        return $this->filter(function($key) use ($map) {
             return $map->containsKey($key);
         });
     }
@@ -156,7 +156,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function diff(Map $map): Map
     {
-        return $this->filter(function($key, $value) use ($map) {
+        return $this->filter(function($key) use ($map) {
             return ! $map->containsKey($key);
         });
     }
@@ -170,8 +170,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function xor(Map $map): Map
     {
-        return $this->merge($map)->filter(function($key, $value) use ($map) {
-            return  $this->containsKey($key) ^ $map->containsKey($key);
+        return $this->merge($map)->filter(function($key) use ($map) {
+            return $this->containsKey($key) ^ $map->containsKey($key);
         });
     }
 
@@ -199,17 +199,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return Pair|null
      */
-    private function &lookup($key)
+    private function lookup($key)
     {
         foreach ($this->pairs as $pair) {
             if ($this->identical($pair->key, $key)) {
                 return $pair;
             }
         }
-
-        $pair = null;
-
-        return $pair;
     }
 
     /**
