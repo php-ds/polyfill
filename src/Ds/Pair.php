@@ -31,7 +31,8 @@ final class Pair implements \JsonSerializable
     }
 
     /**
-     * Get
+     * This allows unset($pair->key) to not completely remove the property,
+     * but be set to null instead.
      *
      * @param mixed $name
      *
@@ -39,15 +40,12 @@ final class Pair implements \JsonSerializable
      */
     public function __get($name)
     {
-        if ($name === 'key') {
-            $this->key = null;
-            return $this->key;
+        if ($name === 'key' || $name === 'value') {
+            $this->$name = null;
+            return;
         }
 
-        if ($name === 'value') {
-            $this->value = null;
-            return $this->value;
-        }
+        throw new \Error();
     }
 
     /**

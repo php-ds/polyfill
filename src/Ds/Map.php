@@ -21,7 +21,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @var Pair[]
      */
-    private $pairs = [];
+    private $pairs;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -33,6 +33,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
+        $this->reset();
+
         if (is_array($values) || $values instanceof Traversable) {
             $this->putAll($values);
         } elseif (is_integer($values)) {
@@ -40,13 +42,18 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
     }
 
+    private function reset()
+    {
+        $this->pairs = [];
+        $this->capacity = self::MIN_CAPACITY;
+    }
+
     /**
      * @inheritDoc
      */
     public function clear()
     {
-        $this->pairs = [];
-        $this->capacity = self::MIN_CAPACITY;
+        $this->reset();
     }
 
     /**
@@ -135,15 +142,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function intersect(Map $map): Map
     {
-        $intersect = new Map();
-
-        foreach ($this as $key => $value) {
-            if ($map->containsKey($key)) {
-                $intersect->put($key, $value);
-            }
-        }
-
-        return $intersect;
+        return $this->filter(function($key, $value) use ($map) {
+            return $map->containsKey($key);
+        });
     }
 
     /**
@@ -155,17 +156,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function diff(Map $map): Map
     {
-        $diff = new Map();
-
-        foreach ($this as $key => $value) {
-            if ($map->containsKey($key)) {
-                continue;
-            }
-
-            $diff->put($key, $value);
-        }
-
-        return $diff;
+        return $this->filter(function($key, $value) use ($map) {
+            return ! $map->containsKey($key);
+        });
     }
 
     /**
@@ -177,21 +170,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function xor(Map $map): Map
     {
-        $xor = new Map();
-
-        foreach ($this as $key => $value) {
-            if ( ! $map->containsKey($key)) {
-                $xor->put($key, $value);
-            }
-        }
-
-        foreach ($map as $key => $value) {
-            if ( ! $this->containsKey($key)) {
-                $xor->put($key, $value);
-            }
-        }
-
-        return $xor;
+        return $this->merge($map)->filter(function($key, $value) use ($map) {
+            return  $this->containsKey($key) ^ $map->containsKey($key);
+        });
     }
 
     /**
@@ -509,22 +490,22 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Returns a sub-sequence of a given length starting at a specified offset.
      *
-     * @param int $offset      If the offset is non-negative, the map will 
-     *                         start at that offset in the map. If offset is 
-     *                         negative, the map will start that far from the 
+     * @param int $offset      If the offset is non-negative, the map will
+     *                         start at that offset in the map. If offset is
+     *                         negative, the map will start that far from the
      *                         end.
      *
-     * @param int|null $length If a length is given and is positive, the 
-     *                         resulting set will have up to that many pairs in 
-     *                         it. If the requested length results in an 
-     *                         overflow, only pairs up to the end of the map 
+     * @param int|null $length If a length is given and is positive, the
+     *                         resulting set will have up to that many pairs in
+     *                         it. If the requested length results in an
+     *                         overflow, only pairs up to the end of the map
      *                         will be included.
-     * 
+     *
      *                         If a length is given and is negative, the map
      *                         will stop that many pairs from the end.
      *
      *                        If a length is not provided, the resulting map
-     *                        will contains all pairs between the offset and 
+     *                        will contains all pairs between the offset and
      *                        the end of the map.
      *
      * @return Map
