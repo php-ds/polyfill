@@ -40,12 +40,12 @@ final class Pair implements \JsonSerializable
      */
     public function __get($name)
     {
-        if ($name === 'key' || $name === 'value') {
-            $this->$name = null;
-            return;
-        }
+        return $this->$name = null;
+        // if ($name === 'key' || $name === 'value') {
+        //     return $this->$name = null;
+        // }
 
-        throw new \Error();
+        // throw new \Error();
     }
 
     /**

@@ -6,6 +6,14 @@ use OutOfRangeException;
 use Traversable;
 use UnderflowException;
 
+final class MapNode
+{
+    public $pair;
+    public $prev;
+    public $next;
+    public $hash;
+}
+
 /**
  * Class Map
  *
@@ -18,10 +26,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
     const MIN_CAPACITY = 8;
 
-    /**
-     * @var Pair[]
-     */
-    private $pairs;
+    private $head;
+    private $tail;
+    private $size;
+
+    private $buckets;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -44,7 +53,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
     private function reset()
     {
-        $this->pairs = [];
+        $this->head = null;
+        $this->tail = null;
+        $this->size = 0;
+
+        $this->buckets = [];
         $this->capacity = self::MIN_CAPACITY;
     }
 
@@ -81,7 +94,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             throw new UnderflowException();
         }
 
-        return $this->pairs[0]->copy();
+        return $this->head->pair->copy();
     }
 
     /**
@@ -97,7 +110,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             throw new UnderflowException();
         }
 
-        return end($this->pairs)->copy();
+        return $this->tail->pair->copy();
     }
 
     /**
@@ -111,11 +124,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function skip(int $position): Pair
     {
-        if ($position < 0 || $position >= count($this->pairs)) {
+        if ($position < 0 || $position > ($this->size - 1)) {
             throw new OutOfRangeException();
         }
 
-        return $this->pairs[$position]->copy();
+        return $this->seek($position)->pair->copy();
     }
 
     /**
@@ -201,9 +214,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     private function lookupKey($key)
     {
-        foreach ($this->pairs as $pair) {
-            if ($this->keysAreEqual($pair->key, $key)) {
-                return $pair;
+        for ($node = $this->head; $node; $node = $node->next) {
+            if ($this->keysAreEqual($node->pair->key, $key)) {
+                return $node->pair;
             }
         }
     }
@@ -217,9 +230,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     private function lookupValue($value)
     {
-        foreach ($this->pairs as $pair) {
-            if ($pair->value === $value) {
-                return $pair;
+        for ($node = $this->head; $node; $node = $node->next) {
+            if ($node->pair->value === $value) {
+                return $node->pair;
             }
         }
     }
@@ -283,7 +296,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function count(): int
     {
-        return count($this->pairs);
+        return $this->size;
     }
 
     /**
@@ -365,8 +378,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $set = new Set();
 
-        foreach ($this->pairs as $pair) {
-            $set->add($pair->key);
+        foreach ($this as $key => $value) {
+            $set->add($key);
         }
 
         return $set;
@@ -401,11 +414,39 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $sequence = new Vector();
 
-        foreach ($this->pairs as $pair) {
-            $sequence[] = $pair->copy();
+        for ($node = $this->head; $node; $node = $node->next) {
+            $sequence[] = $node->pair->copy();
         }
 
         return $sequence;
+    }
+
+    private function getHash($key)
+    {
+        if (is_object($key)) {
+            if ($key instanceof Hashable) {
+                return $key->hash();
+            }
+
+            return spl_object_hash($key);
+        }
+
+        if (is_array($key)) {
+            return json_encode($key);
+        }
+
+        return $key;
+    }
+
+    private function initNode($key, $value, $hash): MapNode
+    {
+        $node = new MapNode();
+        $node->pair = new Pair($key, $value);
+        $node->next = null;
+        $node->prev = $this->tail;
+        $node->hash = $hash;
+
+        return $node;
     }
 
     /**
@@ -417,15 +458,72 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function put($key, $value)
     {
-        $pair = $this->lookupKey($key);
+        // printf("-----\n");
+        // printf("put $key => $value\n");
+        //
+        $hash = $this->getHash($key);
 
-        if ($pair) {
-            $pair->value = $value;
-            return;
+        // printf("hash = $hash\n");
+
+        if ($this->isEmpty()) {
+            // printf("empty, so head and tail are both new node\n");
+            $node = $this->initNode($key, $value, $hash);
+            $this->head = $node;
+            $this->tail = $node;
+            $this->buckets[$hash] = $node;
+
+        } else {
+
+            // printf("not empty\n");
+
+            //
+            $link = $this->buckets[$hash] ?? null;
+
+            if ($link) {
+
+                // printf("Collision chain exists\n");
+                // Collision chain exists
+                // Find the last node in the chain
+                for (;;) {
+                    if ($this->keysAreEqual($link->pair->key, $key)) {
+                        // Already in map, just replace the value
+                        $link->pair->value = $value;
+                        // printf("Key found so replace value and return\n");
+                        return;
+                    }
+
+                    //
+                    if ( ! $link->next) {
+                        // printf("Last node, bail\n");
+                        break;
+                    }
+
+                    $link = $link->next;
+                }
+
+                // printf("Could not find key, so append to chain\n");
+                // Could not find key, so append to chain
+                $node = $this->initNode($key, $value, $hash);
+                $node->prev = $link;
+                $link->next = $node;
+                $this->tail = $node;
+
+
+            } else {
+                // printf("Collision chain does not exist\n");
+
+                // Collision chain does not exist
+                $node = $this->initNode($key, $value, $hash);
+                $this->buckets[$hash] = $node;
+
+                $this->tail->next = $node;
+                $node->prev = $this->tail;
+                $this->tail = $node;
+            }
         }
 
         $this->adjustCapacity();
-        $this->pairs[] = new Pair($key, $value);
+        $this->size++;
     }
 
     /**
@@ -463,6 +561,29 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         return $carry;
     }
 
+    private function removeNode($node)
+    {
+        $value = $node->pair->value;
+
+        if ($node->prev) {
+            $node->prev->next = $node->next;
+        }
+
+        if ($node->next) {
+            $node->next->prev = $node->prev;
+        }
+
+        if ($node === $this->head) {
+            $this->head = null;
+        }
+
+        if ($node === $this->tail) {
+            $this->tail = null;
+        }
+
+        return $value;
+    }
+
     /**
      * Removes a key's association from the map and returns the associated value
      * or a provided default if provided.
@@ -477,20 +598,71 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function remove($key, $default = null)
     {
-        foreach ($this->pairs as $position => $pair) {
+        $hash = $this->getHash($key);
+        $node = $this->buckets[$hash] ?? null;
 
-            // Check if the pair is the one we're looking for
-            if ($this->keysAreEqual($pair->key, $key)) {
+        if ($node) {
 
-                // Delete pair, return its value
-                $value = $pair->value;
-
-                array_splice($this->pairs, $position, 1, null);
-                $this->adjustCapacity();
-
+            // See if the head of the chain is actually what we're looking for
+            if ($this->keysAreEqual($node->pair->key, $key)) {
+                $value = $this->removeNode($node);
+                unset($this->buckets[$hash]);
                 return $value;
             }
         }
+
+        // foreach ($this->buckets as $hash => $node) {
+
+
+
+
+        //     //
+        //     foreach ($nodes as $position => $node) {
+
+        //         //
+        //         if ($this->keysAreEqual($node->pair->key, $key)) {
+
+        //             //
+        //             $value = $node->pair->value;
+
+        //             //
+        //             if ($this->size === 1) {
+        //                 $this->head = null;
+        //                 $this->tail = null;
+
+        //             } else {
+
+        //                 //
+        //                 if ($node === $this->tail) {
+        //                     $this->tail = $this->tail->prev;
+        //                 }
+
+        //                 //
+        //                 if ($node === $this->head) {
+        //                     $this->head = $this->head->next;
+        //                 }
+
+        //                 //
+        //                 if ($node->next) {
+        //                     $node->next->prev = $node->prev;
+        //                 }
+
+        //                 //
+        //                 if ($node->prev) {
+        //                     $node->prev->next = $node->next;
+        //                 }
+        //             }
+
+        //             // array_splice($nodes, $position, 1, null);
+        //             unset($this->buckets[$hash][$position]);
+        //             // unset($nodes[$position]); // Does this work? Maybe splice?
+        //             $this->size--;
+
+        //             $this->adjustCapacity();
+        //             return;
+        //         }
+        //     }
+        // }
 
         // Check if a default was provided
         if (func_num_args() === 1) {
@@ -507,8 +679,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $reversed = new self();
 
-        foreach (array_reverse($this->pairs) as $pair) {
-            $reversed[$pair->key] = $pair->value;
+        for ($node = $this->tail; $node; $node = $node->prev) {
+            $reversed->put($node->pair->key, $node->pair->value);
         }
 
         return $reversed;
@@ -539,19 +711,27 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function slice(int $offset, int $length = null): Map
     {
-        $map = new Map();
+        $slice = new self();
 
-        if (func_num_args() === 1) {
-            $slice = array_slice($this->pairs, $offset);
+        foreach ($this->pairs()->slice($offset, $length) as $pair) {
+            $slice->put($pair->key, $pair->value);
+        }
+
+        return $slice;
+    }
+
+    private function seek(int $position)
+    {
+        //
+        if ($position < $this->size / 2) {
+            for ($node = $this->head; $position--; $node = $node->next);
+
+        //
         } else {
-            $slice = array_slice($this->pairs, $offset, $length);
+            for ($node = $this->tail; $position--; $node = $node->prev);
         }
 
-        foreach ($slice as $pair) {
-            $map->put($pair->key, $pair->value);
-        }
-
-        return $map;
+        return $node;
     }
 
     /**
@@ -565,17 +745,23 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function sort(callable $comparator = null): Map
     {
-        $copy = $this->copy();
+        $pairs = $this->pairs();
 
         if ($comparator) {
-            usort($copy->pairs, $comparator);
+            usort($pairs, $comparator);
         } else {
-            usort($copy->pairs, function($a, $b) {
+            usort($pairs, function($a, $b) {
                 return $a->key <=> $b->key;
             });
         }
 
-        return $copy;
+        $sorted = new self();
+
+        foreach ($pairs as $pair) {
+            $sorted->put($pair->key, $pair->value);
+        }
+
+        return $sorted;
     }
 
     /**
@@ -585,8 +771,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $array = [];
 
-        foreach ($this->pairs as $pair) {
-            $array[$pair->key] = $pair->value;
+        foreach ($this as $key => $value) {
+            $array[$key] = $value;
         }
 
         return $array;
@@ -599,13 +785,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function values(): Sequence
     {
-        $sequence = new Vector();
-
-        foreach ($this->pairs as $pair) {
-            $sequence[] = $pair->value;
-        }
-
-        return $sequence;
+        return new Vector($this);
     }
 
     /**
@@ -613,8 +793,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function getIterator()
     {
-        foreach ($this->pairs as $pair) {
-            yield $pair->key => $pair->value;
+        for ($node = $this->head; $node; $node = $node->next) {
+            yield $node->pair->key => $node->pair->value;
         }
     }
 
@@ -625,8 +805,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $debug = [];
 
-        foreach ($this->pairs as $pair) {
-            $debug[] = [$pair->key, $pair->value];
+        foreach ($this as $key => $value) {
+            $debug[] = [$key, $value];
         }
 
         return $debug;
