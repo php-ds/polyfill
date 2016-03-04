@@ -225,6 +225,28 @@ trait Sequence
 
     }
 
+    private function reverseRange(int $a, int $b)
+    {
+        $swap = function(&$a, &$b) {
+            $t = $a;
+            $a = $b;
+            $b = $t;
+        };
+
+        while (--$b > $a) {
+            $swap($this->internal[$a++], $this->internal[$b--]);
+        }
+    }
+
+    private function normalizeRotations(int $rotations, int $count)
+    {
+        if ($rotations < 0) {
+            return $count - (abs($rotations) % $count);
+        }
+
+        return $rotations % $count;
+    }
+
     /**
      * @inheritDoc
      */
@@ -234,33 +256,13 @@ trait Sequence
             return;
         }
 
-        $swap = function(&$a, &$b) {
-            $t = $a;
-            $a = $b;
-            $b = $t;
-        };
-
-        // Reverses a range within the internal array
-        $reverse = function(int $a, int $b) use ($swap) {
-            while (--$b > $a) {
-                $swap($this->internal[$a++], $this->internal[$b--]);
-            }
-        };
-
         $n = count($this);
-        $r = $rotations;
-
-        // Normalize the number of rotations
-        if ($r < 0) {
-            $r = $n - (abs($r) % $n);
-        } else {
-            $r = $r % $n;
-        }
+        $r = $this->normalizeRotations($rotations, $n);
 
         if ($r > 0) {
-            $reverse(0,  $r);
-            $reverse($r, $n);
-            $reverse(0,  $n);
+            $this->reverseRange(0,  $r);
+            $this->reverseRange($r, $n);
+            $this->reverseRange(0,  $n);
         }
     }
 

@@ -177,52 +177,26 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function xor(Set $set): Set
     {
-        $xor = new Set();
-
-        foreach ($this as $value) {
-            if ( ! $set->contains($value)) {
-                $xor->add($value);
-            }
-        }
-
-        foreach ($set as $value) {
-            if ( ! $this->contains($value)) {
-                $xor->add($value);
-            }
-        }
-
-        return $xor;
+        return $this->internal->xor($set->internal)->keys();
     }
 
     /**
-     * Returns a new set containing only the values for which a callback
-     * returns true. A boolean test will be used if a callback is not provided.
+     * Returns a new set containing only the values for which a predicate
+     * returns true. A boolean test will be used if a predicate is not provided.
      *
-     * @param callable|null $callback Accepts a value, returns a boolean result:
-     *                                true : include the value,
-     *                                false: skip the value.
+     * @param callable|null $predicate Accepts a value, returns a boolean:
+     *                                 true : include the value,
+     *                                 false: skip the value.
      *
      * @return Set
      */
-    public function filter(callable $callback = null): Set
+    public function filter(callable $predicate = null): Set
     {
         $filtered = new Set();
 
-        if ($callback) {
-
-            //
-            foreach ($this as $value) {
-                if ($callback($value)) {
-                    $filtered->add($value);
-                }
-            }
-        } else {
-
-            //
-            foreach ($this as $value) {
-                if ($value) {
-                    $filtered->add($value);
-                }
+        foreach ($this as $value) {
+            if ($predicate ? $predicate($value) : $value) {
+                $filtered->add($value);
             }
         }
 
@@ -266,15 +240,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function intersect(Set $set): Set
     {
-        $intersect = new Set();
-
-        foreach ($this as $value) {
-            if ($set->contains($value)) {
-                $intersect->add($value);
-            }
-        }
-
-        return $intersect;
+        return $this->internal->intersect($set->internal)->keys();
     }
 
     /**

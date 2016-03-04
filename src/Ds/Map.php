@@ -273,21 +273,21 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Returns a new map containing only the values for which a callback
-     * returns true. A boolean test will be used if a callback is not provided.
+     * Returns a new map containing only the values for which a predicate
+     * returns true. A boolean test will be used if a predicate is not provided.
      *
-     * @param callable|null $callback Accepts a key and a value, and returns:
-     *                                true : include the value,
-     *                                false: skip the value.
+     * @param callable|null $predicate Accepts a key and a value, and returns:
+     *                                 true : include the value,
+     *                                 false: skip the value.
      *
      * @return Map
      */
-    public function filter(callable $callback = null): Map
+    public function filter(callable $predicate = null): Map
     {
         $filtered = new self();
 
         foreach ($this as $key => $value) {
-            if ($callback ? $callback($key, $value) : $value) {
+            if ($predicate ? $predicate($key, $value) : $value) {
                 $filtered->put($key, $value);
             }
         }
