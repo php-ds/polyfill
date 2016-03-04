@@ -183,7 +183,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return bool
      */
-    private function identical($a, $b): bool
+    private function keysAreEqual($a, $b): bool
     {
         if (is_object($a) && $a instanceof Hashable) {
             return $a->equals($b);
@@ -199,10 +199,26 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return Pair|null
      */
-    private function lookup($key)
+    private function lookupKey($key)
     {
         foreach ($this->pairs as $pair) {
-            if ($this->identical($pair->key, $key)) {
+            if ($this->keysAreEqual($pair->key, $key)) {
+                return $pair;
+            }
+        }
+    }
+
+    /**
+     * Lookup
+     *
+     * @param $key
+     *
+     * @return Pair|null
+     */
+    private function lookupValue($value)
+    {
+        foreach ($this->pairs as $pair) {
+            if ($pair->value === $value) {
                 return $pair;
             }
         }
@@ -223,7 +239,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         foreach ($keys as $key) {
-            if ( ! $this->lookup($key)) {
+            if ( ! $this->lookupKey($key)) {
                 return false;
             }
         }
@@ -246,13 +262,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         foreach ($values as $value) {
-            foreach ($this->pairs as $pair) {
-                if ($pair->value === $value) {
-                    continue 2;
-                }
+            if ( ! $this->lookupValue($value)) {
+                return false;
             }
-
-            return false;
         }
 
         return true;
@@ -275,6 +287,22 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     *
+     */
+    private function filterUsingPredicate(callable $predicate)
+    {
+        $filtered = new self();
+
+        foreach ($this as $key => $value) {
+            if ($predicate($key, $value)) {
+                $filtered->put($key, $value);
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
      * Returns a new map containing only the values for which a callback
      * returns true. A boolean test will be used if a callback is not provided.
      *
@@ -284,16 +312,17 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return Map
      */
-    public function filter(callable $callback = null): Map
+    public function filter(callable $predicate = null): Map
     {
+        if ($predicate) {
+            return $this->filterUsingPredicate($predicate);
+        }
+
         $filtered = new self();
 
-        foreach ($this->pairs as $pair) {
-            $k = $pair->key;
-            $v = $pair->value;
-
-            if ($callback ? $callback($k, $v) : $v) {
-                $filtered->put($k, $v);
+        foreach ($this as $key => $value) {
+            if ($value) {
+                $filtered->put($key, $value);
             }
         }
 
@@ -314,7 +343,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function get($key, $default = null)
     {
-        if (($pair = $this->lookup($key))) {
+        $pair = $this->lookupKey($key);
+
+        if ($pair) {
             return $pair->value;
         }
 
@@ -343,7 +374,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
     /**
      * Returns a new map using the results of applying a callback to each value.
-     * The keys will be identical in both maps.
+     * The keys will be keysAreEqual in both maps.
      *
      * @param callable $callback Accepts two arguments: key and value, should
      *                           return what the updated value will be.
@@ -354,8 +385,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $mapped = new self();
 
-        foreach ($this->pairs as $pair) {
-            $mapped[$pair->key] = $callback($pair->key, $pair->value);
+        foreach ($this as $key => $value) {
+            $mapped[$key] = $callback($key, $value);
         }
 
         return $mapped;
@@ -386,7 +417,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function put($key, $value)
     {
-        $pair = $this->lookup($key);
+        $pair = $this->lookupKey($key);
 
         if ($pair) {
             $pair->value = $value;
@@ -449,7 +480,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         foreach ($this->pairs as $position => $pair) {
 
             // Check if the pair is the one we're looking for
-            if ($this->identical($pair->key, $key)) {
+            if ($this->keysAreEqual($pair->key, $key)) {
 
                 // Delete pair, return its value
                 $value = $pair->value;
@@ -616,7 +647,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function &offsetGet($offset)
     {
-        $pair = $this->lookup($offset);
+        $pair = $this->lookupKey($offset);
 
         if ($pair) {
             return $pair->value;
