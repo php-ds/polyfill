@@ -1,6 +1,8 @@
 <?php
 namespace Ds;
 
+use OutOfBoundsException;
+
 /**
  * A pair which represents a key, and an associated value.
  *
@@ -45,7 +47,7 @@ final class Pair implements \JsonSerializable
             return;
         }
 
-        throw new \Error();
+        throw new OutOfBoundsException();
     }
 
     /**
@@ -55,10 +57,7 @@ final class Pair implements \JsonSerializable
      */
     public function copy(): Pair
     {
-        $key   = is_object($this->key)   ? clone $this->key   : $this->key;
-        $value = is_object($this->value) ? clone $this->value : $this->value;
-
-        return new self($key, $value);
+        return new self($this->key, $this->value);
     }
 
     /**
