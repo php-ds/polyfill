@@ -55,7 +55,10 @@ final class Pair implements \JsonSerializable
      */
     public function copy(): Pair
     {
-        return new self($this->key, $this->value);
+        $key   = is_object($this->key)   ? clone $this->key   : $this->key;
+        $value = is_object($this->value) ? clone $this->value : $this->value;
+
+        return new self($key, $value);
     }
 
     /**

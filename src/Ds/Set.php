@@ -2,9 +2,9 @@
 namespace Ds;
 
 use Error;
-use Traversable;
 use OutOfBoundsException;
 use OutOfRangeException;
+use Traversable;
 
 /**
  * Set

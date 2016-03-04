@@ -245,14 +245,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             return false;
         }
 
-        foreach ($values as $value) {
-            foreach ($this->pairs as $pair) {
-                if ($pair->value === $value) {
-                    continue 2;
-                }
-            }
+        $haystack = $this->values();
 
-            return false;
+        foreach ($values as $needle) {
+            if ( ! $haystack->contains($needle)) {
+                return false;
+            }
         }
 
         return true;
@@ -288,12 +286,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $filtered = new self();
 
-        foreach ($this->pairs as $pair) {
-            $k = $pair->key;
-            $v = $pair->value;
-
-            if ($callback ? $callback($k, $v) : $v) {
-                $filtered->put($k, $v);
+        foreach ($this as $key => $value) {
+            if ($callback ? $callback($key, $value) : $value) {
+                $filtered->put($key, $value);
             }
         }
 
@@ -432,6 +427,17 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         return $carry;
     }
 
+    private function delete(int $position)
+    {
+        $pair  = $this->pairs[$position];
+        $value = $pair->value;
+
+        array_splice($this->pairs, $position, 1, null);
+
+        $this->adjustCapacity();
+        return $value;
+    }
+
     /**
      * Removes a key's association from the map and returns the associated value
      * or a provided default if provided.
@@ -450,14 +456,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
             // Check if the pair is the one we're looking for
             if ($this->identical($pair->key, $key)) {
-
-                // Delete pair, return its value
-                $value = $pair->value;
-
-                array_splice($this->pairs, $position, 1, null);
-                $this->adjustCapacity();
-
-                return $value;
+                return $this->delete($position);
             }
         }
 
