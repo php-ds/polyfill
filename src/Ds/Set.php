@@ -115,7 +115,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         foreach ($values as $value) {
-            if ( ! $this->internal->containsKey($value)) {
+            if ( ! $this->internal->hasKey($value)) {
                 return false;
             }
         }

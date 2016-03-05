@@ -144,7 +144,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function intersect(Map $map): Map
     {
         return $this->filter(function($key) use ($map) {
-            return $map->containsKey($key);
+            return $map->hasKey($key);
         });
     }
 
@@ -158,7 +158,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function diff(Map $map): Map
     {
         return $this->filter(function($key) use ($map) {
-            return ! $map->containsKey($key);
+            return ! $map->hasKey($key);
         });
     }
 
@@ -172,7 +172,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function xor(Map $map): Map
     {
         return $this->merge($map)->filter(function($key) use ($map) {
-            return $this->containsKey($key) ^ $map->containsKey($key);
+            return $this->hasKey($key) ^ $map->hasKey($key);
         });
     }
 
@@ -247,7 +247,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return bool true if at least one value was provided and the map
      *              contains all given keys, false otherwise.
      */
-    public function containsKey(...$keys): bool
+    public function hasKey(...$keys): bool
     {
         return $this->contains('lookupKey', $keys);
     }
@@ -260,7 +260,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @return bool true if at least one value was provided and the map
      *              contains all given values, false otherwise.
      */
-    public function containsValue(...$values): bool
+    public function hasValue(...$values): bool
     {
         return $this->contains('lookupValue', $values);
     }
