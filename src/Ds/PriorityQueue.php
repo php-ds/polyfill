@@ -78,16 +78,6 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     {
         $this->reset();
     }
-    
-    /**
-     * Reset the PriorityQueue to an initialised state.
-     */
-    private function reset()
-    {
-        $this->heap     = [];
-        $this->stamp    = 0;
-        $this->capacity = self::MIN_CAPACITY;
-    }
 
     /**
      * @inheritDoc
@@ -124,6 +114,76 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         }
 
         return $this->heap[0]->value;
+    }
+
+    /**
+     * Returns and removes the value with the highest priority in the queue.
+     *
+     * @return mixed
+     */
+    public function pop()
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+
+        // Last leaf of the heap to become the new root.
+        $leaf = array_pop($this->heap);
+
+        if (empty($this->heap)) {
+            return $leaf->value;
+        }
+
+        // Cache the current root value to return before replacing with next.
+        $value = $this->getRoot()->value;
+
+        // Replace the root, then sift down.
+        $this->setRoot($leaf);
+        $this->siftDown(0);
+        $this->adjustCapacity();
+
+        return $value;
+    }
+
+    /**
+     * Pushes a value into the queue, with a specified priority.
+     *
+     * @param mixed $value
+     * @param int   $priority
+     */
+    public function push($value, int $priority)
+    {
+        $this->adjustCapacity();
+
+        // Add new leaf, then sift up to maintain heap,
+        $this->heap[] = new PriorityNode($value, $priority, $this->stamp++);
+        $this->siftUp(count($this->heap) - 1);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toArray(): array
+    {
+        $heap  = $this->heap;
+        $array = [];
+
+        while ( ! $this->isEmpty()) {
+            $array[] = $this->pop();
+        }
+
+        $this->heap = $heap;
+        return $array;
+    }
+
+    /**
+     * Get iterator
+     */
+    public function getIterator()
+    {
+        while ( ! $this->isEmpty()) {
+            yield $this->pop();
+        }
     }
 
     /**
@@ -212,6 +272,25 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
+     * Sift Up
+     *
+     * @param int $leaf
+     */
+    private function siftUp(int $leaf)
+    {
+        for (; $leaf > 0; $leaf = $parent) {
+            $parent = $this->parent($leaf);
+
+            // Done when parent priority is greater.
+            if ($this->compare($leaf, $parent) < 0) {
+                break;
+            }
+
+            $this->swap($parent, $leaf);
+        }
+    }
+
+    /**
      * Sift Down
      *
      * @param int $node
@@ -255,91 +334,12 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
-     * Returns and removes the value with the highest priority in the queue.
-     *
-     * @return mixed
+     * Reset the PriorityQueue to an initialised state.
      */
-    public function pop()
+    private function reset()
     {
-        if ($this->isEmpty()) {
-            throw new UnderflowException();
-        }
-
-        // Last leaf of the heap to become the new root.
-        $leaf = array_pop($this->heap);
-
-        if (empty($this->heap)) {
-            return $leaf->value;
-        }
-
-        // Cache the current root value to return before replacing with next.
-        $value = $this->getRoot()->value;
-
-        // Replace the root, then sift down.
-        $this->setRoot($leaf);
-        $this->siftDown(0);
-        $this->adjustCapacity();
-
-        return $value;
-    }
-
-    /**
-     * Sift Up
-     *
-     * @param int $leaf
-     */
-    private function siftUp(int $leaf)
-    {
-        for (; $leaf > 0; $leaf = $parent) {
-            $parent = $this->parent($leaf);
-
-            // Done when parent priority is greater.
-            if ($this->compare($leaf, $parent) < 0) {
-                break;
-            }
-
-            $this->swap($parent, $leaf);
-        }
-    }
-
-    /**
-     * Pushes a value into the queue, with a specified priority.
-     *
-     * @param mixed $value
-     * @param int   $priority
-     */
-    public function push($value, int $priority)
-    {
-        $this->adjustCapacity();
-
-        // Add new leaf, then sift up to maintain heap,
-        $this->heap[] = new PriorityNode($value, $priority, $this->stamp++);
-        $this->siftUp(count($this->heap) - 1);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function toArray(): array
-    {
-        $heap  = $this->heap;
-        $array = [];
-
-        while ( ! $this->isEmpty()) {
-            $array[] = $this->pop();
-        }
-
-        $this->heap = $heap;
-        return $array;
-    }
-
-    /**
-     * Get iterator
-     */
-    public function getIterator()
-    {
-        while ( ! $this->isEmpty()) {
-            yield $this->pop();
-        }
+        $this->heap     = [];
+        $this->stamp    = 0;
+        $this->capacity = self::MIN_CAPACITY;
     }
 }
