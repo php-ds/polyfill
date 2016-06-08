@@ -13,7 +13,7 @@ interface Hashable
      *
      * @return mixed Scalar hash value.
      */
-    function hash();
+    function hash(): string;
 
     /**
      * Returns whether this object is considered equal to another.
