@@ -528,25 +528,54 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
     /**
      * Returns a sorted copy of the map, based on an optional callable
-     * comparator. The map will be sorted by key if a comparator is not given.
+     * comparator. The map will be sorted by value.
      *
      * @param callable|null $comparator Accepts two values to be compared.
-     *                                  Should return the result of a <=> b.
      *
      * @return Map
      */
     public function sort(callable $comparator = null): Map
     {
-        $copy = $this->copy();
+        $sorted = $this->copy();
 
-        if ( ! $comparator) {
-            $comparator = function($a, $b) {
-                return $a->key <=> $b->key;
-            };
+        if ($comparator) {
+            usort($sorted->pairs, function($a, $b) use ($comparator) {
+                return $comparator($a->value, $b->value);
+            });
+
+        } else {
+            usort($sorted->pairs, function($a, $b) {
+                return $a->value <=> $b->value;
+            });
         }
 
-        usort($copy->pairs, $comparator);
-        return $copy;
+        return $sorted;
+    }
+
+    /**
+     * Returns a sorted copy of the map, based on an optional callable
+     * comparator. The map will be sorted by key.
+     *
+     * @param callable|null $comparator Accepts two keys to be compared.
+     *
+     * @return Map
+     */
+    public function ksort(callable $comparator = null): Map
+    {
+        $sorted = $this->copy();
+
+        if ($comparator) {
+            usort($sorted->pairs, function($a, $b) use ($comparator) {
+                return $comparator($a->key, $b->key);
+            });
+
+        } else {
+            usort($sorted->pairs, function($a, $b) {
+                return $a->key <=> $b->key;
+            });
+        }
+
+        return $sorted;
     }
 
     /**

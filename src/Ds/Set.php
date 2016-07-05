@@ -362,7 +362,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     public function sort(callable $comparator = null): Set
     {
         $set = new Set();
-        $set->internal = $this->internal->sort($comparator);
+        $set->internal = $this->internal->ksort($comparator);
 
         return $set;
     }
