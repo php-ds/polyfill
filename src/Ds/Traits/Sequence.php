@@ -13,6 +13,9 @@ use UnderflowException;
  */
 trait Sequence
 {
+    use Collection;
+    use SquaredCapacity;
+
     /**
      * @var array
      */
