@@ -32,16 +32,6 @@ trait Collection
     }
 
     /**
-     * Creates a copy of the collection, equivalent to 'clone'.
-     *
-     * @return \Ds\Collection
-     */
-    public function copy()
-    {
-        return new self($this);
-    }
-
-    /**
      * Returns an array representation of the collection.
      *
      * The format of the returned array is implementation-dependent.

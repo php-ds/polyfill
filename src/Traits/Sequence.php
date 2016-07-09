@@ -43,7 +43,7 @@ trait Sequence
      */
     public function merge($values): \Ds\Sequence
     {
-        $merged = $this->copy();
+        $merged = clone $this;
         $merged->pushAll($values);
 
         return $merged;

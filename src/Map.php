@@ -375,7 +375,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $sequence = new Vector();
 
         foreach ($this->pairs as $pair) {
-            $sequence[] = $pair->copy();
+            $sequence[] = clone $pair;
         }
 
         return $sequence;
