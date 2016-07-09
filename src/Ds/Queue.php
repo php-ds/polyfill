@@ -11,6 +11,8 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
 {
     use Traits\Collection;
 
+    const MIN_CAPACITY = 8;
+
     /**
      * @var Deque
      */
