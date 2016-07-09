@@ -9,7 +9,7 @@ before_install:
   - composer self-update
 
 install:
-  - composer install --no-interaction
+  - composer update --no-interaction
 
 script:
   - composer test
