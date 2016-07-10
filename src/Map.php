@@ -116,7 +116,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             throw new OutOfRangeException();
         }
 
-        return $this->pairs[$position]->copy();
+        return clone $this->pairs[$position];
     }
 
     /**
@@ -128,7 +128,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function merge($values): Map
     {
-        $merged = $this->copy();
+        $merged = new self($this);
         $merged->putAll($values);
 
         return $merged;
@@ -263,14 +263,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function hasValue(...$values): bool
     {
         return $this->contains('lookupValue', $values);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function copy()
-    {
-        return new self($this);
     }
 
     /**
@@ -536,7 +528,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function sort(callable $comparator = null): Map
     {
-        $sorted = $this->copy();
+        $sorted = new self($this);
 
         if ($comparator) {
             usort($sorted->pairs, function($a, $b) use ($comparator) {
@@ -562,7 +554,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function ksort(callable $comparator = null): Map
     {
-        $sorted = $this->copy();
+        $sorted = clone $this;
 
         if ($comparator) {
             usort($sorted->pairs, function($a, $b) use ($comparator) {
