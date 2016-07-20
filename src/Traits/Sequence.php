@@ -24,7 +24,7 @@ trait Sequence
     public function __construct($values = null)
     {
         if (is_array($values) || $values instanceof Traversable) {
-            $this->pushAll($values);
+            $this->push(...$values);
         } elseif (is_integer($values)) {
             $this->allocate($values);
         }
@@ -44,7 +44,7 @@ trait Sequence
     public function merge($values): \Ds\Sequence
     {
         $merged = clone $this;
-        $merged->pushAll($values);
+        $merged->push(...$values);
 
         return $merged;
     }
@@ -181,18 +181,6 @@ trait Sequence
             array_push($this->internal, ...$values);
             $this->adjustCapacity();
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function pushAll($values)
-    {
-        if ( ! is_array($values) && ! $values instanceof Traversable) {
-            throw new Error();
-        }
-
-        $this->push(...$values);
     }
 
     /**

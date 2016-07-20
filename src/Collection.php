@@ -9,7 +9,7 @@ namespace Ds;
 interface Collection extends \Traversable, \Countable, \JsonSerializable
 {
     /**
-     * Clears all elements in the Collection.
+     * Removes all values from the collection.
      */
     function clear();
 

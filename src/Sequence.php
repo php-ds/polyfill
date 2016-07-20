@@ -10,18 +10,14 @@ interface Sequence extends Collection
 {
     /**
      * Creates a new sequence using the values of either an array or iterable
-     * object. The keys of either will not be preserved.
-     *
-     * Should an integer be provided the Sequence will allocate the memory
-     * capacity to the size of $values.
+     * object as initial values, or an int to specify an initial capacity.
      *
      * @param array|\Traversable|int|null $values
      */
     function __construct($values = null);
 
     /**
-     * Ensures that enough memory is allocated for a specified capacity. This
-     * potentially reduces the number of reallocations as the size increases.
+     * Ensures that enough memory is allocated for a required capacity.
      *
      * @param int $capacity The number of values for which capacity should be
      *                      allocated. Capacity will stay the same if this value
@@ -153,13 +149,6 @@ interface Sequence extends Collection
      * @param mixed ...$values
      */
     function push(...$values);
-
-    /**
-     * Adds all values in an array or iterable object to the sequence.
-     *
-     * @param array|\Traversable $values
-     */
-    function pushAll($values);
 
     /**
      * Iteratively reduces the sequence to a single value using a callback.
