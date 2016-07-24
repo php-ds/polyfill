@@ -37,7 +37,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
         $this->internal = new Map();
 
         if ($values && is_array($values) || $values instanceof Traversable) {
-            $this->addAll($values);
+            $this->add(...$values);
         }
     }
 
@@ -50,20 +50,6 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     {
         foreach ($values as $value) {
             $this->internal[$value] = null;
-        }
-    }
-
-    /**
-     * Adds all values in an array or iterable object to the set.
-     *
-     * @param array|\Traversable $values
-     */
-    public function addAll($values)
-    {
-        if ($values) {
-            foreach ($values as $value) {
-                $this->internal[$value] = null;
-            }
         }
     }
 
