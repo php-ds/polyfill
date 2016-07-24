@@ -26,10 +26,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Creates an instance using the values of an array or Traversable object.
      *
-     * Should an integer be provided the Map will allocate the memory capacity
-     * to the size of $values.
-     *
-     * @param array|\Traversable|int|null $values
+     * @param array|\Traversable|null $values
      */
     public function __construct($values = null)
     {

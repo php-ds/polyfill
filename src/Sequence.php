@@ -10,9 +10,9 @@ interface Sequence extends Collection
 {
     /**
      * Creates a new sequence using the values of either an array or iterable
-     * object as initial values, or an int to specify an initial capacity.
+     * object as initial values.
      *
-     * @param array|\Traversable|int|null $values
+     * @param array|\Traversable|null $values
      */
     function __construct($values = null);
 

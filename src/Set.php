@@ -26,11 +26,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      * Creates a new set using the values of an array or Traversable object.
      * The keys of either will not be preserved.
      *
-     *
-     * Should an integer be provided the Set will allocate the memory capacity
-     * to the size of $values.
-     *
-     * @param array|\Traversable|int|null $values
+     * @param array|\Traversable|null $values
      */
     public function __construct($values = null)
     {
