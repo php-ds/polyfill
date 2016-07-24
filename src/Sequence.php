@@ -210,27 +210,27 @@ interface Sequence extends Collection
     function shift();
 
     /**
-     * Returns a sub-sequence of a given length starting at a specified offset.
+     * Returns a sub-sequence of a given length starting at a specified index.
      *
-     * @param int $offset If the offset is non-negative, the sequence will start
-     *                    at that offset in the sequence. If offset is negative,
+     * @param int $index  If the index is positive, the sequence will start
+     *                    at that index in the sequence. If index is negative,
      *                    the sequence will start that far from the end.
      *
      * @param int $length If a length is given and is positive, the resulting
      *                    sequence will have up to that many values in it.
-     *                    If the requested length results in an overflow, only
-     *                    values up to the end of the sequence will be included.
+     *                    If the length results in an overflow, only values
+     *                    up to the end of the sequence will be included.
      *
      *                    If a length is given and is negative, the sequence
      *                    will stop that many values from the end.
      *
      *                    If a length is not provided, the resulting sequence
-     *                    will contains all values between the offset and the
+     *                    will contain all values between the index and the
      *                    end of the sequence.
      *
      * @return Sequence
      */
-    function slice(int $offset, int $length = null): Sequence;
+    function slice(int $index, int $length = null): Sequence;
 
     /**
      * Returns a sorted copy of the sequence, based on an optional callable

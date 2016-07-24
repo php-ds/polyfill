@@ -33,20 +33,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
-        $this->reset();
-
-        if (is_array($values) || $values instanceof Traversable) {
-            $this->putAll($values);
-
-        } else if (is_integer($values)) {
-            $this->allocate($values);
-        }
-    }
-
-    private function reset()
-    {
         $this->pairs = [];
         $this->capacity = self::MIN_CAPACITY;
+
+        if ($values && is_array($values) || $values instanceof Traversable) {
+            $this->putAll($values);
+        }
     }
 
     /**
@@ -54,7 +46,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
     {
-        $this->reset();
+        $this->pairs = [];
+        $this->capacity = self::MIN_CAPACITY;
     }
 
     /**

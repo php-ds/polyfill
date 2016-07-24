@@ -36,10 +36,8 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $this->internal = new Map();
 
-        if (is_array($values) || $values instanceof Traversable) {
+        if ($values && is_array($values) || $values instanceof Traversable) {
             $this->addAll($values);
-        } elseif (is_integer($values)) {
-            $this->allocate($values);
         }
     }
 
