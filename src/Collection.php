@@ -14,6 +14,11 @@ interface Collection extends \Traversable, \Countable, \JsonSerializable
     function clear();
 
     /**
+     * Creates a copy of the collection, equivalent to 'clone'.
+     */
+    function copy();
+
+    /**
      * Returns the size of the collection.
      *
      * @return int
