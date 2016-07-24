@@ -62,7 +62,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @inheritDoc
      */
-    public function copy()
+    public function copy(): \Ds\Collection
     {
         return new self($this->internal);
     }

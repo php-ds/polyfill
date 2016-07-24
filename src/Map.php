@@ -48,18 +48,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Removes all Pairs from the Map
-     *
-     * @param mixed[] $keys
-     */
-    public function removeAll($keys)
-    {
-        foreach ($keys as $key) {
-            $this->remove($key);
-        }
-    }
-
-    /**
      * Return the first Pair from the Map
      *
      * @return Pair
@@ -418,6 +406,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         return $carry;
     }
 
+    /**
+     *
+     */
     private function delete(int $position)
     {
         $pair  = $this->pairs[$position];

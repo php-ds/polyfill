@@ -39,7 +39,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @inheritdoc
      */
-    public function copy()
+    public function copy(): Collection
     {
         return new self($this->internal);
     }

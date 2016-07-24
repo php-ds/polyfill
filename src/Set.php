@@ -106,7 +106,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @inheritDoc
      */
-    public function copy()
+    public function copy(): \Ds\Collection
     {
         return new Set($this);
     }

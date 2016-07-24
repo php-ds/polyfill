@@ -78,7 +78,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     {
         $this->reset();
     }
-    
+
     /**
      * Reset the PriorityQueue to an initialised state.
      */
@@ -92,10 +92,10 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     /**
      * @inheritDoc
      */
-    public function copy()
+    public function copy(): \Ds\Collection
     {
         $copy = new PriorityQueue();
-        
+
         $copy->heap     = $this->heap;
         $copy->capacity = $this->capacity;
 
