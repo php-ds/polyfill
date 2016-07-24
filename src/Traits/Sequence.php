@@ -41,7 +41,9 @@ trait Sequence
      */
     public function apply(callable $callback)
     {
-        $this->internal = array_map($callback, $this->internal);
+        foreach ($this->internal as &$value) {
+            $value = $callback($value);
+        }
     }
 
     /**
@@ -309,14 +311,12 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function sort(callable $comparator = null): \Ds\Sequence
+    public function sort(callable $comparator = null)
     {
-        $internal = $this->internal;
-
         if ($comparator) {
-            usort($internal, $comparator);
+            usort($this->internal, $comparator);
         } else {
-            sort($internal);
+            sort($this->internal);
         }
     }
 
@@ -356,7 +356,7 @@ trait Sequence
     }
 
     /**
-     * Check Range
+     *
      *
      * @param int $index
      */
@@ -368,7 +368,7 @@ trait Sequence
     }
 
     /**
-     * Get Iterator
+     *
      */
     public function getIterator()
     {
@@ -378,7 +378,7 @@ trait Sequence
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function clear()
     {

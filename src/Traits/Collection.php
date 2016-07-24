@@ -32,11 +32,11 @@ trait Collection
     }
 
     /**
-     * Creates a copy of the collection, equivalent to 'clone'.
+     * Creates a copy of the collection.
      *
-     * @return \Ds\Collection
+     * @return self
      */
-    public function copy()
+    public function copy(): \Ds\Collection
     {
         return new self($this);
     }

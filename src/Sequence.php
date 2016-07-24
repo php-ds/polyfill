@@ -204,15 +204,6 @@ interface Sequence extends Collection
     function rotate(int $rotations);
 
     /**
-     * Returns a rotated copy of the sequence.
-     *
-     * @see \Ds\Sequence::rotate
-     *
-     * @param int $rotations The number of rotations (can be negative).
-     */
-    function rotated(int $rotations): Sequence;
-
-    /**
      * Replaces the value at a given index in the sequence with a new value.
      *
      * @param int   $index
@@ -260,8 +251,6 @@ interface Sequence extends Collection
      *
      * @param callable|null $comparator Accepts two values to be compared.
      *                                  Should return the result of a <=> b.
-     *
-     * @return Sequence
      */
     function sort(callable $comparator = null);
 
@@ -279,9 +268,9 @@ interface Sequence extends Collection
     /**
      * Returns the sum of all values in the sequence, each converted to float.
      *
-     * @return float The sum of all the values in the sequence.
+     * @return int|float The sum of all the values in the sequence.
      */
-    function sum(): float;
+    function sum();
 
     /**
      * Adds zero or more values to the front of the sequence.
