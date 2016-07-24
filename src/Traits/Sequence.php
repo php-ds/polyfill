@@ -39,6 +39,14 @@ trait Sequence
     /**
      * @inheritdoc
      */
+    public function apply(callable $callback)
+    {
+        $this->internal = array_map($callback, $this->internal);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function merge($values): \Ds\Sequence
     {
         $merged = clone $this;
@@ -205,10 +213,17 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function reverse(): \Ds\Sequence
+    public function reverse()
+    {
+        $this->internal = array_reverse($this->internal);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reversed(): \Ds\Sequence
     {
         return new self(array_reverse($this->internal));
-
     }
 
     private function reverseRange(int $a, int $b)
@@ -219,7 +234,10 @@ trait Sequence
             $b = $t;
         };
 
-        while (--$b > $a) {
+        // End of range exclusive
+        $b--;
+
+        while ($b > $a) {
             $swap($this->internal[$a++], $this->internal[$b--]);
         }
     }
@@ -300,8 +318,30 @@ trait Sequence
         } else {
             sort($internal);
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function sorted(callable $comparator = null): \Ds\Sequence
+    {
+        $internal = $this->internal;
+
+        if ($comparator) {
+            usort($internal, $comparator);
+        } else {
+            sort($internal);
+        }
 
         return new self($internal);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function sum()
+    {
+        return array_sum($this->internal);
     }
 
     /**

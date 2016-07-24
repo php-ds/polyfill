@@ -26,6 +26,14 @@ interface Sequence extends Collection
     function allocate(int $capacity);
 
     /**
+     * Updates every value in the sequence by applying a callback, using the
+     * return value as the new value.
+     *
+     * @param callable $callback Accepts the value, returns the new value.
+     */
+    function apply(callable $callback);
+
+    /**
      * Returns the current capacity of the sequence.
      *
      * @return int
@@ -126,7 +134,7 @@ interface Sequence extends Collection
     function map(callable $callback): Sequence;
 
     /**
-     * Merge an array of values with the current sequence
+     * Returns the result of adding all given values to the sequence.
      *
      * @param array|\Traversable $values
      *
@@ -175,11 +183,16 @@ interface Sequence extends Collection
     function remove(int $index);
 
     /**
+     * Reverses the sequence in-place.
+     */
+    function reverse();
+
+    /**
      * Returns a reversed copy of the sequence.
      *
      * @return Sequence
      */
-    function reverse(): Sequence;
+    function reversed();
 
     /**
      * Rotates the sequence by a given number of rotations, which is equivalent
@@ -189,6 +202,15 @@ interface Sequence extends Collection
      * @param int $rotations The number of rotations (can be negative).
      */
     function rotate(int $rotations);
+
+    /**
+     * Returns a rotated copy of the sequence.
+     *
+     * @see \Ds\Sequence::rotate
+     *
+     * @param int $rotations The number of rotations (can be negative).
+     */
+    function rotated(int $rotations): Sequence;
 
     /**
      * Replaces the value at a given index in the sequence with a new value.
@@ -233,6 +255,17 @@ interface Sequence extends Collection
     function slice(int $index, int $length = null): Sequence;
 
     /**
+     * Sorts the sequence in-place, based on an optional callable comparator.
+     * Natural ordering will be used if a comparator is not given.
+     *
+     * @param callable|null $comparator Accepts two values to be compared.
+     *                                  Should return the result of a <=> b.
+     *
+     * @return Sequence
+     */
+    function sort(callable $comparator = null);
+
+    /**
      * Returns a sorted copy of the sequence, based on an optional callable
      * comparator. Natural ordering will be used if a comparator is not given.
      *
@@ -241,7 +274,14 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function sort(callable $comparator = null): Sequence;
+    function sorted(callable $comparator = null): Sequence;
+
+    /**
+     * Returns the sum of all values in the sequence, each converted to float.
+     *
+     * @return float The sum of all the values in the sequence.
+     */
+    function sum(): float;
 
     /**
      * Adds zero or more values to the front of the sequence.
