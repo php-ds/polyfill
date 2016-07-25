@@ -21,7 +21,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @var Pair[]
      */
-    private $pairs;
+    private $pairs = [];
 
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -30,10 +30,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
-        $this->pairs = [];
-        $this->capacity = self::MIN_CAPACITY;
-
-        if ($values && is_array($values) || $values instanceof Traversable) {
+        if (func_num_args()) {
             $this->putAll($values);
         }
     }
@@ -94,7 +91,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             throw new OutOfRangeException();
         }
 
-        return clone $this->pairs[$position];
+        return $this->pairs[$position]->copy();
     }
 
     /**
@@ -451,7 +448,15 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Returns a reversed copy of the map.
      */
-    public function reverse(): Map
+    public function reverse()
+    {
+        $this->pairs = array_reverse($this->pairs);
+    }
+
+    /**
+     * Returns a reversed copy of the map.
+     */
+    public function reversed(): Map
     {
         $reversed = new self();
         $reversed->pairs = array_reverse($this->pairs);
@@ -484,7 +489,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function slice(int $offset, int $length = null): Map
     {
-        $map = new Map();
+        $map = new self();
 
         if (func_num_args() === 1) {
             $slice = array_slice($this->pairs, $offset);
@@ -500,6 +505,27 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Sorts the map in-place, based on an optional callable comparator.
+     *
+     * The map will be sorted by value.
+     *
+     * @param callable|null $comparator Accepts two values to be compared.
+     */
+    public function sort(callable $comparator = null)
+    {
+        if ($comparator) {
+            usort($this->pairs, function($a, $b) use ($comparator) {
+                return $comparator($a->value, $b->value);
+            });
+
+        } else {
+            usort($this->pairs, function($a, $b) {
+                return $a->value <=> $b->value;
+            });
+        }
+    }
+
+    /**
      * Returns a sorted copy of the map, based on an optional callable
      * comparator. The map will be sorted by value.
      *
@@ -507,7 +533,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return Map
      */
-    public function sort(callable $comparator = null): Map
+    public function sorted(callable $comparator = null): Map
     {
         $sorted = new self($this);
 
@@ -526,6 +552,27 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Sorts the map in-place, based on an optional callable comparator.
+     *
+     * The map will be sorted by key.
+     *
+     * @param callable|null $comparator Accepts two keys to be compared.
+     */
+    public function ksort(callable $comparator = null)
+    {
+        if ($comparator) {
+            usort($this->pairs, function($a, $b) use ($comparator) {
+                return $comparator($a->key, $b->key);
+            });
+
+        } else {
+            usort($this->pairs, function($a, $b) {
+                return $a->key <=> $b->key;
+            });
+        }
+    }
+
+    /**
      * Returns a sorted copy of the map, based on an optional callable
      * comparator. The map will be sorted by key.
      *
@@ -533,9 +580,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return Map
      */
-    public function ksort(callable $comparator = null): Map
+    public function ksorted(callable $comparator = null): Map
     {
-        $sorted = clone $this;
+        $sorted = $this->copy();
 
         if ($comparator) {
             usort($sorted->pairs, function($a, $b) use ($comparator) {
@@ -549,6 +596,16 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         return $sorted;
+    }
+
+    /**
+     * Returns the sum of all values in the map.
+     *
+     * @return int|float The sum of all the values in the map.
+     */
+    public function sum()
+    {
+        return $this->values()->sum();
     }
 
     /**

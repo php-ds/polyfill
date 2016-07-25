@@ -25,7 +25,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
-        $this->internal = new Vector($values);
+        $this->internal = new Vector($values ?: []);
     }
 
     /**
@@ -109,18 +109,6 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     public function push(...$values)
     {
         $this->internal->push(...$values);
-    }
-
-    /**
-     * Adds all values in an array or iterable object to the sequence.
-     *
-     * @param array|\Traversable $values
-     *
-     * @throws Error
-     */
-    public function pushAll($values)
-    {
-        $this->internal->pushAll($values);
     }
 
     /**

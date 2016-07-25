@@ -247,7 +247,6 @@ interface Sequence extends Collection
 
     /**
      * Sorts the sequence in-place, based on an optional callable comparator.
-     * Natural ordering will be used if a comparator is not given.
      *
      * @param callable|null $comparator Accepts two values to be compared.
      *                                  Should return the result of a <=> b.
@@ -266,7 +265,7 @@ interface Sequence extends Collection
     function sorted(callable $comparator = null): Sequence;
 
     /**
-     * Returns the sum of all values in the sequence, each converted to float.
+     * Returns the sum of all values in the sequence.
      *
      * @return int|float The sum of all the values in the sequence.
      */

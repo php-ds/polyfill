@@ -23,8 +23,8 @@ trait Sequence
      */
     public function __construct($values = null)
     {
-        if ($values && is_array($values) || $values instanceof Traversable) {
-            $this->push(...$values);
+        if (func_num_args()) {
+            $this->pushAll($values);
         }
     }
 
@@ -52,7 +52,7 @@ trait Sequence
     public function merge($values): \Ds\Sequence
     {
         $merged = $this->copy();
-        $merged->push(...$values);
+        $merged->pushAll($values);
 
         return $merged;
     }
@@ -180,15 +180,21 @@ trait Sequence
         return $value;
     }
 
+    private function pushAll($values)
+    {
+        foreach ($values as $value) {
+            $this->internal[] = $value;
+        }
+
+        $this->adjustCapacity();
+    }
+
     /**
      * @inheritDoc
      */
     public function push(...$values)
     {
-        if ($values) {
-            array_push($this->internal, ...$values);
-            $this->adjustCapacity();
-        }
+        $this->pushAll($values);
     }
 
     /**
