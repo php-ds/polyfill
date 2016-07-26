@@ -385,10 +385,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Creates associations for all keys and corresponding values of either an
      * array or iterable object.
-     *
-     * @param array|\Traversable $values
      */
-    public function putAll($values)
+    private function putAll($values)
     {
         foreach ($values as $key => $value) {
             $this->put($key, $value);
