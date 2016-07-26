@@ -230,29 +230,27 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Returns whether an association for all of zero or more keys exist.
+     * Returns whether an association a given key exists.
      *
-     * @param mixed ...$keys
+     * @param mixed $key
      *
-     * @return bool true if at least one value was provided and the map
-     *              contains all given keys, false otherwise.
+     * @return bool
      */
-    public function hasKey(...$keys): bool
+    public function hasKey($key): bool
     {
-        return $this->contains('lookupKey', $keys);
+        return $this->lookupKey($key) !== null;
     }
 
     /**
-     * Returns whether an association for all of zero or more values exist.
+     * Returns whether an association for a given value exists.
      *
-     * @param mixed ...$values
+     * @param mixed $value
      *
-     * @return bool true if at least one value was provided and the map
-     *              contains all given values, false otherwise.
+     * @return bool
      */
-    public function hasValue(...$values): bool
+    public function hasValue($value): bool
     {
-        return $this->contains('lookupValue', $values);
+        return $this->lookupValue($value) !== null;
     }
 
     /**
