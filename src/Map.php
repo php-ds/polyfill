@@ -655,6 +655,16 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     *
+     *
+     * @return \Ds\Map
+     */
+    public function union(Map $map): Map
+    {
+        return $this->copy()->merge($map);
+    }
+
+    /**
      * Get iterator
      */
     public function getIterator()

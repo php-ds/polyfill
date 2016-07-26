@@ -213,6 +213,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
 
     /**
      * Creates a new set using values common to both this set and another set.
+     *
      * In other words, returns a copy of this set with all values removed that
      * aren't in the other set.
      *
