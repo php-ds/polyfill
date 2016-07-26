@@ -37,6 +37,9 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
         }
     }
 
+    /**
+     * Adds all values to this set.
+     */
     private function addAll($values)
     {
         foreach ($values as $value) {
@@ -95,10 +98,6 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function contains(...$values): bool
     {
-        if ( ! $values) {
-            return false;
-        }
-
         foreach ($values as $value) {
             if ( ! $this->table->hasKey($value)) {
                 return false;

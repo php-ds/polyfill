@@ -70,10 +70,6 @@ trait Sequence
      */
     public function contains(...$values): bool
     {
-        if ( ! $values) {
-            return false;
-        }
-
         foreach ($values as $value) {
             if ($this->find($value) === false) {
                 return false;

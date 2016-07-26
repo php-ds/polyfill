@@ -36,6 +36,21 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Updates all values by applying a callback function to each value.
+     *
+     * @param callable $callback Accepts two arguments: key and value, should
+     *                           return what the updated value will be.
+     */
+    public function apply(callable $callback): Map
+    {
+        foreach ($this->pairs as &$pair) {
+            $pair->value = $callback($pair->key, $pair->value);
+        }
+
+        return $mapped;
+    }
+
+    /**
      * @inheritDoc
      */
     public function clear()
@@ -314,7 +329,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
     /**
      * Returns a new map using the results of applying a callback to each value.
-     * The keys will be keysAreEqual in both maps.
+     *
+     * The keys will be equal in both maps.
      *
      * @param callable $callback Accepts two arguments: key and value, should
      *                           return what the updated value will be.

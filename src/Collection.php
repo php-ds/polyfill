@@ -21,9 +21,9 @@ interface Collection extends \Traversable, \Countable, \JsonSerializable
     function count(): int;
 
     /**
-     * Returns the size of the collection.
+     * Returns a shallow copy of the collection.
      *
-     * @return int
+     * @return \Ds\Collection a copy of the collection.
      */
     function copy(): Collection;
 
