@@ -18,7 +18,7 @@ interface Hashable
     /**
      * Returns whether this object is considered equal to another.
      *
-     * @param Hashable $obj
+     * @param $obj
      *
      * @return bool true if equal, false otherwise.
      */

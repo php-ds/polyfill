@@ -56,33 +56,25 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     /**
      * @var array
      */
-    private $heap;
+    private $heap = [];
 
     /**
      * @var int
      */
-    private $stamp;
+    private $stamp = 0;
 
     /**
      * Initializes a new priority queue.
      */
     public function __construct()
     {
-        $this->reset();
+
     }
 
     /**
      * @inheritDoc
      */
     public function clear()
-    {
-        $this->reset();
-    }
-
-    /**
-     * Reset the PriorityQueue to an initialised state.
-     */
-    private function reset()
     {
         $this->heap     = [];
         $this->stamp    = 0;

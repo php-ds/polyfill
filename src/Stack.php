@@ -90,7 +90,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Returns and removes the value at the top of the stack
+     * Returns and removes the value at the top of the stack.
      *
      * @return mixed
      *
@@ -120,11 +120,11 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Get iterator
+     *
      */
     public function getIterator()
     {
-        while ($this->isEmpty() === false) {
+        while ( ! $this->isEmpty()) {
             yield $this->pop();
         }
     }

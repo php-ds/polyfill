@@ -41,13 +41,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      * @param callable $callback Accepts two arguments: key and value, should
      *                           return what the updated value will be.
      */
-    public function apply(callable $callback): Map
+    public function apply(callable $callback)
     {
         foreach ($this->pairs as &$pair) {
             $pair->value = $callback($pair->key, $pair->value);
         }
-
-        return $mapped;
     }
 
     /**
@@ -177,7 +175,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     private function keysAreEqual($a, $b): bool
     {
         if (is_object($a) && $a instanceof Hashable) {
-            return $a->equals($b);
+            return get_class($a) === get_class($b) && $a->equals($b);
         }
 
         return $a === $b;
