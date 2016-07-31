@@ -155,20 +155,24 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     }
 
     /**
-     * Compare
+     * Compare priority, using insertion stamp as fallback.
      *
      * @param int $a
      * @param int $b
      *
-     * @return integer
+     * @return int
      */
-    private function compare(int $a, int $b)
+    private function compare(int $a, int $b): int
     {
-        $x = $this->heap[$a];
-        $y = $this->heap[$b];
+        $a = $this->heap[$a];
+        $b = $this->heap[$b];
 
-        // Compare priority, using insertion stamp as fallback.
-        return ($x->priority <=> $y->priority) ?: ($y->stamp <=> $x->stamp);
+        if ($a->priority !== $b->priority) {
+            return $a->priority > $b->priority ? 1 : -1;
+
+        }
+
+        return $a->stamp < $b->stamp ? 1 : -1;
     }
 
     /**
