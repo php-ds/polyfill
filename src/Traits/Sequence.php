@@ -331,44 +331,6 @@ trait Sequence
 
     /**
      *
-     */
-    public function intersect(\Ds\Sequence $sequence): \Ds\Sequence
-    {
-        return $this->filter(function($value) use ($sequence) {
-            return $sequence->contains($value);
-        });
-    }
-
-    /**
-     *
-     */
-    public function diff(\Ds\Sequence $sequence): \Ds\Sequence
-    {
-        return $this->filter(function($value) use ($sequence) {
-            return ! $sequence->contains($value);
-        });
-    }
-
-    /**
-     *
-     */
-    public function union(\Ds\Sequence $sequence): \Ds\Sequence
-    {
-        return $this->merge($sequence);
-    }
-
-    /**
-     *
-     */
-    public function xor(\Ds\Sequence $sequence): \Ds\Sequence
-    {
-        return $this->union($sequence)->filter(function($value) {
-            return $this->contains($value) ^ $sequence->contains($value);
-        });
-    }
-
-    /**
-     *
      *
      * @param int $index
      */
