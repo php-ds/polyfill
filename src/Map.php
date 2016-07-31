@@ -484,11 +484,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         return $map;
     }
 
-    private function compare($a, $b)
-    {
-        return $a === $b ? 0 : ($a > $b ? 1 : -1);
-    }
-
     /**
      * Sorts the map in-place, based on an optional callable comparator.
      *
@@ -505,7 +500,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
         } else {
             usort($this->internal, function($a, $b) {
-                return $this->compare($a->value, $b->value);
+                return $a->value <=> $b->value;
             });
         }
     }
@@ -529,7 +524,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
         } else {
             usort($sorted->internal, function($a, $b) {
-                return $this->compare($a->value, $b->value);
+                return $a->value <=> $b->value;
             });
         }
 
@@ -552,7 +547,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
         } else {
             usort($this->internal, function($a, $b) {
-                return $this->compare($a->key, $b->key);
+                return $a->key <=> $b->key;
             });
         }
     }
@@ -576,7 +571,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
         } else {
             usort($sorted->internal, function($a, $b) {
-                return $this->compare($a->key, $b->key);
+                return $a->key <=> $b->key;
             });
         }
 
