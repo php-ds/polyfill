@@ -1,7 +1,7 @@
 {
     "name": "php-ds/php-ds",
     "license": "MIT",
-    "keywords": [],
+    "keywords": ["php", "data structures", "polyfill"],
     "authors": [
         {
             "name": "Rudi Theunissen",
@@ -9,10 +9,10 @@
         }
     ],
     "require": {
-        "php": ">=7"
+        "php": ">=5.6"
     },
     "require-dev": {
-        "php-ds/tests": "dev-master"
+        "php-ds/tests": "1.0.*"
     },
     "scripts": {
         "test": "phpunit -c ./vendor/php-ds/tests/phpunit.xml"

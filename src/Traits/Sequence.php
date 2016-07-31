@@ -24,7 +24,7 @@ trait Sequence
     public function __construct($values = null)
     {
         if (func_num_args()) {
-            $this->pushAll($values);
+            $this->push(...$values);
         }
     }
 
@@ -51,10 +51,11 @@ trait Sequence
      */
     public function merge($values): \Ds\Sequence
     {
-        $merged = $this->copy();
-        $merged->pushAll($values);
+        if ( ! is_array($values)) {
+            $values = iterator_to_array($values);
+        }
 
-        return $merged;
+        return new self(array_merge($this->internal, $values));
     }
 
     /**
@@ -84,11 +85,7 @@ trait Sequence
      */
     public function filter(callable $callback = null): \Ds\Sequence
     {
-        if ($callback) {
-            return new self(array_filter($this->internal, $callback));
-        }
-
-        return new self(array_filter($this->internal));
+        return new self(array_filter($this->internal, $callback ?: 'boolval'));
     }
 
     /**
@@ -176,21 +173,15 @@ trait Sequence
         return $value;
     }
 
-    private function pushAll($values)
-    {
-        foreach ($values as $value) {
-            $this->internal[] = $value;
-        }
-
-        $this->adjustCapacity();
-    }
-
     /**
      * @inheritDoc
      */
     public function push(...$values)
     {
-        $this->pushAll($values);
+        if ($values) {
+            array_push($this->internal, ...$values);
+            $this->adjustCapacity();
+        }
     }
 
     /**
@@ -230,22 +221,6 @@ trait Sequence
         return new self(array_reverse($this->internal));
     }
 
-    private function reverseRange(int $a, int $b)
-    {
-        $swap = function(&$a, &$b) {
-            $t = $a;
-            $a = $b;
-            $b = $t;
-        };
-
-        // End of range exclusive
-        $b--;
-
-        while ($b > $a) {
-            $swap($this->internal[$a++], $this->internal[$b--]);
-        }
-    }
-
     private function normalizeRotations(int $rotations, int $count)
     {
         if ($rotations < 0) {
@@ -260,17 +235,14 @@ trait Sequence
      */
     public function rotate(int $rotations)
     {
-        if ($this->isEmpty()) {
+        if (count($this) < 2) {
             return;
         }
 
-        $n = count($this);
-        $r = $this->normalizeRotations($rotations, $n);
+        $rotations = $this->normalizeRotations($rotations, count($this));
 
-        if ($r > 0) {
-            $this->reverseRange(0,  $r);
-            $this->reverseRange($r, $n);
-            $this->reverseRange(0,  $n);
+        while ($rotations--) {
+            $this->push($this->shift());
         }
     }
 
@@ -304,7 +276,7 @@ trait Sequence
     public function slice(int $offset, int $length = null): \Ds\Sequence
     {
         if (func_num_args() === 1) {
-            return new self(array_slice($this->internal, $offset));
+            $length = count($this);
         }
 
         return new self(array_slice($this->internal, $offset, $length));
@@ -355,6 +327,44 @@ trait Sequence
             array_unshift($this->internal, ...$values);
             $this->adjustCapacity();
         }
+    }
+
+    /**
+     *
+     */
+    public function intersect(\Ds\Sequence $sequence): \Ds\Sequence
+    {
+        return $this->filter(function($value) use ($sequence) {
+            return $sequence->contains($value);
+        });
+    }
+
+    /**
+     *
+     */
+    public function diff(\Ds\Sequence $sequence): \Ds\Sequence
+    {
+        return $this->filter(function($value) use ($sequence) {
+            return ! $sequence->contains($value);
+        });
+    }
+
+    /**
+     *
+     */
+    public function union(\Ds\Sequence $sequence): \Ds\Sequence
+    {
+        return $this->merge($sequence);
+    }
+
+    /**
+     *
+     */
+    public function xor(\Ds\Sequence $sequence): \Ds\Sequence
+    {
+        return $this->union($sequence)->filter(function($value) {
+            return $this->contains($value) ^ $sequence->contains($value);
+        });
     }
 
     /**

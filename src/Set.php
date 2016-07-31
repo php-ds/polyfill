@@ -20,7 +20,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @var Map
      */
-    private $table;
+    private $internal;
 
     /**
      * Creates a new set using the values of an array or Traversable object.
@@ -30,20 +30,10 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
-        $this->table = new Map();
+        $this->internal = new Map();
 
         if (func_num_args()) {
-            $this->addAll($values);
-        }
-    }
-
-    /**
-     * Adds all values to this set.
-     */
-    private function addAll($values)
-    {
-        foreach ($values as $value) {
-            $this->table[$value] = null;
+            $this->add(...$values);
         }
     }
 
@@ -54,7 +44,9 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function add(...$values)
     {
-        $this->addAll($values);
+        foreach ($values as $value) {
+            $this->internal->put($value, null);
+        }
     }
 
     /**
@@ -67,7 +59,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function allocate(int $capacity)
     {
-        $this->table->allocate($capacity);
+        $this->internal->allocate($capacity);
     }
 
     /**
@@ -77,7 +69,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function capacity(): int
     {
-        return $this->table->capacity();
+        return $this->internal->capacity();
     }
 
     /**
@@ -85,7 +77,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
     {
-        $this->table->clear();
+        $this->internal->clear();
     }
 
     /**
@@ -99,7 +91,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     public function contains(...$values): bool
     {
         foreach ($values as $value) {
-            if ( ! $this->table->hasKey($value)) {
+            if ( ! $this->internal->hasKey($value)) {
                 return false;
             }
         }
@@ -122,7 +114,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function count(): int
     {
-        return count($this->table);
+        return count($this->internal);
     }
 
     /**
@@ -136,17 +128,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function diff(Set $set): Set
     {
-        $diff = new self();
-
-        foreach ($this as $value) {
-            if ($set->contains($value)) {
-                continue;
-            }
-
-            $diff->add($value);
-        }
-
-        return $diff;
+        return $this->internal->diff($set->internal)->keys();
     }
 
     /**
@@ -161,30 +143,22 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function xor(Set $set): Set
     {
-        return $this->table->xor($set->table)->keys();
+        return $this->internal->xor($set->internal)->keys();
     }
 
     /**
-     * Returns a new set containing only the values for which a predicate
-     * returns true. A boolean test will be used if a predicate is not provided.
+     * Returns a new set containing only the values for which a callback
+     * returns true. A boolean test will be used if a callback is not provided.
      *
-     * @param callable|null $predicate Accepts a value, returns a boolean:
+     * @param callable|null $callback Accepts a value, returns a boolean:
      *                                 true : include the value,
      *                                 false: skip the value.
      *
      * @return Set
      */
-    public function filter(callable $predicate = null): Set
+    public function filter(callable $callback = null): Set
     {
-        $filtered = new self();
-
-        foreach ($this as $value) {
-            if ($predicate ? $predicate($value) : $value) {
-                $filtered->add($value);
-            }
-        }
-
-        return $filtered;
+        return new self(array_filter($this->toArray(), $callback ?: 'boolval'));
     }
 
     /**
@@ -194,7 +168,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function first()
     {
-        return $this->table->first()->key;
+        return $this->internal->first()->key;
     }
 
     /**
@@ -208,7 +182,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function get(int $position)
     {
-        return $this->table->skip($position)->key;
+        return $this->internal->skip($position)->key;
     }
 
     /**
@@ -225,7 +199,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function intersect(Set $set): Set
     {
-        return $this->table->intersect($set->table)->keys();
+        return $this->internal->intersect($set->internal)->keys();
     }
 
     /**
@@ -233,7 +207,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function isEmpty(): bool
     {
-        return $this->table->isEmpty();
+        return $this->internal->isEmpty();
     }
 
     /**
@@ -256,7 +230,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function last()
     {
-        return $this->table->last()->key;
+        return $this->internal->last()->key;
     }
 
     /**
@@ -289,7 +263,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     public function remove(...$values)
     {
         foreach ($values as $value) {
-            $this->table->remove($value, null);
+            $this->internal->remove($value, null);
         }
     }
 
@@ -298,7 +272,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function reverse()
     {
-        $this->table->reverse();
+        $this->internal->reverse();
     }
 
     /**
@@ -309,7 +283,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     public function reversed(): Set
     {
         $reversed = $this->copy();
-        $reversed->table->reverse();
+        $reversed->internal->reverse();
 
         return $reversed;
     }
@@ -338,7 +312,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     public function slice(int $offset, int $length = null): Set
     {
         $sliced = new self();
-        $sliced->table = $this->table->slice($offset, $length);
+        $sliced->internal = $this->internal->slice($offset, $length);
 
         return $sliced;
     }
@@ -351,7 +325,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function sort(callable $comparator = null)
     {
-        $this->table->ksort($comparator);
+        $this->internal->ksort($comparator);
     }
 
     /**
@@ -366,9 +340,23 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     public function sorted(callable $comparator = null): Set
     {
         $sorted = $this->copy();
-        $sorted->table->ksort($comparator);
+        $sorted->internal->ksort($comparator);
 
         return $sorted;
+    }
+
+    /**
+     *
+     */
+    public function merge($values): Set
+    {
+        $merged = $this->copy();
+
+        foreach ($values as $value) {
+            $merged->add($value);
+        }
+
+        return $merged;
     }
 
     /**
@@ -419,7 +407,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function getIterator()
     {
-        foreach ($this->table as $key => $value) {
+        foreach ($this->internal as $key => $value) {
             yield $key;
         }
     }
@@ -444,7 +432,7 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function offsetGet($offset)
     {
-        return $this->table->skip($offset)->key;
+        return $this->internal->skip($offset)->key;
     }
 
     /**
