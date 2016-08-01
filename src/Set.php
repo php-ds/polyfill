@@ -346,7 +346,11 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Returns the result of adding all given values to the set.
      *
+     * @param array|\Traversable $values
+     *
+     * @return \Ds\Set
      */
     public function merge($values): Set
     {
