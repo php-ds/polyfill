@@ -14,6 +14,9 @@
     "require-dev": {
         "php-ds/tests": "^1.1"
     },
+    "suggest": {
+        "ext-ds": "to improve performance and memory usage"
+    },
     "scripts": {
         "test": "phpunit -c ./vendor/php-ds/tests/phpunit.xml"
     },
