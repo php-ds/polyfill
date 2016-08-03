@@ -13,8 +13,6 @@ to ensure that your codebase would still be functional in an environment where t
 composer require php-ds/php-ds
 ```
 
-You can also just specify `"php-ds/php-ds": "^1.0"` in your `composer.json` file.
-
 ## Test
 
 ```
