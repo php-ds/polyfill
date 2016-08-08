@@ -4,9 +4,6 @@ php:
   - 7.0
   - nightly
 
-before_install:
-  - phpenv config-rm xdebug.ini
-
 install:
   - composer install --no-interaction
 
