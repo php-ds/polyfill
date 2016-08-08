@@ -1,7 +1,7 @@
 <?php
 namespace Ds;
 
-use Error;
+use OutOfBoundsException;
 use UnderflowException;
 
 /**
@@ -132,14 +132,14 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @inheritdoc
      *
-     * @throws Error
+     * @throws OutOfBoundsException
      */
     public function offsetSet($offset, $value)
     {
         if ($offset === null) {
             $this->push($value);
         } else {
-            throw new Error();
+            throw new OutOfBoundsException();
         }
     }
 
