@@ -194,7 +194,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     private function getLargestLeaf(int $parent)
     {
         $left  = $this->left($parent);
-        $right = $left + 1;
+        $right = $this->right($parent);
 
         if ($right < count($this->heap) && $this->compare($left, $right) < 0) {
             return $right;
