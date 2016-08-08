@@ -1,0 +1,18 @@
+build:
+    tests:
+        override:
+            -
+                command: 'phpunit'
+                coverage:
+                    file: 'build/logs/coverage.xml'
+                    format: 'php-clover'
+
+checks:
+    php:
+        line_length:
+            max_length: '80'
+
+tools:
+    php_code_sniffer:
+        config:
+            standard: "PSR2"

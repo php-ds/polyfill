@@ -6,10 +6,9 @@ php:
 
 before_install:
   - phpenv config-rm xdebug.ini
-  - composer self-update
 
 install:
-  - composer update --no-interaction
+  - composer install --no-interaction
 
 script:
   - composer test

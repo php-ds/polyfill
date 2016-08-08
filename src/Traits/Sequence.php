@@ -1,15 +1,14 @@
 <?php
 namespace Ds\Traits;
 
-use Error;
 use OutOfRangeException;
 use Traversable;
 use UnderflowException;
 
 /**
- * Sequence
- *
- * @package Ds\Traits
+ * Common functionality of all structures that implement 'Sequence'. Because the
+ * polyfill's only goal is to achieve consistent behaviour, all sequences will
+ * share the same implementation using an internal array.
  */
 trait Sequence
 {

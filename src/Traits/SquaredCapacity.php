@@ -2,16 +2,14 @@
 namespace Ds\Traits;
 
 /**
- * SquaredCapacity
- *
- * @package Ds\Traits
+ * Common to structures that require a capacity which is a power of two.
  */
 trait SquaredCapacity
 {
     use Capacity;
 
     /**
-     * Square
+     * Rounds an integer to the next power of two if not already a power of two.
      *
      * @param int $capacity
      *
@@ -36,9 +34,9 @@ trait SquaredCapacity
     }
 
     /**
-     * Increase Capacity
+     * Called when capacity should be increased to accommodate new values.
      */
-    protected function increaseCapacity()
+    protected function increaseCapacityWhenFull()
     {
         $this->capacity = $this->square(max(count($this), $this->capacity + 1));
     }

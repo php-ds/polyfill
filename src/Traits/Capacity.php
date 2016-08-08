@@ -2,14 +2,14 @@
 namespace Ds\Traits;
 
 /**
- * Capacity
- *
- * @package Ds\Traits
+ * Common to structures that deal with an internal capacity. While none of the
+ * PHP implementations actually make use of a capacity, it's important to keep
+ * consistent with the extension.
  */
 trait Capacity
 {
     /**
-     * @var int
+     * @var int internal capacity
      */
     private $capacity = self::MIN_CAPACITY;
 
@@ -37,23 +37,26 @@ trait Capacity
     }
 
     /**
-     * Increase Capacity
+     * Called when capacity should be increased to accommodate new values.
      */
-    abstract protected function increaseCapacity();
+    abstract protected function increaseCapacityWhenFull();
 
     /**
-     * Adjust Capacity
+     * Adjusts the structure's capacity according to its current size.
      */
     private function adjustCapacity()
     {
         $size = count($this);
 
-        if ($size >= $this->capacity) {
-            $this->increaseCapacity();
-
+        // Automatically truncate the allocated buffer when the size of the
+        // structure drops low enough.
+        if ($size < $this->capacity / 4) {
+            $this->capacity = max(self::MIN_CAPACITY, $this->capacity / 2);
         } else {
-            if ($size < $this->capacity / 4) {
-                $this->capacity = max(self::MIN_CAPACITY, $this->capacity / 2);
+
+            // Also check if we should increase capacity when the size changes.
+            while ($size >= $this->capacity) {
+                $this->increaseCapacityWhenFull();
             }
         }
     }

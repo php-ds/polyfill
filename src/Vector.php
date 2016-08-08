@@ -17,7 +17,7 @@ final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
     /**
      * Increase capacity
      */
-    protected function increaseCapacity()
+    protected function increaseCapacityWhenFull()
     {
         $size = count($this);
 
