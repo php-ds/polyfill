@@ -36,7 +36,7 @@ trait SquaredCapacity
     /**
      * Called when capacity should be increased to accommodate new values.
      */
-    protected function increaseCapacityWhenFull()
+    protected function increaseCapacity()
     {
         $this->capacity = $this->square(max(count($this), $this->capacity + 1));
     }

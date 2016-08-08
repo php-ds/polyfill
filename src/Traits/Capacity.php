@@ -39,7 +39,7 @@ trait Capacity
     /**
      * Called when capacity should be increased to accommodate new values.
      */
-    abstract protected function increaseCapacityWhenFull();
+    abstract protected function increaseCapacity();
 
     /**
      * Adjusts the structure's capacity according to its current size.
@@ -55,8 +55,8 @@ trait Capacity
         } else {
 
             // Also check if we should increase capacity when the size changes.
-            while ($size >= $this->capacity) {
-                $this->increaseCapacityWhenFull();
+            if ($size >= $this->capacity) {
+                $this->increaseCapacity();
             }
         }
     }
