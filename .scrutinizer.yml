@@ -1,5 +1,5 @@
 build:
-  environment:
+    environment:
         php:
             version: 7.0.8
     tests:
