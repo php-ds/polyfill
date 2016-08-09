@@ -2,21 +2,21 @@
 namespace Ds;
 
 use OutOfBoundsException;
-use UnderflowException;
 
 /**
- * Stack
+ * A “last in, first out” or “LIFO” collection that only allows access to the
+ * value at the top of the structure and iterates in that order, destructively.
  *
  * @package Ds
  */
 final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
 {
-    use Traits\Collection;
+    use Traits\GenericCollection;
 
     /**
-     * @var Vector
+     * @var Vector internal vector to store values of the stack.
      */
-    private $internal;
+    private $vector;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -25,7 +25,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
-        $this->internal = new Vector($values ?: []);
+        $this->vector = new Vector($values ?: []);
     }
 
     /**
@@ -33,7 +33,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
     {
-        $this->internal->clear();
+        $this->vector->clear();
     }
 
     /**
@@ -41,7 +41,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function copy(): Collection
     {
-        return new self($this->internal);
+        return new self($this->vector);
     }
 
     /**
@@ -51,7 +51,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function count(): int
     {
-        return count($this->internal);
+        return count($this->vector);
     }
 
     /**
@@ -64,7 +64,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function allocate(int $capacity)
     {
-        $this->internal->allocate($capacity);
+        $this->vector->allocate($capacity);
     }
 
     /**
@@ -74,7 +74,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function capacity(): int
     {
-        return $this->internal->capacity();
+        return $this->vector->capacity();
     }
 
     /**
@@ -82,11 +82,11 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return mixed
      *
-     * @throws UnderflowException if the stack is empty.
+     * @throws \UnderflowException if the stack is empty.
      */
     public function peek()
     {
-        return $this->internal->last();
+        return $this->vector->last();
     }
 
     /**
@@ -94,11 +94,11 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @return mixed
      *
-     * @throws UnderflowException if the stack is empty.
+     * @throws \UnderflowException if the stack is empty.
      */
     public function pop()
     {
-        return $this->internal->pop();
+        return $this->vector->pop();
     }
 
     /**
@@ -108,7 +108,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function push(...$values)
     {
-        $this->internal->push(...$values);
+        $this->vector->push(...$values);
     }
 
     /**
@@ -116,7 +116,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function toArray(): array
     {
-        return array_reverse($this->internal->toArray());
+        return array_reverse($this->vector->toArray());
     }
 
     /**

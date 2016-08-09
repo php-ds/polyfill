@@ -1,10 +1,12 @@
 <?php
 namespace Ds\Traits;
 
+use Ds\Collection;
+
 /**
  * Common to structures that implement the base collection interface.
  */
-trait Collection
+trait GenericCollection
 {
     /**
      * Returns whether the collection is empty.
@@ -35,9 +37,9 @@ trait Collection
     /**
      * Creates a shallow copy of the collection.
      *
-     * @return \Ds\Collection a shallow copy of the collection.
+     * @return Collection a shallow copy of the collection.
      */
-    public function copy(): \Ds\Collection
+    public function copy(): Collection
     {
         return new self($this);
     }

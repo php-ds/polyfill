@@ -1,29 +1,32 @@
 <?php
 namespace Ds\Traits;
 
+use Ds\Collection;
+use Ds\Sequence;
 use OutOfRangeException;
-use Traversable;
 use UnderflowException;
 
 /**
  * Common functionality of all structures that implement 'Sequence'. Because the
  * polyfill's only goal is to achieve consistent behaviour, all sequences will
- * share the same implementation using an internal array.
+ * share the same implementation using an array array.
+ *
+ * @package Ds\Traits
  */
-trait Sequence
+trait GenericSequence
 {
     /**
-     * @var array
+     * @var array internal array used to store the values of the sequence.
      */
-    private $internal = [];
+    private $array = [];
 
     /**
      * @inheritDoc
      */
     public function __construct($values = null)
     {
-        if (func_num_args()) {
-            $this->push(...$values);
+        if ($values) {
+            $this->pushAll($values);
         }
     }
 
@@ -32,7 +35,7 @@ trait Sequence
      */
     public function toArray(): array
     {
-        return $this->internal;
+        return $this->array;
     }
 
     /**
@@ -40,7 +43,7 @@ trait Sequence
      */
     public function apply(callable $callback)
     {
-        foreach ($this->internal as &$value) {
+        foreach ($this->array as &$value) {
             $value = $callback($value);
         }
     }
@@ -48,13 +51,11 @@ trait Sequence
     /**
      * @inheritdoc
      */
-    public function merge($values): \Ds\Sequence
+    public function merge($values): Sequence
     {
-        if ( ! is_array($values)) {
-            $values = iterator_to_array($values);
-        }
-
-        return new self(array_merge($this->internal, $values));
+        $copy = $this->copy();
+        $copy->pushAll($values);
+        return $copy;
     }
 
     /**
@@ -62,7 +63,7 @@ trait Sequence
      */
     public function count(): int
     {
-        return count($this->internal);
+        return count($this->array);
     }
 
     /**
@@ -82,9 +83,9 @@ trait Sequence
     /**
      * @inheritDoc
      */
-    public function filter(callable $callback = null): \Ds\Sequence
+    public function filter(callable $callback = null): Sequence
     {
-        return new self(array_filter($this->internal, $callback ?: 'boolval'));
+        return new self(array_filter($this->array, $callback ?: 'boolval'));
     }
 
     /**
@@ -92,7 +93,7 @@ trait Sequence
      */
     public function find($value)
     {
-        return array_search($value, $this->internal, true);
+        return array_search($value, $this->array, true);
     }
 
     /**
@@ -100,11 +101,11 @@ trait Sequence
      */
     public function first()
     {
-        if (empty($this->internal)) {
+        if ($this->isEmpty()) {
             throw new UnderflowException();
         }
 
-        return $this->internal[0];
+        return $this->array[0];
     }
 
     /**
@@ -112,9 +113,11 @@ trait Sequence
      */
     public function get(int $index)
     {
-        $this->checkRange($index);
+        if ( ! $this->validIndex($index)) {
+            throw new OutOfRangeException();
+        }
 
-        return $this->internal[$index];
+        return $this->array[$index];
     }
 
     /**
@@ -122,11 +125,11 @@ trait Sequence
      */
     public function insert(int $index, ...$values)
     {
-        if ($index < 0 || $index > count($this->internal)) {
+        if ( ! $this->validIndex($index) && $index !== count($this)) {
             throw new OutOfRangeException();
         }
 
-        array_splice($this->internal, $index, 0, $values);
+        array_splice($this->array, $index, 0, $values);
     }
 
     /**
@@ -134,7 +137,7 @@ trait Sequence
      */
     public function join(string $glue = null): string
     {
-        return implode($glue, $this->internal);
+        return implode($glue, $this->array);
     }
 
     /**
@@ -146,15 +149,15 @@ trait Sequence
             throw new UnderflowException();
         }
 
-        return end($this->internal);
+        return $this->array[ count($this) - 1];
     }
 
     /**
      * @inheritDoc
      */
-    public function map(callable $callback): \Ds\Sequence
+    public function map(callable $callback): Sequence
     {
-        return new self(array_map($callback, $this->internal));
+        return new self(array_map($callback, $this->array));
     }
 
     /**
@@ -166,10 +169,20 @@ trait Sequence
             throw new UnderflowException();
         }
 
-        $value = array_pop($this->internal);
+        $value = array_pop($this->array);
         $this->adjustCapacity();
-
         return $value;
+    }
+
+    /**
+     * Pushes all values of either an array or traversable object.
+     */
+    private function pushAll($values)
+    {
+        foreach ($values as $value) {
+            $this->array[] = $value;
+        }
+        $this->adjustCapacity();
     }
 
     /**
@@ -177,10 +190,7 @@ trait Sequence
      */
     public function push(...$values)
     {
-        if ($values) {
-            array_push($this->internal, ...$values);
-            $this->adjustCapacity();
-        }
+        $this->pushAll($values);
     }
 
     /**
@@ -188,7 +198,7 @@ trait Sequence
      */
     public function reduce(callable $callback, $initial = null)
     {
-        return array_reduce($this->internal, $callback, $initial);
+        return array_reduce($this->array, $callback, $initial);
     }
 
     /**
@@ -196,11 +206,12 @@ trait Sequence
      */
     public function remove(int $index)
     {
-        $this->checkRange($index);
+        if ( ! $this->validIndex($index)) {
+            throw new OutOfRangeException();
+        }
 
-        $value = array_splice($this->internal, $index, 1, null)[0];
+        $value = array_splice($this->array, $index, 1, null)[0];
         $this->adjustCapacity();
-
         return $value;
     }
 
@@ -209,24 +220,29 @@ trait Sequence
      */
     public function reverse()
     {
-        $this->internal = array_reverse($this->internal);
+        $this->array = array_reverse($this->array);
     }
 
     /**
      * @inheritDoc
      */
-    public function reversed(): \Ds\Sequence
+    public function reversed(): Sequence
     {
-        return new self(array_reverse($this->internal));
+        return new self(array_reverse($this->array));
     }
 
-    private function normalizeRotations(int $rotations, int $count)
+    /**
+     * Converts negative or large rotations into the minimum positive number
+     * of rotations required to rotate the sequence by a given $r.
+     */
+    private function normalizeRotations(int $r)
     {
-        if ($rotations < 0) {
-            return $count - (abs($rotations) % $count);
-        }
+        $n = count($this);
 
-        return $rotations % $count;
+        if ($n < 2) return 0;
+        if ($r < 0) return $n - (abs($r) % $n);
+
+        return $r % $n;
     }
 
     /**
@@ -234,14 +250,8 @@ trait Sequence
      */
     public function rotate(int $rotations)
     {
-        if (count($this) < 2) {
-            return;
-        }
-
-        $rotations = $this->normalizeRotations($rotations, count($this));
-
-        while ($rotations--) {
-            $this->push($this->shift());
+        for ($r = $this->normalizeRotations($rotations); $r > 0; $r--) {
+            array_push($this->array, array_shift($this->array));
         }
     }
 
@@ -250,8 +260,11 @@ trait Sequence
      */
     public function set(int $index, $value)
     {
-        $this->checkRange($index);
-        $this->internal[$index] = $value;
+        if ( ! $this->validIndex($index)) {
+            throw new OutOfRangeException();
+        }
+
+        $this->array[$index] = $value;
     }
 
     /**
@@ -263,22 +276,21 @@ trait Sequence
             throw new UnderflowException();
         }
 
-        $value = array_shift($this->internal);
+        $value = array_shift($this->array);
         $this->adjustCapacity();
-
         return $value;
     }
 
     /**
      * @inheritDoc
      */
-    public function slice(int $offset, int $length = null): \Ds\Sequence
+    public function slice(int $offset, int $length = null): Sequence
     {
         if (func_num_args() === 1) {
             $length = count($this);
         }
 
-        return new self(array_slice($this->internal, $offset, $length));
+        return new self(array_slice($this->array, $offset, $length));
     }
 
     /**
@@ -287,26 +299,20 @@ trait Sequence
     public function sort(callable $comparator = null)
     {
         if ($comparator) {
-            usort($this->internal, $comparator);
+            usort($this->array, $comparator);
         } else {
-            sort($this->internal);
+            sort($this->array);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public function sorted(callable $comparator = null): \Ds\Sequence
+    public function sorted(callable $comparator = null): Sequence
     {
-        $internal = $this->internal;
-
-        if ($comparator) {
-            usort($internal, $comparator);
-        } else {
-            sort($internal);
-        }
-
-        return new self($internal);
+        $copy = $this->copy();
+        $copy->sort($comparator);
+        return $copy;
     }
 
     /**
@@ -314,7 +320,7 @@ trait Sequence
      */
     public function sum()
     {
-        return array_sum($this->internal);
+        return array_sum($this->array);
     }
 
     /**
@@ -323,21 +329,17 @@ trait Sequence
     public function unshift(...$values)
     {
         if ($values) {
-            array_unshift($this->internal, ...$values);
+            $this->array = array_merge($values, $this->array);
             $this->adjustCapacity();
         }
     }
 
     /**
      *
-     *
-     * @param int $index
      */
-    private function checkRange(int $index)
+    private function validIndex(int $index)
     {
-        if ($index < 0 || $index >= count($this->internal)) {
-            throw new OutOfRangeException();
-        }
+        return $index >= 0 && $index < count($this);
     }
 
     /**
@@ -345,7 +347,7 @@ trait Sequence
      */
     public function getIterator()
     {
-        foreach ($this->internal as $value) {
+        foreach ($this->array as $value) {
             yield $value;
         }
     }
@@ -355,7 +357,7 @@ trait Sequence
      */
     public function clear()
     {
-        $this->internal = [];
+        $this->array = [];
         $this->capacity = self::MIN_CAPACITY;
     }
 
@@ -376,8 +378,11 @@ trait Sequence
      */
     public function &offsetGet($offset)
     {
-        $this->checkRange($offset);
-        return $this->internal[$offset];
+        if ( ! $this->validIndex($offset)) {
+            throw new OutOfRangeException();
+        }
+
+        return $this->array[$offset];
     }
 
     /**
@@ -385,8 +390,7 @@ trait Sequence
      */
     public function offsetUnset($offset)
     {
-        // Unset should be quiet, so we shouldn't allow 'remove' to throw.
-        if (is_integer($offset) && $offset >= 0 && $offset < count($this)) {
+        if (is_integer($offset) && $this->validIndex($offset)) {
             $this->remove($offset);
         }
     }
@@ -396,10 +400,8 @@ trait Sequence
      */
     public function offsetExists($offset)
     {
-        if ($offset < 0 || $offset >= count($this)) {
-            return false;
-        }
-
-        return $this->get($offset) !== null;
+        return is_integer($offset)
+            && $this->validIndex($offset)
+            && $this->get($offset) !== null;
     }
 }

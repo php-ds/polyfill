@@ -2,7 +2,12 @@
 namespace Ds;
 
 /**
- * Sequence Interface
+ * Describes the behaviour of values arranged in a single, linear dimension.
+ * Some languages refer to this as a "List". It’s similar to an array that uses
+ * incremental integer keys, with the exception of a few characteristics:
+ *
+ *  - Values will always be indexed as [0, 1, 2, …, size - 1].
+ *  - Only allowed to access values by index in the range [0, size - 1].
  *
  * @package Ds
  */

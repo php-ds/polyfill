@@ -2,7 +2,9 @@
 namespace Ds;
 
 /**
- * Collection Interface
+ * Collection is the base interface which covers functionality common to all the
+ * data structures in this library. It guarantees that all structures are
+ * traversable, countable, and can be converted to json using json_encode().
  *
  * @package Ds
  */
@@ -23,7 +25,7 @@ interface Collection extends \Traversable, \Countable, \JsonSerializable
     /**
      * Returns a shallow copy of the collection.
      *
-     * @return \Ds\Collection a copy of the collection.
+     * @return Collection a copy of the collection.
      */
     function copy(): Collection;
 

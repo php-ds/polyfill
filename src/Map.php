@@ -7,24 +7,25 @@ use Traversable;
 use UnderflowException;
 
 /**
- * Class Map
+ * A Map is a sequential collection of key-value pairs, almost identical to an
+ * array used in a similar context. Keys can be any type, but must be unique.
  *
  * @package Ds
  */
 final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 {
-    use Traits\Collection;
+    use Traits\GenericCollection;
     use Traits\SquaredCapacity;
 
     const MIN_CAPACITY = 8;
 
     /**
-     * @var Pair[]
+     * @var array internal array to store pairs
      */
-    private $internal = [];
+    private $pairs = [];
 
     /**
-     * Creates an instance using the values of an array or Traversable object.
+     * Creates a new instance.
      *
      * @param array|\Traversable|null $values
      */
@@ -43,7 +44,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function apply(callable $callback)
     {
-        foreach ($this->internal as &$pair) {
+        foreach ($this->pairs as &$pair) {
             $pair->value = $callback($pair->key, $pair->value);
         }
     }
@@ -53,7 +54,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
     {
-        $this->internal = [];
+        $this->pairs = [];
         $this->capacity = self::MIN_CAPACITY;
     }
 
@@ -70,7 +71,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             throw new UnderflowException();
         }
 
-        return $this->internal[0];
+        return $this->pairs[0];
     }
 
     /**
@@ -86,7 +87,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             throw new UnderflowException();
         }
 
-        return end($this->internal);
+        return $this->pairs[count($this->pairs) - 1];
     }
 
     /**
@@ -100,11 +101,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function skip(int $position): Pair
     {
-        if ($position < 0 || $position >= count($this->internal)) {
+        if ($position < 0 || $position >= count($this->pairs)) {
             throw new OutOfRangeException();
         }
 
-        return $this->internal[$position]->copy();
+        return $this->pairs[$position]->copy();
     }
 
     /**
@@ -118,16 +119,20 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $merged = new self($this);
         $merged->putAll($values);
-
         return $merged;
     }
 
     /**
-     * Intersect
+     * Creates a new map containing the pairs of the current instance whose keys
+     * are also present in the given map. In other words, returns a copy of the
+     * current map with all keys removed that are not also in the other map.
      *
-     * @param Map $map
+     * @param Map $map The other map.
      *
-     * @return Map
+     * @return Map A new map containing the pairs of the current instance
+     *                 whose keys are also present in the given map. In other
+     *                 words, returns a copy of the current map with all keys
+     *                 removed that are not also in the other map.
      */
     public function intersect(Map $map): Map
     {
@@ -137,11 +142,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Diff
+     * Returns the result of removing all keys from the current instance that
+     * are present in a given map.
      *
-     * @param Map $map
+     * @param Map $map The map containing the keys to exclude.
      *
-     * @return Map
+     * @return Map The result of removing all keys from the current instance
+     *                 that are present in a given map.
      */
     public function diff(Map $map): Map
     {
@@ -151,7 +158,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Identical
+     * Determines whether two keys are equal.
      *
      * @param mixed $a
      * @param mixed $b
@@ -168,13 +175,15 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Attempts to look up a key in the table.
+     *
      * @param $key
      *
      * @return Pair|null
      */
     private function lookupKey($key)
     {
-        foreach ($this->internal as $pair) {
+        foreach ($this->pairs as $pair) {
             if ($this->keysAreEqual($pair->key, $key)) {
                 return $pair;
             }
@@ -182,13 +191,15 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     * Attempts to look up a key in the table.
+     *
      * @param $value
      *
      * @return Pair|null
      */
     private function lookupValue($value)
     {
-        foreach ($this->internal as $pair) {
+        foreach ($this->pairs as $pair) {
             if ($pair->value === $value) {
                 return $pair;
             }
@@ -224,7 +235,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function count(): int
     {
-        return count($this->internal);
+        return count($this->pairs);
     }
 
     /**
@@ -268,6 +279,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             return $pair->value;
         }
 
+        // Check if a default was provided.
         if (func_num_args() === 1) {
             throw new OutOfBoundsException();
         }
@@ -282,13 +294,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function keys(): Set
     {
-        $set = new Set();
+        $key = function($pair) {
+            return $pair->key;
+        };
 
-        foreach ($this->internal as $pair) {
-            $set->add($pair->key);
-        }
-
-        return $set;
+        return new Set(array_map($key, $this->pairs));
     }
 
     /**
@@ -303,13 +313,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function map(callable $callback): Map
     {
-        $mapped = new self();
+        $apply = function($pair) use ($callback) {
+            return $callback($pair->key, $pair->value);
+        };
 
-        foreach ($this->internal as $pair) {
-            $mapped[$pair->key] = $callback($pair->key, $pair->value);
-        }
-
-        return $mapped;
+        return new self(array_map($apply, $this->pairs));
     }
 
     /**
@@ -319,13 +327,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function pairs(): Sequence
     {
-        $sequence = new Vector();
+        $copy = function($pair) {
+            return $pair->copy();
+        };
 
-        foreach ($this->internal as $pair) {
-            $sequence[] = $pair->copy();
-        }
-
-        return $sequence;
+        return new Vector(array_map($copy, $this->pairs));
     }
 
     /**
@@ -344,7 +350,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
         } else {
             $this->adjustCapacity();
-            $this->internal[] = new Pair($key, $value);
+            $this->pairs[] = new Pair($key, $value);
         }
     }
 
@@ -376,7 +382,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $carry = $initial;
 
-        foreach ($this->internal as $pair) {
+        foreach ($this->pairs as $pair) {
             $carry = $callback($carry, $pair->key, $pair->value);
         }
 
@@ -384,16 +390,17 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     *
+     * Completely removes a pair from the internal array by position. It is
+     * important to remove it from the array and not just use 'unset'.
      */
     private function delete(int $position)
     {
-        $pair  = $this->internal[$position];
+        $pair  = $this->pairs[$position];
         $value = $pair->value;
 
-        array_splice($this->internal, $position, 1, null);
-
+        array_splice($this->pairs, $position, 1, null);
         $this->adjustCapacity();
+
         return $value;
     }
 
@@ -411,7 +418,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function remove($key, $default = null)
     {
-        foreach ($this->internal as $position => $pair) {
+        foreach ($this->pairs as $position => $pair) {
             if ($this->keysAreEqual($pair->key, $key)) {
                 return $this->delete($position);
             }
@@ -427,19 +434,23 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
 
     /**
      * Returns a reversed copy of the map.
+     *
+     * @return Map
      */
     public function reverse()
     {
-        $this->internal = array_reverse($this->internal);
+        $this->pairs = array_reverse($this->pairs);
     }
 
     /**
      * Returns a reversed copy of the map.
+     *
+     * @return Map
      */
     public function reversed(): Map
     {
         $reversed = new self();
-        $reversed->internal = array_reverse($this->internal);
+        $reversed->pairs = array_reverse($this->pairs);
 
         return $reversed;
     }
@@ -472,9 +483,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $map = new self();
 
         if (func_num_args() === 1) {
-            $slice = array_slice($this->internal, $offset);
+            $slice = array_slice($this->pairs, $offset);
         } else {
-            $slice = array_slice($this->internal, $offset, $length);
+            $slice = array_slice($this->pairs, $offset, $length);
         }
 
         foreach ($slice as $pair) {
@@ -494,12 +505,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function sort(callable $comparator = null)
     {
         if ($comparator) {
-            usort($this->internal, function($a, $b) use ($comparator) {
+            usort($this->pairs, function($a, $b) use ($comparator) {
                 return $comparator($a->value, $b->value);
             });
 
         } else {
-            usort($this->internal, function($a, $b) {
+            usort($this->pairs, function($a, $b) {
                 return $a->value <=> $b->value;
             });
         }
@@ -515,20 +526,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function sorted(callable $comparator = null): Map
     {
-        $sorted = new self($this);
-
-        if ($comparator) {
-            usort($sorted->internal, function($a, $b) use ($comparator) {
-                return $comparator($a->value, $b->value);
-            });
-
-        } else {
-            usort($sorted->internal, function($a, $b) {
-                return $a->value <=> $b->value;
-            });
-        }
-
-        return $sorted;
+        $copy = $this->copy();
+        $copy->sort($comparator);
+        return $copy;
     }
 
     /**
@@ -541,12 +541,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function ksort(callable $comparator = null)
     {
         if ($comparator) {
-            usort($this->internal, function($a, $b) use ($comparator) {
+            usort($this->pairs, function($a, $b) use ($comparator) {
                 return $comparator($a->key, $b->key);
             });
 
         } else {
-            usort($this->internal, function($a, $b) {
+            usort($this->pairs, function($a, $b) {
                 return $a->key <=> $b->key;
             });
         }
@@ -562,20 +562,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function ksorted(callable $comparator = null): Map
     {
-        $sorted = $this->copy();
-
-        if ($comparator) {
-            usort($sorted->internal, function($a, $b) use ($comparator) {
-                return $comparator($a->key, $b->key);
-            });
-
-        } else {
-            usort($sorted->internal, function($a, $b) {
-                return $a->key <=> $b->key;
-            });
-        }
-
-        return $sorted;
+        $copy = $this->copy();
+        $copy->ksort($comparator);
+        return $copy;
     }
 
     /**
@@ -595,7 +584,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         $array = [];
 
-        foreach ($this->internal as $pair) {
+        foreach ($this->pairs as $pair) {
             $array[$pair->key] = $pair->value;
         }
 
@@ -609,19 +598,21 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function values(): Sequence
     {
-        $sequence = new Vector();
+        $value = function($pair) {
+            return $pair->value;
+        };
 
-        foreach ($this->internal as $pair) {
-            $sequence->push($pair->value);
-        }
-
-        return $sequence;
+        return new Vector(array_map($value, $this->pairs));
     }
 
     /**
+     * Creates a new map that contains the pairs of the current instance as well
+     * as the pairs of another map.
      *
+     * @param Map $map The other map, to combine with the current instance.
      *
-     * @return \Ds\Map
+     * @return Map A new map containing all the pairs of the current
+     *                 instance as well as another map.
      */
     public function union(Map $map): Map
     {
@@ -629,11 +620,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * XOR
+     * Creates a new map using keys of either the current instance or of another
+     * map, but not of both.
      *
      * @param Map $map
      *
-     * @return Map
+     * @return Map A new map containing keys in the current instance as well
+     *                 as another map, but not in both.
      */
     public function xor(Map $map): Map
     {
@@ -643,17 +636,17 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Get iterator
+     * @inheritDoc
      */
     public function getIterator()
     {
-        foreach ($this->internal as $pair) {
+        foreach ($this->pairs as $pair) {
             yield $pair->key => $pair->value;
         }
     }
 
     /**
-     * Debug Info
+     * Returns a representation to be used for var_dump and print_r.
      */
     public function __debugInfo()
     {

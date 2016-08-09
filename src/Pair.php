@@ -4,7 +4,7 @@ namespace Ds;
 use OutOfBoundsException;
 
 /**
- * A pair which represents a key, and an associated value.
+ * A pair which represents a key and an associated value.
  *
  * @package Ds
  */
@@ -21,7 +21,7 @@ final class Pair implements \JsonSerializable
     public $value;
 
     /**
-     * Constructor
+     * Creates a new instance.
      *
      * @param mixed $key
      * @param mixed $value
@@ -61,7 +61,7 @@ final class Pair implements \JsonSerializable
     }
 
     /**
-     * Debug Info
+     * Returns a representation to be used for var_dump and print_r.
      *
      * @return array
      */
@@ -79,7 +79,7 @@ final class Pair implements \JsonSerializable
     }
 
     /**
-     *
+     * @inheritDoc
      */
     public function jsonSerialize()
     {
@@ -87,7 +87,7 @@ final class Pair implements \JsonSerializable
     }
 
     /**
-     * To String
+     * Returns a string representation of the pair.
      */
     public function __toString()
     {
