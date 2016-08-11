@@ -109,7 +109,8 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Merge an array of values with the current Map
+     * Returns the result of associating all keys of a given traversable object
+     * or array with their corresponding values, as well as those of this map.
      *
      * @param array|\Traversable $values
      *

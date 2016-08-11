@@ -1,7 +1,6 @@
 <?php
 namespace Ds\Traits;
 
-use Ds\Collection;
 use Ds\Sequence;
 use OutOfRangeException;
 use UnderflowException;
@@ -149,7 +148,7 @@ trait GenericSequence
             throw new UnderflowException();
         }
 
-        return $this->array[ count($this) - 1];
+        return $this->array[count($this) - 1];
     }
 
     /**
