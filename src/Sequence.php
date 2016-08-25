@@ -148,6 +148,32 @@ interface Sequence extends Collection
     function merge($values): Sequence;
 
     /**
+     * Moves all the elements for which a given predicate returns true to the
+     * front of the sequence, and all others to the back.
+     *
+     * If a predicate is not provided, values which are true will be moved to
+     * the front, and values which are false to the back.
+     *
+     * Note: Relative order is preserved.
+     *
+     * @param callable|null $predicate A function which returns true of false to
+     *                                 determine whether a value should be moved
+     *                                 to the front or the back of the sequence.
+     *
+     * @return int The index where the second part begins, ie. the new index of
+     *             the first value that failed the predicate.
+     */
+    function partition(callable $predicate = null): int;
+
+    /**
+     *
+     *
+     * @param
+     * @return
+     */
+    function pluck($key): Sequence;
+
+    /**
      * Removes the last value in the sequence, and returns it.
      *
      * @return mixed what was the last value in the sequence.
@@ -226,6 +252,13 @@ interface Sequence extends Collection
      * @throws \UnderflowException if the sequence was empty.
      */
     function shift();
+
+    /**
+     * Randomly shuffles the sequence.
+     *
+     * @param int|null An optional seed to allow predictive shuffling.
+     */
+    function shuffle(int $seed = null);
 
     /**
      * Returns a sub-sequence of a given length starting at a specified index.
