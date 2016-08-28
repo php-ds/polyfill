@@ -1,6 +1,8 @@
 <?php
 namespace Ds\Traits;
 
+use ArrayAccess;
+use Ds\Map;
 use Ds\Sequence;
 use OutOfRangeException;
 use UnderflowException;
@@ -82,6 +84,20 @@ trait GenericSequence
     /**
      * @inheritDoc
      */
+    public function each(callable $callback): bool
+    {
+        foreach ($this->array as $value) {
+            if ($callback($value) === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function filter(callable $callback = null): Sequence
     {
         return new self(array_filter($this->array, $callback ?: 'boolval'));
@@ -117,6 +133,44 @@ trait GenericSequence
         }
 
         return $this->array[$index];
+    }
+
+    /**
+     * Determines which group a value belongs to.
+     */
+    private function getGroup($value, $accessor)
+    {
+        if (is_callable($accessor)) {
+            return $accessor($value);
+        }
+
+        if (is_array($value)) {
+            return $value[$accessor];
+        }
+
+        if ($value instanceof \ArrayAccess) {
+            return $value[$accessor];
+        }
+
+        return $value->$accessor;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function groupBy($accessor): Map
+    {
+        $groups = new Map();
+
+        foreach ($this->array as $value) {
+            $group = $this->getGroup($value, $accessor);
+
+            // Create a new group or add to existing.
+            $groups[$group]   = $groups[$group] ?? new self();
+            $groups[$group][] = $value;
+        }
+
+        return $groups;
     }
 
     /**
@@ -181,6 +235,7 @@ trait GenericSequence
         foreach ($values as $value) {
             $this->array[] = $value;
         }
+
         $this->adjustCapacity();
     }
 
@@ -247,11 +302,71 @@ trait GenericSequence
     /**
      * @inheritDoc
      */
+    public function partition(callable $predicate = null): int
+    {
+        $pass = [];
+        $fail = [];
+
+        // Default predicate simply tests for true or false.
+        $predicate = $predicate ?? 'boolval';
+
+        foreach ($this->array as $value) {
+            $predicate($value)
+                ? $pass[] = $value
+                : $fail[] = $value;
+        }
+
+        $this->array = array_merge($pass, $fail);
+        return count($pass);
+    }
+
+    /**
+     * @inheritDoc
+     */
+public function pluck($key): Sequence
+{
+    $sequence = new self();
+
+    foreach ($this->array as $value) {
+        is_array($value) || $value instanceof ArrayAccess
+            ? $sequence[] = $value[$key]
+            : $sequence[] = $value->$key;
+    }
+
+    return $sequence;
+}
+
+    /**
+     * Swaps two values by index.
+     */
+    private function swap(int $a, int $b)
+    {
+        $temp = $this->array[$a];
+        $this->array[$a] = $this->array[$b];
+        $this->array[$b] = $temp;
+    }
+
+    /**
+     * Reverses a range within this sequence.
+     */
+    private function reverseRange(int $a, int $b)
+    {
+        while ($a < $b) {
+            $this->swap($a++, --$b);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function rotate(int $rotations)
     {
-        for ($r = $this->normalizeRotations($rotations); $r > 0; $r--) {
-            array_push($this->array, array_shift($this->array));
-        }
+        $r = $this->normalizeRotations($rotations);
+        $n = $this->count();
+
+        $this->reverseRange(0,  $r);
+        $this->reverseRange($r, $n);
+        $this->reverseRange(0,  $n);
     }
 
     /**

@@ -56,16 +56,25 @@ interface Sequence extends Collection
     function contains(...$values): bool;
 
     /**
+     * Iterates through the sequence, invoking a given callback for each value.
+     *
+     * @param callable $callback Callback function to invoke for each value.
+     *
+     * @return bool false to break, anything else including null to continue.
+     */
+    function each(callable $callback): bool;
+
+    /**
      * Returns a new sequence containing only the values for which a callback
      * returns true. A boolean test will be used if a callback is not provided.
      *
-     * @param callable|null $callback Accepts a value, returns a boolean result:
-     *                                true : include the value,
-     *                                false: skip the value.
+     * @param callable|null $predicate Accepts a value, returns a boolean:
+     *                                 - true : include the value,
+     *                                 - false: skip the value.
      *
      * @return Sequence
      */
-    function filter(callable $callback = null): Sequence;
+    function filter(callable $predicate = null): Sequence;
 
     /**
      * Returns the index of a given value, or false if it could not be found.
@@ -95,6 +104,20 @@ interface Sequence extends Collection
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
      */
     function get(int $index);
+
+    /**
+     * Creates a map associating all values in sequence with a determined group,
+     * where the keys are the groups and the values are each a new sequence of
+     * the values that are in that group.
+     *
+     * @param mixed $iteratee An offset or callable to determine which group a
+     *                        value belongs to. If a callable is passed, the
+     *                        value will be passed as the only argument, and the
+     *                        return value will be the group.
+     *
+     * @return Map
+     */
+    function groupBy($iteratee): Map;
 
     /**
      * Inserts zero or more values at a given index.
@@ -146,6 +169,33 @@ interface Sequence extends Collection
      * @return Sequence
      */
     function merge($values): Sequence;
+
+    /**
+     * Moves all the values for which a given predicate returns true to the
+     * front of the sequence, and all those that don't to the back.
+     *
+     * Relative order is preserved.
+     *
+     * @param callable $predicate Accepts a single value, returns true if the
+     *                            value should be moved to the front, or false
+     *                            if it should be moved to the back.
+     *
+     * @return int The position where the second part of the partition begins,
+     *             also the number of values that passed the predicate.
+     */
+    function partition(callable $predicate = null): int;
+
+    /**
+     * Creates a new sequence containing the values associated with a given key
+     * or index of each value in the sequence.
+     *
+     * Array access takes priority over public properties of an object.
+     *
+     * @param mixed $key They key used to retrieve a value.
+     *
+     * @return Sequence
+     */
+    function pluck($key): Sequence;
 
     /**
      * Removes the last value in the sequence, and returns it.

@@ -10,8 +10,8 @@
         </whitelist>
     </filter>
     <logging>
-        <log type="coverage-html" target="build/logs/coverage"/>
-        <log type="coverage-text" target="build/logs/coverage.txt"/>
+        <log type="coverage-html"   target="build/logs/coverage"/>
+        <log type="coverage-text"   target="build/logs/coverage.txt"/>
         <log type="coverage-clover" target="build/logs/coverage.xml"/>
     </logging>
 </phpunit>
