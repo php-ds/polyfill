@@ -136,34 +136,40 @@ trait GenericSequence
     }
 
     /**
+     *
+     */
+    private function allowsSquareBracketAccess($value)
+    {
+        return is_array($value)
+            || is_string($value)
+            || (is_object($value) && $value instanceof \ArrayAccess);
+    }
+
+    /**
      * Determines which group a value belongs to.
      */
-    private function getGroup($value, $accessor)
+    private function getGroup($value, $key)
     {
-        if (is_callable($accessor)) {
-            return $accessor($value);
+        if (is_callable($key)) {
+            return $key($value);
         }
 
-        if (is_array($value)) {
-            return $value[$accessor];
+        if ($this->allowsSquareBracketAccess($value)) {
+            return $value[$key];
         }
 
-        if ($value instanceof \ArrayAccess) {
-            return $value[$accessor];
-        }
-
-        return $value->$accessor;
+        return $value->$key;
     }
 
     /**
      * @inheritDoc
      */
-    public function groupBy($accessor): Map
+    public function groupBy($key): Map
     {
         $groups = new Map();
 
         foreach ($this->array as $value) {
-            $group = $this->getGroup($value, $accessor);
+            $group = $this->getGroup($value, $key);
 
             // Create a new group or add to existing.
             $groups[$group]   = $groups[$group] ?? new self();
@@ -328,7 +334,7 @@ public function pluck($key): Sequence
     $sequence = new self();
 
     foreach ($this->array as $value) {
-        is_array($value) || $value instanceof ArrayAccess
+        $this->allowsSquareBracketAccess($value)
             ? $sequence[] = $value[$key]
             : $sequence[] = $value->$key;
     }
