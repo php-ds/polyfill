@@ -1,34 +1,89 @@
 <?php
 namespace Ds;
 
+use ArrayAccess;
+use Ds\Map;
+use IteratorAggregate;
+use OutOfRangeException;
+use UnderflowException;
+
 /**
- * Describes the behaviour of values arranged in a single, linear dimension.
- * Some languages refer to this as a "List". It’s similar to an array that uses
- * incremental integer keys, with the exception of a few characteristics:
- *
- *  - Values will always be indexed as [0, 1, 2, …, size - 1].
- *  - Only allowed to access values by index in the range [0, size - 1].
+ * A Sequence is an arrangement of values in a contiguous buffer that grows and
+ * shrinks automatically. It’s the most efficient sequential structure because
+ * a value’s index is a direct mapping to its index in the buffer, and the
+ * growth factor isn't bound to a specific multiple or exponent.
  *
  * @package Ds
  */
-interface Sequence extends Collection
+final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allocated
 {
+    use Traits\Collection;
+    use Traits\Allocated;
+
     /**
+     *
+     */
+    const MIN_CAPACITY = 8;
+
+    /**
+     * @var array internal array used to store the values of the sequence.
+     */
+    private $array = [];
+
+   /**
      * Creates a new sequence using the values of either an array or iterable
      * object as initial values.
      *
      * @param array|\Traversable|null $values
      */
-    function __construct($values = null);
+    public function __construct($values = null)
+    {
+        if ($values) {
+            $this->pushAll($values);
+        }
+    }
 
     /**
-     * Ensures that enough memory is allocated for a required capacity.
      *
-     * @param int $capacity The number of values for which capacity should be
-     *                      allocated. Capacity will stay the same if this value
-     *                      is less than or equal to the current capacity.
      */
-    function allocate(int $capacity);
+    public function all(callable $predicate = null): bool
+    {
+        $predicate = $predicate ?? 'boolval';
+
+        foreach ($this->array as $value) {
+            if ( ! $predicate($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     */
+    private function allowsSquareBracketAccess($value)
+    {
+        return is_array($value)
+            || is_string($value)
+            || (is_object($value) && $value instanceof \ArrayAccess);
+    }
+
+    /**
+     *
+     */
+    public function any(callable $predicate = null): bool
+    {
+        $predicate = $predicate ?? 'boolval';
+
+        foreach ($this->array as $value) {
+            if ($predicate($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Updates every value in the sequence by applying a callback, using the
@@ -36,14 +91,21 @@ interface Sequence extends Collection
      *
      * @param callable $callback Accepts the value, returns the new value.
      */
-    function apply(callable $callback);
+    public function apply(callable $callback)
+    {
+        foreach ($this->array as &$value) {
+            $value = $callback($value);
+        }
+    }
 
     /**
-     * Returns the current capacity of the sequence.
-     *
-     * @return int
+     * @inheritdoc
      */
-    function capacity(): int;
+    public function clear()
+    {
+        $this->array = [];
+        $this->capacity = self::MIN_CAPACITY;
+    }
 
     /**
      * Determines whether the sequence contains all of zero or more values.
@@ -53,16 +115,61 @@ interface Sequence extends Collection
      * @return bool true if at least one value was provided and the sequence
      *              contains all given values, false otherwise.
      */
-    function contains(...$values): bool;
+    public function contains(...$values): bool
+    {
+        foreach ($values as $value) {
+            if ($this->find($value) === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function count(): int
+    {
+        return count($this->array);
+    }
+
+    /**
+     *
+     */
+    public function countBy($key): Map
+    {
+        $groups = new Map();
+
+        foreach ($this->array as $value) {
+            $group = $this->getGroup($value, $key);
+
+            //
+            $groups->update($group, function($value) {
+                return $value + 1;
+            });
+        }
+
+        return $counts;
+    }
 
     /**
      * Iterates through the sequence, invoking a given callback for each value.
      *
-     * @param callable $callback Callback function to invoke for each value.
+     * @param callable $callback Callback public function to invoke for each value.
      *
      * @return bool false to break, anything else including null to continue.
      */
-    function each(callable $callback): bool;
+    public function each(callable $callback): bool
+    {
+        foreach ($this->array as $value) {
+            if ($callback($value) === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Returns a new sequence containing only the values for which a callback
@@ -74,16 +181,23 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function filter(callable $predicate = null): Sequence;
+    public function filter(callable $callback = null): Sequence
+    {
+        return new self(array_filter($this->array, $callback ?: 'boolval'));
+    }
 
     /**
-     * Returns the index of a given value, or false if it could not be found.
+     * Returns the index of a given value, or null if it could not be found.
      *
      * @param mixed $value
      *
-     * @return int|bool
+     * @return int|null
      */
-    function find($value);
+    public function find($value)
+    {
+        $index = array_search($value, $this->array, true);
+        return $index !== false ? $index : null;
+    }
 
     /**
      * Returns the first value in the sequence.
@@ -92,7 +206,14 @@ interface Sequence extends Collection
      *
      * @throws \UnderflowException if the sequence is empty.
      */
-    function first();
+    public function first()
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+
+        return $this->array[0];
+    }
 
     /**
      * Returns the value at a given index (position) in the sequence.
@@ -103,21 +224,63 @@ interface Sequence extends Collection
      *
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
      */
-    function get(int $index);
+    public function get(int $index)
+    {
+        if ( ! $this->validIndex($index)) {
+            throw new OutOfRangeException();
+        }
+
+        return $this->array[$index];
+    }
+
+    /**
+     * Determines which group a value belongs to.
+     */
+    private function getGroup($value, $key)
+    {
+        if (is_callable($key)) {
+            return $key($value);
+        }
+
+        if ($this->allowsSquareBracketAccess($value)) {
+            return $value[$key];
+        }
+
+        return $value->$key;
+    }
 
     /**
      * Creates a map associating all values in sequence with a determined group,
      * where the keys are the groups and the values are each a new sequence of
      * the values that are in that group.
      *
-     * @param mixed $iteratee An offset or callable to determine which group a
-     *                        value belongs to. If a callable is passed, the
-     *                        value will be passed as the only argument, and the
-     *                        return value will be the group.
+     * @param mixed $group An offset or callable to determine which group a
+     *                     value belongs to. If a callable is passed, the value
+     *                     will be passed as the only argument, and the return
+     *                     value will be the group.
      *
      * @return Map
      */
-    function groupBy($iteratee): Map;
+    public function groupBy($key): Map
+    {
+        $groups = new Map();
+
+        foreach ($this->array as $value) {
+            $group = $this->getGroup($value, $key);
+
+            //
+            $groups->update($group, function($values) {
+
+                //
+                $values = $values ?? new self();
+                $values->push($value);
+
+                return $values;
+            });
+        }
+
+        return $groups;
+    }
 
     /**
      * Inserts zero or more values at a given index.
@@ -130,7 +293,14 @@ interface Sequence extends Collection
      *
      * @throws \OutOfRangeException if the index is not in the range [0, n]
      */
-    function insert(int $index, ...$values);
+    public function insert(int $index, ...$values)
+    {
+        if ( ! $this->validIndex($index) && $index !== count($this)) {
+            throw new OutOfRangeException();
+        }
+
+        array_splice($this->array, $index, 0, $values);
+    }
 
     /**
      * Joins all values of the sequence into a string, adding an optional 'glue'
@@ -140,7 +310,10 @@ interface Sequence extends Collection
      *
      * @return string
      */
-    function join(string $glue = null): string;
+    public function join(string $glue = null): string
+    {
+        return implode($glue, $this->array);
+    }
 
     /**
      * Returns the last value in the sequence.
@@ -149,7 +322,14 @@ interface Sequence extends Collection
      *
      * @throws \UnderflowException if the sequence is empty.
      */
-    function last();
+    public function last()
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+
+        return $this->array[count($this) - 1];
+    }
 
     /**
      * Returns a new sequence using the results of applying a callback to each
@@ -159,7 +339,10 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function map(callable $callback): Sequence;
+    public function map(callable $callback): Sequence
+    {
+        return new self(array_map($callback, $this->array));
+    }
 
     /**
      * Returns the result of adding all given values to the sequence.
@@ -168,7 +351,56 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function merge($values): Sequence;
+    public function merge($values): Sequence
+    {
+        $copy = $this->copy();
+        $copy->pushAll($values);
+        return $copy;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetSet($offset, $value)
+    {
+        if ($offset === null) {
+            $this->push($value);
+        } else {
+            $this->set($offset, $value);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function &offsetGet($offset)
+    {
+        if ( ! $this->validIndex($offset)) {
+            throw new OutOfRangeException();
+        }
+
+        return $this->array[$offset];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetUnset($offset)
+    {
+        if (is_integer($offset) && $this->validIndex($offset)) {
+            $this->remove($offset);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetExists($offset)
+    {
+        return is_integer($offset)
+            && $this->validIndex($offset)
+            && $this->get($offset) !== null;
+    }
 
     /**
      * Moves all the values for which a given predicate returns true to the
@@ -183,7 +415,23 @@ interface Sequence extends Collection
      * @return int The position where the second part of the partition begins,
      *             also the number of values that passed the predicate.
      */
-    function partition(callable $predicate = null): int;
+    public function partition(callable $predicate = null): int
+    {
+        $pass = [];
+        $fail = [];
+
+        // Default predicate simply tests for true or false.
+        $predicate = $predicate ?? 'boolval';
+
+        foreach ($this->array as $value) {
+            $predicate($value)
+                ? $pass[] = $value
+                : $fail[] = $value;
+        }
+
+        $this->array = array_merge($pass, $fail);
+        return count($pass);
+    }
 
     /**
      * Creates a new sequence containing the values associated with a given key
@@ -195,23 +443,61 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function pluck($key): Sequence;
+    public function pluck($key): Sequence
+    {
+        $sequence = new self();
+
+        foreach ($this->array as $value) {
+            $this->allowsSquareBracketAccess($value)
+                ? $sequence[] = $value[$key]
+                : $sequence[] = $value->$key;
+        }
+
+        return $sequence;
+    }
 
     /**
      * Removes the last value in the sequence, and returns it.
      *
-     * @return mixed what was the last value in the sequence.
+     * @param int $count
+     *
+     * @return mixed|Sequence what was the last value in the sequence.
      *
      * @throws \UnderflowException if the sequence is empty.
      */
-    function pop();
+    public function pop()
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+
+        $value = array_pop($this->array);
+        $this->adjustCapacity();
+        return $value;
+    }
 
     /**
-     * Adds zero or more values to the end of the sequence.
+     * Adds a value to the end of the sequence.
      *
-     * @param mixed ...$values
+     * @param mixed $value
      */
-    function push(...$values);
+    public function push(...$values)
+    {
+        $this->array = array_merge($this->array, $values);
+        $this->adjustCapacity();
+    }
+
+    /**
+     * Pushes all values of either an array or traversable object.
+     */
+    private function pushAll($values)
+    {
+        foreach ($values as $value) {
+            $this->push($value);
+        }
+
+        $this->adjustCapacity();
+    }
 
     /**
      * Iteratively reduces the sequence to a single value using a callback.
@@ -224,7 +510,10 @@ interface Sequence extends Collection
      * @return mixed The carry value of the final iteration, or the initial
      *               value if the sequence was empty.
      */
-    function reduce(callable $callback, $initial = null);
+    public function reduce(callable $callback, $initial = null)
+    {
+        return array_reduce($this->array, $callback, $initial);
+    }
 
     /**
      * Removes and returns the value at a given index in the sequence.
@@ -235,19 +524,80 @@ interface Sequence extends Collection
      *
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
      */
-    function remove(int $index);
+    public function remove(int $index)
+    {
+        if ( ! $this->validIndex($index)) {
+            throw new OutOfRangeException();
+        }
+
+        $value = array_splice($this->array, $index, 1, null)[0];
+        $this->adjustCapacity();
+        return $value;
+    }
 
     /**
      * Reverses the sequence in-place.
      */
-    function reverse();
+    public function reverse()
+    {
+        $this->array = array_reverse($this->array);
+    }
 
     /**
      * Returns a reversed copy of the sequence.
      *
      * @return Sequence
      */
-    function reversed();
+    public function reversed(): Sequence
+    {
+        return new self(array_reverse($this->array));
+    }
+
+    /**
+     * Converts negative or large rotations into the minimum positive number
+     * of rotations required to rotate the sequence by a given $r.
+     */
+    private function normalizeRotations(int $r)
+    {
+        $n = count($this);
+
+        if ($n < 2) return 0;
+        if ($r < 0) return $n - (abs($r) % $n);
+
+        return $r % $n;
+    }
+
+    /**
+     * Swaps two values by index.
+     */
+    private function _swap(int $a, int $b)
+    {
+        $temp = $this->array[$a];
+        $this->array[$a] = $this->array[$b];
+        $this->array[$b] = $temp;
+    }
+
+    /**
+     * Swaps two values by index.
+     */
+    public function swap(int $a, int $b)
+    {
+        if ( ! $this->validIndex($a) || ! $this->validIndex($b)) {
+            throw new OutOfRangeException();
+        }
+
+        $this->_swap($a, $b);
+    }
+
+    /**
+     * Reverses a range within this sequence.
+     */
+    private function reverseRange(int $a, int $b)
+    {
+        while ($a < $b) {
+            $this->_swap($a++, --$b);
+        }
+    }
 
     /**
      * Rotates the sequence by a given number of rotations, which is equivalent
@@ -256,7 +606,15 @@ interface Sequence extends Collection
      *
      * @param int $rotations The number of rotations (can be negative).
      */
-    function rotate(int $rotations);
+    public function rotate(int $rotations)
+    {
+        $r = $this->normalizeRotations($rotations);
+        $n = $this->count();
+
+        $this->reverseRange(0,  $r);
+        $this->reverseRange($r, $n);
+        $this->reverseRange(0,  $n);
+    }
 
     /**
      * Replaces the value at a given index in the sequence with a new value.
@@ -266,16 +624,40 @@ interface Sequence extends Collection
      *
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
      */
-    function set(int $index, $value);
+    public function set(int $index, $value)
+    {
+        if ( ! $this->validIndex($index)) {
+            throw new OutOfRangeException();
+        }
+
+        $this->array[$index] = $value;
+    }
 
     /**
      * Removes and returns the first value in the sequence.
      *
-     * @return mixed what was the first value in the sequence.
+     * @return mixed|Sequence what was the first value in the sequence.
      *
      * @throws \UnderflowException if the sequence was empty.
      */
-    function shift();
+    public function shift()
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+
+        $value = array_shift($this->array);
+        $this->adjustCapacity();
+        return $value;
+    }
+
+    /**
+     *
+     */
+    public function shuffle()
+    {
+        shuffle($this->array);
+    }
 
     /**
      * Returns a sub-sequence of a given length starting at a specified index.
@@ -298,7 +680,36 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function slice(int $index, int $length = null): Sequence;
+    public function slice(int $offset, int $length = null): Sequence
+    {
+        if (func_num_args() === 1) {
+            $length = count($this);
+        }
+
+        return new self(array_slice($this->array, $offset, $length));
+    }
+
+    /**
+     *
+     */
+    public function splice(int $index, int $length = null, $replacement = null): Sequence
+    {
+        if ($length === null) {
+            $length = count($this);
+        }
+
+        if ($replacement === null) {
+            $replacement = [];
+        }
+
+        if ( ! is_array($replacement)) {
+            $replacement = iterator_to_array($replacement);
+        }
+
+        return new self(
+            array_splice($this->array, $index, $length, $replacement)
+        );
+    }
 
     /**
      * Sorts the sequence in-place, based on an optional callable comparator.
@@ -306,7 +717,14 @@ interface Sequence extends Collection
      * @param callable|null $comparator Accepts two values to be compared.
      *                                  Should return the result of a <=> b.
      */
-    function sort(callable $comparator = null);
+    public function sort(callable $comparator = null)
+    {
+        if ($comparator) {
+            usort($this->array, $comparator);
+        } else {
+            sort($this->array);
+        }
+    }
 
     /**
      * Returns a sorted copy of the sequence, based on an optional callable
@@ -317,19 +735,50 @@ interface Sequence extends Collection
      *
      * @return Sequence
      */
-    function sorted(callable $comparator = null): Sequence;
+    public function sorted(callable $comparator = null): Sequence
+    {
+        $copy = $this->copy();
+        $copy->sort($comparator);
+        return $copy;
+    }
 
     /**
      * Returns the sum of all values in the sequence.
      *
      * @return int|float The sum of all the values in the sequence.
      */
-    function sum();
+    public function sum()
+    {
+        return array_sum($this->array);
+    }
 
     /**
-     * Adds zero or more values to the front of the sequence.
+     * @inheritdoc
+     */
+    public function toArray(): array
+    {
+        return $this->array;
+    }
+
+    /**
+     * Adds a value to the front of the sequence.
      *
      * @param mixed ...$values
      */
-    function unshift(...$values);
+    public function unshift(...$values)
+    {
+        if ($values) {
+            $this->array = array_merge($values, $this->array);
+            $this->adjustCapacity();
+        }
+    }
+
+    /**
+     *
+     */
+    private function validIndex(int $index)
+    {
+        return $index >= 0 && $index < count($this);
+    }
 }
+

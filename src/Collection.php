@@ -1,6 +1,11 @@
 <?php
 namespace Ds;
 
+use Traversable;
+use Countable;
+use JsonSerializable;
+use ArrayAccess;
+
 /**
  * Collection is the base interface which covers functionality common to all the
  * data structures in this library. It guarantees that all structures are
@@ -8,7 +13,7 @@ namespace Ds;
  *
  * @package Ds
  */
-interface Collection extends \Traversable, \Countable, \JsonSerializable
+interface Collection extends Traversable, Countable, JsonSerializable
 {
     /**
      * Removes all values from the collection.

@@ -5,6 +5,8 @@ use OutOfBoundsException;
 use OutOfRangeException;
 use Traversable;
 use UnderflowException;
+use ArrayAccess;
+use IteratorAggregate;
 
 /**
  * A Map is a sequential collection of key-value pairs, almost identical to an
@@ -12,10 +14,10 @@ use UnderflowException;
  *
  * @package Ds
  */
-final class Map implements \IteratorAggregate, \ArrayAccess, Collection
+final class Map implements IteratorAggregate, ArrayAccess, Collection, Allocated
 {
-    use Traits\GenericCollection;
-    use Traits\SquaredCapacity;
+    use Traits\Collection;
+    use Traits\Allocated;
 
     const MIN_CAPACITY = 8;
 
@@ -45,7 +47,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function apply(callable $callback)
     {
         foreach ($this->pairs as &$pair) {
-            $pair->value = $callback($pair->key, $pair->value);
+            $pair[1] = $callback($pair[0], $pair[1]);
         }
     }
 
@@ -59,13 +61,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Return the first Pair from the Map
+     * Return the first Tuple from the Map
      *
-     * @return Pair
+     * @return Tuple
      *
      * @throws UnderflowException
      */
-    public function first(): Pair
+    public function first(): Tuple
     {
         if ($this->isEmpty()) {
             throw new UnderflowException();
@@ -75,13 +77,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Return the last Pair from the Map
+     * Return the last Tuple from the Map
      *
-     * @return Pair
+     * @return Tuple
      *
      * @throws UnderflowException
      */
-    public function last(): Pair
+    public function last(): Tuple
     {
         if ($this->isEmpty()) {
             throw new UnderflowException();
@@ -95,11 +97,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @param int $position
      *
-     * @return Pair
+     * @return Tuple
      *
      * @throws OutOfRangeException
      */
-    public function skip(int $position): Pair
+    public function skip(int $position): Tuple
     {
         if ($position < 0 || $position >= count($this->pairs)) {
             throw new OutOfRangeException();
@@ -180,12 +182,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @param $key
      *
-     * @return Pair|null
+     * @return Tuple|null
      */
     private function lookupKey($key)
     {
         foreach ($this->pairs as $pair) {
-            if ($this->keysAreEqual($pair->key, $key)) {
+            if ($this->keysAreEqual($pair[0], $key)) {
                 return $pair;
             }
         }
@@ -196,12 +198,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      *
      * @param $value
      *
-     * @return Pair|null
+     * @return Tuple|null
      */
     private function lookupValue($value)
     {
         foreach ($this->pairs as $pair) {
-            if ($pair->value === $value) {
+            if ($pair[1] === $value) {
                 return $pair;
             }
         }
@@ -276,8 +278,10 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function get($key, $default = null)
     {
-        if (($pair = $this->lookupKey($key))) {
-            return $pair->value;
+        $pair = $this->lookupKey($key);
+
+        if ($pair) {
+            return $pair[1];
         }
 
         // Check if a default was provided.
@@ -289,17 +293,29 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
+     *
+     */
+    public function update($key, callable $callback)
+    {
+        $pair = $this->lookupKey($key);
+
+        //
+        $value = $callback($pair ? $pair[1] : null);
+
+        //
+        $pair[1] = $value;
+
+        return $value;
+    }
+
+    /**
      * Returns a set of all the keys in the map.
      *
      * @return Set
      */
     public function keys(): Set
     {
-        $key = function($pair) {
-            return $pair->key;
-        };
-
-        return new Set(array_map($key, $this->pairs));
+        return new Set(array_column($this->pairs, 0));
     }
 
     /**
@@ -314,11 +330,9 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function map(callable $callback): Map
     {
-        $apply = function($pair) use ($callback) {
-            return $callback($pair->key, $pair->value);
-        };
-
-        return new self(array_map($apply, $this->pairs));
+        return new self(array_map(function($pair) use ($callback) {
+            return $callback($pair[0], $pair[1]);
+        }, $this->pairs));
     }
 
     /**
@@ -328,11 +342,13 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function pairs(): Sequence
     {
-        $copy = function($pair) {
-            return $pair->copy();
-        };
+        $pairs = new Sequence();
 
-        return new Vector(array_map($copy, $this->pairs));
+        foreach ($this->array as $pair) {
+            $pairs->push(new Tuple($pair));
+        }
+
+        return $pairs;
     }
 
     /**
@@ -347,11 +363,11 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $pair = $this->lookupKey($key);
 
         if ($pair) {
-            $pair->value = $value;
+            $pair[1] = $value;
 
         } else {
             $this->adjustCapacity();
-            $this->pairs[] = new Pair($key, $value);
+            $this->pairs[] = new Tuple([$key, $value]);
         }
     }
 
@@ -384,7 +400,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $carry = $initial;
 
         foreach ($this->pairs as $pair) {
-            $carry = $callback($carry, $pair->key, $pair->value);
+            $carry = $callback($carry, $pair[0], $pair[1]);
         }
 
         return $carry;
@@ -397,7 +413,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     private function delete(int $position)
     {
         $pair  = $this->pairs[$position];
-        $value = $pair->value;
+        $value = $pair[1];
 
         array_splice($this->pairs, $position, 1, null);
         $this->adjustCapacity();
@@ -420,7 +436,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function remove($key, $default = null)
     {
         foreach ($this->pairs as $position => $pair) {
-            if ($this->keysAreEqual($pair->key, $key)) {
+            if ($this->keysAreEqual($pair[0], $key)) {
                 return $this->delete($position);
             }
         }
@@ -490,7 +506,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
 
         foreach ($slice as $pair) {
-            $map->put($pair->key, $pair->value);
+            $map->put($pair[0], $pair[1]);
         }
 
         return $map;
@@ -507,12 +523,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         if ($comparator) {
             usort($this->pairs, function($a, $b) use ($comparator) {
-                return $comparator($a->value, $b->value);
+                return $comparator($a[1], $b[1]);
             });
 
         } else {
             usort($this->pairs, function($a, $b) {
-                return $a->value <=> $b->value;
+                return $a[1] <=> $b[1];
             });
         }
     }
@@ -543,12 +559,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     {
         if ($comparator) {
             usort($this->pairs, function($a, $b) use ($comparator) {
-                return $comparator($a->key, $b->key);
+                return $comparator($a[0], $b[0]);
             });
 
         } else {
             usort($this->pairs, function($a, $b) {
-                return $a->key <=> $b->key;
+                return $a[0] <=> $b[0];
             });
         }
     }
@@ -586,7 +602,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $array = [];
 
         foreach ($this->pairs as $pair) {
-            $array[$pair->key] = $pair->value;
+            $array[$pair[0]] = $pair[1];
         }
 
         return $array;
@@ -600,10 +616,10 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function values(): Sequence
     {
         $value = function($pair) {
-            return $pair->value;
+            return $pair[1];
         };
 
-        return new Vector(array_map($value, $this->pairs));
+        return new Sequence(array_column($this->pairs, 1));
     }
 
     /**
@@ -642,7 +658,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function getIterator()
     {
         foreach ($this->pairs as $pair) {
-            yield $pair->key => $pair->value;
+            yield $pair[0] => $pair[1];
         }
     }
 
@@ -672,7 +688,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $pair = $this->lookupKey($offset);
 
         if ($pair) {
-            return $pair->value;
+            return $pair[1];
         }
 
         throw new OutOfBoundsException();

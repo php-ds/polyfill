@@ -4,15 +4,17 @@ namespace Ds;
 use Error;
 use OutOfBoundsException;
 use OutOfRangeException;
+use IteratorAggregate;
+use ArrayAccess;
 
 /**
  * A sequence of unique values.
  *
  * @package Ds
  */
-final class Set implements \IteratorAggregate, \ArrayAccess, Collection
+final class Set implements IteratorAggregate, ArrayAccess, Collection, Allocated
 {
-    use Traits\GenericCollection;
+    use Traits\Collection;
 
     const MIN_CAPACITY = Map::MIN_CAPACITY;
 

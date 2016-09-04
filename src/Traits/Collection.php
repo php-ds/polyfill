@@ -1,13 +1,22 @@
 <?php
-namespace Ds\Traits;
 
-use Ds\Collection;
+namespace Ds\Traits;
 
 /**
  * Common to structures that implement the base collection interface.
  */
-trait GenericCollection
+trait Collection
 {
+    /**
+     *
+     */
+    public function getIterator()
+    {
+        foreach ($this->array as $key => $value) {
+            yield $key => $value;
+        }
+    }
+
     /**
      * Returns whether the collection is empty.
      *
@@ -37,9 +46,9 @@ trait GenericCollection
     /**
      * Creates a shallow copy of the collection.
      *
-     * @return Collection a shallow copy of the collection.
+     * @return Ds\Collection a shallow copy of the collection.
      */
-    public function copy(): Collection
+    public function copy(): Ds\Collection
     {
         return new self($this);
     }
@@ -56,7 +65,7 @@ trait GenericCollection
     abstract public function toArray(): array;
 
     /**
-     * Invoked when calling var_dump.
+     * Invoked when calling var_dump and print_r.
      *
      * @return array
      */

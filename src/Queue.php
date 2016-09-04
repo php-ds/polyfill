@@ -2,6 +2,8 @@
 namespace Ds;
 
 use OutOfBoundsException;
+use IteratorAggregate;
+use ArrayAccess;
 
 /**
  * A “first in, first out” or “FIFO” collection that only allows access to the
@@ -9,16 +11,16 @@ use OutOfBoundsException;
  *
  * @package Ds
  */
-final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
+final class Queue implements IteratorAggregate, ArrayAccess, Collection, Allocated
 {
-    use Traits\GenericCollection;
+    use Traits\Collection;
 
     const MIN_CAPACITY = 8;
 
     /**
-     * @var Deque internal deque to store values.
+     * @var Sequence internal sequence to store values.
      */
-    private $deque;
+    private $sequence;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -27,7 +29,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
-        $this->deque = new Deque($values ?: []);
+        $this->sequence = new Sequence($values ?: []);
     }
 
     /**
@@ -40,7 +42,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function allocate(int $capacity)
     {
-        $this->deque->allocate($capacity);
+        $this->sequence->allocate($capacity);
     }
 
     /**
@@ -50,7 +52,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function capacity(): int
     {
-        return $this->deque->capacity();
+        return $this->sequence->capacity();
     }
 
     /**
@@ -58,7 +60,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
     {
-        $this->deque->clear();
+        $this->sequence->clear();
     }
 
     /**
@@ -66,7 +68,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function copy(): \Ds\Collection
     {
-        return new self($this->deque);
+        return new self($this->sequence);
     }
 
     /**
@@ -74,7 +76,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function count(): int
     {
-        return count($this->deque);
+        return count($this->sequence);
     }
 
     /**
@@ -84,7 +86,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function peek()
     {
-        return $this->deque->first();
+        return $this->sequence->first();
     }
 
     /**
@@ -94,7 +96,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function pop()
     {
-        return $this->deque->shift();
+        return $this->sequence->shift();
     }
 
     /**
@@ -104,7 +106,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function push(...$values)
     {
-        $this->deque->push(...$values);
+        $this->sequence->push(...$values);
     }
 
     /**
@@ -112,7 +114,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function toArray(): array
     {
-        return $this->deque->toArray();
+        return $this->sequence->toArray();
     }
 
     /**

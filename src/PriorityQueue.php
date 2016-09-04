@@ -2,6 +2,7 @@
 namespace Ds;
 
 use UnderflowException;
+use IteratorAggregate;
 
 /**
  * A PriorityQueue is very similar to a Queue. Values are pushed into the queue
@@ -10,10 +11,10 @@ use UnderflowException;
  *
  * @package Ds
  */
-final class PriorityQueue implements \IteratorAggregate, Collection
+final class PriorityQueue implements IteratorAggregate, Collection, Allocated
 {
-    use Traits\GenericCollection;
-    use Traits\SquaredCapacity;
+    use Traits\Collection;
+    use Traits\Allocated;
 
     /**
      * @var int

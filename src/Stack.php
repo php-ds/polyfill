@@ -2,6 +2,8 @@
 namespace Ds;
 
 use OutOfBoundsException;
+use IteratorAggregate;
+use ArrayAccess
 
 /**
  * A “last in, first out” or “LIFO” collection that only allows access to the
@@ -9,14 +11,14 @@ use OutOfBoundsException;
  *
  * @package Ds
  */
-final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
+final class Stack implements IteratorAggregate, ArrayAccess, Collection, Allocated
 {
-    use Traits\GenericCollection;
+    use Traits\Collection;
 
     /**
-     * @var Vector internal vector to store values of the stack.
+     * @var Sequence internal sequence to store values of the stack.
      */
-    private $vector;
+    private $sequence;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
@@ -25,7 +27,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function __construct($values = null)
     {
-        $this->vector = new Vector($values ?: []);
+        $this->sequence = new Sequence($values ?: []);
     }
 
     /**
@@ -33,7 +35,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function clear()
     {
-        $this->vector->clear();
+        $this->sequence->clear();
     }
 
     /**
@@ -41,7 +43,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function copy(): Collection
     {
-        return new self($this->vector);
+        return new self($this->sequence);
     }
 
     /**
@@ -51,7 +53,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function count(): int
     {
-        return count($this->vector);
+        return count($this->sequence);
     }
 
     /**
@@ -64,7 +66,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function allocate(int $capacity)
     {
-        $this->vector->allocate($capacity);
+        $this->sequence->allocate($capacity);
     }
 
     /**
@@ -74,7 +76,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function capacity(): int
     {
-        return $this->vector->capacity();
+        return $this->sequence->capacity();
     }
 
     /**
@@ -86,7 +88,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function peek()
     {
-        return $this->vector->last();
+        return $this->sequence->last();
     }
 
     /**
@@ -98,7 +100,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function pop()
     {
-        return $this->vector->pop();
+        return $this->sequence->pop();
     }
 
     /**
@@ -108,7 +110,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function push(...$values)
     {
-        $this->vector->push(...$values);
+        $this->sequence->push(...$values);
     }
 
     /**
@@ -116,7 +118,7 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function toArray(): array
     {
-        return array_reverse($this->vector->toArray());
+        return array_reverse($this->sequence->toArray());
     }
 
     /**
