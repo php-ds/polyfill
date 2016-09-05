@@ -46,9 +46,9 @@ trait Collection
     /**
      * Creates a shallow copy of the collection.
      *
-     * @return Ds\Collection a shallow copy of the collection.
+     * @return \Ds\Collection a shallow copy of the collection.
      */
-    public function copy(): Ds\Collection
+    public function copy(): \Ds\Collection
     {
         return new self($this);
     }

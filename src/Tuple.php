@@ -21,7 +21,7 @@ final class Tuple implements IteratorAggregate, ArrayAccess, Collection
      */
     public function __construct($values)
     {
-        $this->array = $values;
+        $this->array = is_array($values) ? $values : iterator_to_array($values);
     }
 
     /**

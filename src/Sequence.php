@@ -118,7 +118,7 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
     public function contains(...$values): bool
     {
         foreach ($values as $value) {
-            if ($this->find($value) === false) {
+            if (is_null($this->find($value))) {
                 return false;
             }
         }
@@ -132,25 +132,6 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
     public function count(): int
     {
         return count($this->array);
-    }
-
-    /**
-     *
-     */
-    public function countBy($key): Map
-    {
-        $groups = new Map();
-
-        foreach ($this->array as $value) {
-            $group = $this->getGroup($value, $key);
-
-            //
-            $groups->update($group, function($value) {
-                return $value + 1;
-            });
-        }
-
-        return $counts;
     }
 
     /**
@@ -196,7 +177,7 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
     public function find($value)
     {
         $index = array_search($value, $this->array, true);
-        return $index !== false ? $index : null;
+        return is_integer($index) ? $index : null;
     }
 
     /**
@@ -266,15 +247,15 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
         $groups = new Map();
 
         foreach ($this->array as $value) {
+
+            // Determine what this value's group key is.
             $group = $this->getGroup($value, $key);
 
-            //
-            $groups->update($group, function($values) {
+            $groups->update($group, function($values) use ($value) {
 
-                //
+                // Use previous group or create a new one.
                 $values = $values ?? new self();
                 $values->push($value);
-
                 return $values;
             });
         }
@@ -586,6 +567,10 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
             throw new OutOfRangeException();
         }
 
+        if ($a === $b) {
+            return;
+        }
+
         $this->_swap($a, $b);
     }
 
@@ -691,10 +676,33 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
 
     /**
      *
+     *
+     * @param int $index  If the index is positive, the sequence will start
+     *                    at that index in the sequence. If index is negative,
+     *                    the sequence will start that far from the end.
+     *
+     * @param int $length If a length is given and is positive, the resulting
+     *                    sequence will have up to that many values in it.
+     *                    If the length results in an overflow, only values
+     *                    up to the end of the sequence will be included.
+     *
+     *                    If a length is given and is negative, the sequence
+     *                    will stop that many values from the end.
+     *
+     *                    If a length is not provided, the resulting sequence
+     *                    will contain all values between the index and the
+     *                    end of the sequence.
+     *
+     * @param mixed $replacement
+     *
+     * @return Sequence
      */
-    public function splice(int $index, int $length = null, $replacement = null): Sequence
+    public function splice(
+        int $index,
+        int $length  = null,
+        $replacement = null): Sequence
     {
-        if ($length === null) {
+        if (func_num_args() === 1) {
             $length = count($this);
         }
 
@@ -702,8 +710,14 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
             $replacement = [];
         }
 
-        if ( ! is_array($replacement)) {
+        // Check if we can use the replacement as an iterable object.
+        else if (is_object($replacement) && $replacement instanceof \Traversable) {
             $replacement = iterator_to_array($replacement);
+        }
+
+        // Fallback cast to array, which is consistent with array_splice.
+        else {
+            $replacement = (array) $replacement;
         }
 
         return new self(

@@ -300,10 +300,15 @@ final class Map implements IteratorAggregate, ArrayAccess, Collection, Allocated
         $pair = $this->lookupKey($key);
 
         //
-        $value = $callback($pair ? $pair[1] : null);
+        if ($pair) {
+            $value = $callback($pair[1]);
+            $pair[1] = $value;
 
         //
-        $pair[1] = $value;
+        } else {
+            $value = $callback(null);
+            $this->put($key, $value);
+        }
 
         return $value;
     }
@@ -344,7 +349,7 @@ final class Map implements IteratorAggregate, ArrayAccess, Collection, Allocated
     {
         $pairs = new Sequence();
 
-        foreach ($this->array as $pair) {
+        foreach ($this->pairs as $pair) {
             $pairs->push(new Tuple($pair));
         }
 

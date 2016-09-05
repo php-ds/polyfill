@@ -1,5 +1,5 @@
 <?php
-namespace Ds\Interfaces;
+namespace Ds;
 
 interface Allocated
 {
