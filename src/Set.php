@@ -169,7 +169,7 @@ final class Set implements IteratorAggregate, ArrayAccess, Collection, Allocated
      */
     public function first()
     {
-        return $this->table->first()->key;
+        return $this->table->first()[0];
     }
 
     /**
@@ -183,7 +183,7 @@ final class Set implements IteratorAggregate, ArrayAccess, Collection, Allocated
      */
     public function get(int $position)
     {
-        return $this->table->skip($position)->key;
+        return $this->table->skip($position)[0];
     }
 
     /**
@@ -231,7 +231,7 @@ final class Set implements IteratorAggregate, ArrayAccess, Collection, Allocated
      */
     public function last()
     {
-        return $this->table->last()->key;
+        return $this->table->last()[0];
     }
 
     /**
@@ -437,7 +437,7 @@ final class Set implements IteratorAggregate, ArrayAccess, Collection, Allocated
      */
     public function offsetGet($offset)
     {
-        return $this->table->skip($offset)->key;
+        return $this->table->skip($offset)[0];
     }
 
     /**

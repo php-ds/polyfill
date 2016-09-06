@@ -320,7 +320,11 @@ final class Map implements IteratorAggregate, ArrayAccess, Collection, Allocated
      */
     public function keys(): Set
     {
-        return new Set(array_column($this->pairs, 0));
+        $key = function($pair) {
+            return $pair[0];
+        };
+
+        return new Set(array_map($key, $this->pairs));
     }
 
     /**
@@ -624,7 +628,7 @@ final class Map implements IteratorAggregate, ArrayAccess, Collection, Allocated
             return $pair[1];
         };
 
-        return new Sequence(array_column($this->pairs, 1));
+        return new Sequence(array_map($value, $this->pairs));
     }
 
     /**

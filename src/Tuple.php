@@ -55,8 +55,7 @@ final class Tuple implements IteratorAggregate, ArrayAccess, Collection
      */
     public function get(int $index)
     {
-        // check index
-        return $this->array[$index];
+        return $this->offsetGet($index);
     }
 
     /**
@@ -64,16 +63,15 @@ final class Tuple implements IteratorAggregate, ArrayAccess, Collection
      */
     public function set(int $index, $value)
     {
-        // check index
-        return $this->array[$index] = $value;
+        return $this->offsetSet($index, $value);
     }
 
     /**
      * @inheritDoc
      */
-    public function offsetGet($offset)
+    public function &offsetGet($offset)
     {
-        return $this->get($offset);
+        return $this->array[$offset];
     }
 
     /**
@@ -81,7 +79,7 @@ final class Tuple implements IteratorAggregate, ArrayAccess, Collection
      */
     public function offsetSet($offset, $value)
     {
-        $this->set($offset, $value);
+        return $this->array[$offset] = $value;
     }
 
     /**

@@ -3,7 +3,7 @@ namespace Ds;
 
 use OutOfBoundsException;
 use IteratorAggregate;
-use ArrayAccess
+use ArrayAccess;
 
 /**
  * A “last in, first out” or “LIFO” collection that only allows access to the
