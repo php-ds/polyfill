@@ -1,6 +1,7 @@
 <?php
 namespace Ds;
 
+use Error;
 use OutOfBoundsException;
 
 /**
