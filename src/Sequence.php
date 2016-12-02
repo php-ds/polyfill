@@ -68,11 +68,11 @@ interface Sequence extends Collection
     function filter(callable $callback = null): Sequence;
 
     /**
-     * Returns the index of a given value, or false if it could not be found.
+     * Returns the index of a given value, or null if it could not be found.
      *
      * @param mixed $value
      *
-     * @return int|bool
+     * @return int|null
      */
     function find($value);
 
