@@ -99,6 +99,27 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
     }
 
     /**
+     * @param mixed $value
+     * @param null|int $num
+     */
+    public function fill($value, int $num = null)
+    {
+        if (null === $num) {
+            \array_walk($this->array, function (&$v) use ($value) {
+                $v = $value;
+            });
+        } else {
+            if ([] === $this->array) {
+                $this->array = \array_fill(0, $num, $value);
+            } else {
+                for ($i = 0; $i < $num; $i++) {
+                    $this->array[$i] = $value;
+                }
+            }
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function clear()
