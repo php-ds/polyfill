@@ -2,6 +2,7 @@
 namespace Ds;
 
 use ArrayAccess;
+use DomainException;
 use Ds\Map;
 use IteratorAggregate;
 use OutOfRangeException;
@@ -100,26 +101,39 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
 
     /**
      * Fills the sequence with the given value.
-     * If $num is null, it replaces all the previous values with the new one.
-     * If $num is positive, it fills the array from 0 to $num - 1.
+     * If $length is null, it replaces all the previous values with the new one.
+     * If $length is positive, it fills the array from 0 to $num - 1.
      *
-     * @param mixed $value   Value used to fill the array
-     * @param null|int $num  Length of the filled sub-array
+     * @param mixed    $value   Value used to fill the array.
+     * @param int|null $start   Optional starting point of the fill.
+     * @param int|null $length  Length of the filled sub-array.
      *
-     * @throws \DomainException when $num <= 0
+     *                          If $length is not provided, all previous values
+     *                          will be replaced by $value.
+     *
+     *                          If $length is provided and is positive, all
+     *                          values between 0 and $length - 1 will be
+     *                          replaced by $value.
+     *
+     * @throws DomainException when $length < 0 or $start is out of range.
      */
-    public function fill($value, int $num = null)
+    public function fill($value, int $start = null, int $length = null)
     {
-        if (null === $num) {
-            $this->array = \array_fill(0, $num, $value);
-        } else {
-            if ($num <= 0) {
-                throw new \DomainException('$num must be a strictly positive integer');
-            }
+        $start  = $start  ?? 0;
+        $length = $length ?? count($this);
 
-            for ($i = 0; $i < $num; $i++) {
-                $this->array[$i] = $value;
-            }
+        if ($length < 0) {
+            throw new DomainException("Length must be positive: '$length'");
+        }
+
+        // Allow fill from 0, but not from the end of the buffer.
+        if ($start < 0 || $start > count($this) - 1) {
+            throw new OutOfRangeException("Start index out of range: '$start'");
+        }
+
+        // Copy the value for each index in the range.
+        for (; $length; $length--) {
+            $this->array[$start++] = $value;
         }
     }
 
