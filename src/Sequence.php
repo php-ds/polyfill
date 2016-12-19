@@ -99,22 +99,26 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
     }
 
     /**
-     * @param mixed $value
-     * @param null|int $num
+     * Fills the sequence with the given value.
+     * If $num is null, it replaces all the previous values with the new one.
+     * If $num is positive, it fills the array from 0 to $num - 1.
+     *
+     * @param mixed $value   Value used to fill the array
+     * @param null|int $num  Length of the filled sub-array
+     *
+     * @throws \DomainException when $num <= 0
      */
     public function fill($value, int $num = null)
     {
         if (null === $num) {
-            \array_walk($this->array, function (&$v) use ($value) {
-                $v = $value;
-            });
+            $this->array = \array_fill(0, $num, $value);
         } else {
-            if ([] === $this->array) {
-                $this->array = \array_fill(0, $num, $value);
-            } else {
-                for ($i = 0; $i < $num; $i++) {
-                    $this->array[$i] = $value;
-                }
+            if ($num <= 0) {
+                throw new \DomainException('$num must be a strictly positive integer');
+            }
+
+            for ($i = 0; $i < $num; $i++) {
+                $this->array[$i] = $value;
             }
         }
     }
