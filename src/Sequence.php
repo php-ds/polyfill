@@ -99,6 +99,31 @@ final class Sequence implements IteratorAggregate, ArrayAccess, Collection, Allo
     }
 
     /**
+     * Fills the sequence with the given value.
+     * If $num is null, it replaces all the previous values with the new one.
+     * If $num is positive, it fills the array from 0 to $num - 1.
+     *
+     * @param mixed $value   Value used to fill the array
+     * @param null|int $num  Length of the filled sub-array
+     *
+     * @throws \DomainException when $num <= 0
+     */
+    public function fill($value, int $num = null)
+    {
+        if (null === $num) {
+            $this->array = \array_fill(0, $num, $value);
+        } else {
+            if ($num <= 0) {
+                throw new \DomainException('$num must be a strictly positive integer');
+            }
+
+            for ($i = 0; $i < $num; $i++) {
+                $this->array[$i] = $value;
+            }
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function clear()
