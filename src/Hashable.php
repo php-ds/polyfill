@@ -20,7 +20,7 @@ interface Hashable
      *
      * @return mixed
      */
-    function hash();
+    public function hash();
 
     /**
      * Determines if two objects should be considered equal. Both objects will
@@ -28,5 +28,5 @@ interface Hashable
      *
      * @param mixed $obj An instance of the same class to compare to.
      */
-    function equals($obj): bool;
+    public function equals($obj): bool;
 }

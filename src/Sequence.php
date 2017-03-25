@@ -14,7 +14,7 @@ namespace Ds;
  * @template TValue
  * @extends Collection<int, TValue>
  */
-interface Sequence extends Collection, \ArrayAccess 
+interface Sequence extends Collection, \ArrayAccess
 {
     /**
      * Ensures that enough memory is allocated for a required capacity.
@@ -23,7 +23,7 @@ interface Sequence extends Collection, \ArrayAccess
      *                      allocated. Capacity will stay the same if this value
      *                      is less than or equal to the current capacity.
      */
-    function allocate(int $capacity);
+    public function allocate(int $capacity);
 
     /**
      * Updates every value in the sequence by applying a callback, using the
@@ -33,14 +33,14 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param callable(TValue): TValue $callback
      */
-    function apply(callable $callback);
+    public function apply(callable $callback);
 
     /**
      * Returns the current capacity of the sequence.
      *
      * @return int
      */
-    function capacity(): int;
+    public function capacity(): int;
 
     /**
      * Determines whether the sequence contains all of zero or more values.
@@ -52,7 +52,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param TValue ...$values
      */
-    function contains(...$values): bool;
+    public function contains(...$values): bool;
 
     /**
      * Returns a new sequence containing only the values for which a callback
@@ -67,7 +67,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param (callable(TValue): bool)|null $callback
      * @psalm-return Sequence<TValue>
      */
-    function filter(callable $callback = null): Sequence;
+    public function filter(callable $callback = null): Sequence;
 
     /**
      * Returns the index of a given value, or false if it could not be found.
@@ -78,7 +78,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param TValue $value
      */
-    function find($value);
+    public function find($value);
 
     /**
      * Returns the first value in the sequence.
@@ -89,7 +89,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return TValue
      */
-    function first();
+    public function first();
 
     /**
      * Returns the value at a given index (position) in the sequence.
@@ -100,7 +100,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return TValue
      */
-    function get(int $index);
+    public function get(int $index);
 
     /**
      * Inserts zero or more values at a given index.
@@ -114,13 +114,13 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param TValue ...$values
      */
-    function insert(int $index, ...$values);
+    public function insert(int $index, ...$values);
 
     /**
      * Joins all values of the sequence into a string, adding an optional 'glue'
      * between them. Returns an empty string if the sequence is empty.
      */
-    function join(string $glue = null): string;
+    public function join(string $glue = null): string;
 
     /**
      * Returns the last value in the sequence.
@@ -131,7 +131,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return TValue
      */
-    function last();
+    public function last();
 
     /**
      * Returns a new sequence using the results of applying a callback to each
@@ -145,7 +145,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param callable(TValue): TNewValue $callback
      * @psalm-return Sequence<TNewValue>
      */
-    function map(callable $callback): Sequence;
+    public function map(callable $callback): Sequence;
 
     /**
      * Returns the result of adding all given values to the sequence.
@@ -158,7 +158,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param iterable<TValue2> $values
      * @psalm-return Sequence<TValue|TValue2>
      */
-    function merge($values): Sequence;
+    public function merge($values): Sequence;
 
     /**
      * Removes the last value in the sequence, and returns it.
@@ -169,7 +169,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return TValue
      */
-    function pop();
+    public function pop();
 
     /**
      * Adds zero or more values to the end of the sequence.
@@ -178,7 +178,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param TValue ...$values
      */
-    function push(...$values);
+    public function push(...$values);
 
     /**
      * Iteratively reduces the sequence to a single value using a callback.
@@ -196,7 +196,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param TCarry $initial
      * @psalm-return TCarry
      */
-    function reduce(callable $callback, $initial = null);
+    public function reduce(callable $callback, $initial = null);
 
     /**
      * Removes and returns the value at a given index in the sequence.
@@ -209,12 +209,12 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return TValue
      */
-    function remove(int $index);
+    public function remove(int $index);
 
     /**
      * Reverses the sequence in-place.
      */
-    function reverse();
+    public function reverse();
 
     /**
      * Returns a reversed copy of the sequence.
@@ -223,7 +223,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return Sequence<TValue>
      */
-    function reversed();
+    public function reversed();
 
     /**
      * Rotates the sequence by a given number of rotations, which is equivalent
@@ -232,7 +232,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @param int $rotations The number of rotations (can be negative).
      */
-    function rotate(int $rotations);
+    public function rotate(int $rotations);
 
     /**
      * Replaces the value at a given index in the sequence with a new value.
@@ -243,7 +243,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param TValue $value
      */
-    function set(int $index, $value);
+    public function set(int $index, $value);
 
     /**
      * Removes and returns the first value in the sequence.
@@ -254,7 +254,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return TValue
      */
-    function shift();
+    public function shift();
 
     /**
      * Returns a sub-sequence of a given length starting at a specified index.
@@ -279,7 +279,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return Sequence<TValue>
      */
-    function slice(int $index, int $length = null): Sequence;
+    public function slice(int $index, int $length = null): Sequence;
 
     /**
      * Sorts the sequence in-place, based on an optional callable comparator.
@@ -289,7 +289,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      */
-    function sort(callable $comparator = null);
+    public function sort(callable $comparator = null);
 
     /**
      * Returns a sorted copy of the sequence, based on an optional callable
@@ -303,14 +303,14 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      * @psalm-return Sequence<TValue>
      */
-    function sorted(callable $comparator = null): Sequence;
+    public function sorted(callable $comparator = null): Sequence;
 
     /**
      * Returns the sum of all values in the sequence.
      *
      * @return int|float The sum of all the values in the sequence.
      */
-    function sum();
+    public function sum();
 
     /**
      * @inheritDoc
@@ -326,5 +326,5 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-param TValue ...$values
      */
-    function unshift(...$values);
+    public function unshift(...$values);
 }
