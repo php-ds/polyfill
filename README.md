@@ -1,5 +1,7 @@
 # Data Structures for PHP 7
 
+[![Join the chat at https://gitter.im/php-ds/polyfill](https://badges.gitter.im/php-ds/polyfill.svg)](https://gitter.im/php-ds/polyfill?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/php-ds/polyfill.svg?branch=master)](https://travis-ci.org/php-ds/polyfill)
 [![Code Coverage](https://scrutinizer-ci.com/g/php-ds/polyfill/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/php-ds/polyfill/?branch=master)
 [![Packagist](https://img.shields.io/packagist/v/php-ds/php-ds.svg)](https://packagist.org/packages/php-ds/php-ds)
