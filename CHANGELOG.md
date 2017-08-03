@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] - 2017-08-03
+### Changed
+- Minor capacity updates
+
 ## [1.1.1] - 2016-08-09
 ### Fixed
 - `Stack` and `Queue` array access should throw `OutOfBoundsException`, not `Error`.
