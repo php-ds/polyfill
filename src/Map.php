@@ -36,14 +36,6 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
     }
 
-    // /**
-    //  * @return whether capacity should be increased.
-    //  */
-    // protected function shouldIncreaseCapacity(): bool
-    // {
-    //     return count($this) > $this->capacity;
-    // }
-
     /**
      * Updates all values by applying a callback function to each value.
      *
