@@ -237,7 +237,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
 
         // Replace the root, then sift down.
         $this->setRoot($leaf);
-        $this->adjustCapacity();
+        $this->checkCapacity();
 
         return $value;
     }
@@ -269,7 +269,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
      */
     public function push($value, int $priority)
     {
-        $this->adjustCapacity();
+        $this->checkCapacity();
 
         // Add new leaf, then sift up to maintain heap,
         $this->heap[] = new PriorityNode($value, $priority, $this->stamp++);

@@ -36,6 +36,14 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         }
     }
 
+    // /**
+    //  * @return whether capacity should be increased.
+    //  */
+    // protected function shouldIncreaseCapacity(): bool
+    // {
+    //     return count($this) > $this->capacity;
+    // }
+
     /**
      * Updates all values by applying a callback function to each value.
      *
@@ -350,7 +358,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
             $pair->value = $value;
 
         } else {
-            $this->adjustCapacity();
+            $this->checkCapacity();
             $this->pairs[] = new Pair($key, $value);
         }
     }
@@ -400,7 +408,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
         $value = $pair->value;
 
         array_splice($this->pairs, $position, 1, null);
-        $this->adjustCapacity();
+        $this->checkCapacity();
 
         return $value;
     }

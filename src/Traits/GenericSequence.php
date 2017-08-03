@@ -169,7 +169,8 @@ trait GenericSequence
         }
 
         $value = array_pop($this->array);
-        $this->adjustCapacity();
+        $this->checkCapacity();
+
         return $value;
     }
 
@@ -181,7 +182,8 @@ trait GenericSequence
         foreach ($values as $value) {
             $this->array[] = $value;
         }
-        $this->adjustCapacity();
+
+        $this->checkCapacity();
     }
 
     /**
@@ -210,7 +212,8 @@ trait GenericSequence
         }
 
         $value = array_splice($this->array, $index, 1, null)[0];
-        $this->adjustCapacity();
+        $this->checkCapacity();
+
         return $value;
     }
 
@@ -276,7 +279,8 @@ trait GenericSequence
         }
 
         $value = array_shift($this->array);
-        $this->adjustCapacity();
+        $this->checkCapacity();
+
         return $value;
     }
 
@@ -329,7 +333,7 @@ trait GenericSequence
     {
         if ($values) {
             $this->array = array_merge($values, $this->array);
-            $this->adjustCapacity();
+            $this->checkCapacity();
         }
     }
 

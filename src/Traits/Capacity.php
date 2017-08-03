@@ -9,7 +9,7 @@ namespace Ds\Traits;
 trait Capacity
 {
     /**
-     * @var int internal capacity
+     * @var integer internal capacity
      */
     private $capacity = self::MIN_CAPACITY;
 
@@ -37,27 +37,73 @@ trait Capacity
     }
 
     /**
-     * Called when capacity should be increased to accommodate new values.
+     * @return the structures growth factor.
      */
-    abstract protected function increaseCapacity();
+    protected function getGrowthFactor(): float
+    {
+        return 2;
+    }
 
     /**
-     * Adjusts the structure's capacity according to its current size.
+     * @return float to multiply by when decreasing capacity.
      */
-    private function adjustCapacity()
+    protected function getDecayFactor(): float
     {
-        $size = count($this);
+        return 0.5;
+    }
 
-        // Automatically truncate the allocated buffer when the size of the
-        // structure drops low enough.
-        if ($size < $this->capacity / 4) {
-            $this->capacity = max(self::MIN_CAPACITY, $this->capacity / 2);
+    /**
+     * @return float the ratio between size and capacity when capacity should be
+     *               decreased.
+     */
+    protected function getTruncateThreshold(): float
+    {
+        return 0.25;
+    }
+
+    /**
+     * Checks and adjusts capacity if required.
+     */
+    protected function checkCapacity()
+    {
+        if ($this->shouldIncreaseCapacity()) {
+            $this->increaseCapacity();
         } else {
-
-            // Also check if we should increase capacity when the size changes.
-            if ($size >= $this->capacity) {
-                $this->increaseCapacity();
+            if ($this->shouldDecreaseCapacity()) {
+                $this->decreaseCapacity();
             }
         }
+    }
+
+    /**
+     * Called when capacity should be increased to accommodate new values.
+     */
+    protected function increaseCapacity()
+    {
+        $this->capacity = max($this->count(), $this->capacity * $this->getGrowthFactor());
+    }
+
+    /**
+     * Called when capacity should be decrease if it drops below a threshold.
+     */
+    protected function decreaseCapacity()
+    {
+        $this->capacity = max(self::MIN_CAPACITY, $this->capacity  * $this->getDecayFactor());
+    }
+
+    /**
+     * @return whether capacity should be increased.
+     */
+    protected function shouldDecreaseCapacity(): bool
+    {
+        return count($this) <= $this->capacity * $this->getTruncateThreshold();
+    }
+
+    /**
+     * @return whether capacity should be increased.
+     */
+    protected function shouldIncreaseCapacity(): bool
+    {
+        return count($this) >= $this->capacity;
     }
 }

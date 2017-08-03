@@ -15,17 +15,18 @@ final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
     use Traits\GenericSequence;
     use Traits\Capacity;
 
-    const MIN_CAPACITY = 10;
+    const MIN_CAPACITY = 8;
+
+    protected function getGrowthFactor(): float
+    {
+        return 1.5;
+    }
 
     /**
-     * Called when capacity should be increased to accommodate new values.
+     * @return whether capacity should be increased.
      */
-    protected function increaseCapacity()
+    protected function shouldIncreaseCapacity(): bool
     {
-        $size = count($this);
-
-        if ($size > $this->capacity) {
-            $this->capacity = max(intval($this->capacity * 1.5), $size);
-        }
+        return count($this) > $this->capacity;
     }
 }
