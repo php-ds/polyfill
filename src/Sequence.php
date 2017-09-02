@@ -14,14 +14,6 @@ namespace Ds;
 interface Sequence extends Collection
 {
     /**
-     * Creates a new sequence using the values of either an array or iterable
-     * object as initial values.
-     *
-     * @param array|\Traversable|null $values
-     */
-    function __construct($values = null);
-
-    /**
      * Ensures that enough memory is allocated for a required capacity.
      *
      * @param int $capacity The number of values for which capacity should be
