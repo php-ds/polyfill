@@ -173,4 +173,12 @@ final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
     {
         throw new Error();
     }
+
+    /**
+     * Ensures that the internal vector will be cloned too.
+     */
+    public function __clone()
+    {
+        $this->vector = clone $this->vector;
+    }
 }

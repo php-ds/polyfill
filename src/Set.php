@@ -457,4 +457,12 @@ final class Set implements \IteratorAggregate, \ArrayAccess, Collection
     {
         throw new Error();
     }
+
+    /**
+     * Ensures that the internal table will be cloned too.
+     */
+    public function __clone()
+    {
+        $this->table = clone $this->table;
+    }
 }
