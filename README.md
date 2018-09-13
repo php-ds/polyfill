@@ -1,5 +1,7 @@
 # Data Structures for PHP 7
 
+DEPRECATED - PHP DS 2.0 WILL NOT SUPPORT THE POLYFILL.
+
 [![Build Status](https://travis-ci.org/php-ds/polyfill.svg?branch=master)](https://travis-ci.org/php-ds/polyfill)
 [![Code Coverage](https://scrutinizer-ci.com/g/php-ds/polyfill/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/php-ds/polyfill/?branch=master)
 [![Packagist](https://img.shields.io/packagist/v/php-ds/php-ds.svg)](https://packagist.org/packages/php-ds/php-ds)
