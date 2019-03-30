@@ -50,7 +50,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
     /**
      * @inheritDoc
      */
-    public function copy(): \Ds\Collection
+    public function copy(): Collection
     {
         $copy = new PriorityQueue();
 

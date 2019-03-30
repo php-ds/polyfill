@@ -65,7 +65,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * @inheritDoc
      */
-    public function copy(): \Ds\Collection
+    public function copy(): Collection
     {
         return new self($this->deque);
     }
@@ -81,7 +81,7 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Returns the value at the front of the queue without removing it.
      *
-     * @return
+     * @return mixed
      */
     public function peek()
     {

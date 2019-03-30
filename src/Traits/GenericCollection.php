@@ -25,7 +25,7 @@ trait GenericCollection
      * Returns a representation that can be natively converted to JSON, which is
      * called when invoking json_encode.
      *
-     * @return mixed
+     * @return mixed the data to be JSON encoded.
      *
      * @see JsonSerializable
      */
@@ -60,7 +60,7 @@ trait GenericCollection
      *
      * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return $this->toArray();
     }
@@ -68,8 +68,10 @@ trait GenericCollection
     /**
      * Returns a string representation of the collection, which is invoked when
      * the collection is converted to a string.
+     *
+     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return 'object(' . get_class($this) . ')';
     }

@@ -236,6 +236,10 @@ trait GenericSequence
     /**
      * Converts negative or large rotations into the minimum positive number
      * of rotations required to rotate the sequence by a given $r.
+     *
+     * @param int $r
+     *
+     * @return int
      */
     private function normalizeRotations(int $r)
     {
