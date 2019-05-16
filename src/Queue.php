@@ -170,4 +170,12 @@ final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
     {
         throw new Error();
     }
+
+    /**
+     * Ensures that the internal sequence will be cloned too.
+     */
+    public function __clone()
+    {
+        $this->deque = clone $this->deque;
+    }
 }
