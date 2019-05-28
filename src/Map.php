@@ -314,11 +314,12 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
      */
     public function map(callable $callback): Map
     {
-        $apply = function($pair) use ($callback) {
-            return $callback($pair->key, $pair->value);
-        };
+        $mapped = new self();
+        foreach ($this->pairs as $pair) {
+            $mapped->put($pair->key, $callback($pair->key, $pair->value));
+        }
 
-        return new self(array_map($apply, $this->pairs));
+        return $mapped;
     }
 
     /**
