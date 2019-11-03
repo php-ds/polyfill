@@ -27,7 +27,7 @@ trait GenericCollection
      *
      * @return mixed
      *
-     * @see JsonSerializable
+     * @see \JsonSerializable
      */
     public function jsonSerialize()
     {

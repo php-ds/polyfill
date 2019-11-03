@@ -23,7 +23,7 @@ final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
     }
 
     /**
-     * @return whether capacity should be increased.
+     * @return bool whether capacity should be increased.
      */
     protected function shouldIncreaseCapacity(): bool
     {

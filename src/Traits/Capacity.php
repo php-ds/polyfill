@@ -37,7 +37,7 @@ trait Capacity
     }
 
     /**
-     * @return the structures growth factor.
+     * @return float the structures growth factor.
      */
     protected function getGrowthFactor(): float
     {
@@ -92,7 +92,7 @@ trait Capacity
     }
 
     /**
-     * @return whether capacity should be increased.
+     * @return bool whether capacity should be increased.
      */
     protected function shouldDecreaseCapacity(): bool
     {
@@ -100,7 +100,7 @@ trait Capacity
     }
 
     /**
-     * @return whether capacity should be increased.
+     * @return bool whether capacity should be increased.
      */
     protected function shouldIncreaseCapacity(): bool
     {
