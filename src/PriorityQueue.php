@@ -55,6 +55,7 @@ final class PriorityQueue implements \IteratorAggregate, Collection
         $copy = new PriorityQueue();
 
         $copy->heap     = $this->heap;
+        $copy->stamp    = $this->stamp;
         $copy->capacity = $this->capacity;
 
         return $copy;
