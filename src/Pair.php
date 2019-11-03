@@ -40,7 +40,7 @@ final class Pair implements \JsonSerializable
      *
      * @return mixed|null
      */
-    public function __get($name)
+    public function __unset($name)
     {
         if ($name === 'key' || $name === 'value') {
             $this->$name = null;
