@@ -192,7 +192,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Attempts to look up a key in the table.
+     * Attempts to look up a value in the table.
      *
      * @param $value
      *
