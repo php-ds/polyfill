@@ -5,14 +5,8 @@ php:
   - 7.1
   - 7.2
   - 7.3
-  - nightly
+  - 7.4
 
-matrix:
-  allow_failures:
-    - php: nightly
-  
-install:
-  - composer install --no-interaction
+install: travis_retry composer install
 
-script:
-  - composer test
+script: composer test
