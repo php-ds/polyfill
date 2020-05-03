@@ -1,8 +1,6 @@
 <?php
 namespace Ds\Traits;
 
-use Ds\Collection;
-
 /**
  * Common to structures that implement the base collection interface.
  */
@@ -37,9 +35,9 @@ trait GenericCollection
     /**
      * Creates a shallow copy of the collection.
      *
-     * @return Collection a shallow copy of the collection.
+     * @return static a shallow copy of the collection.
      */
-    public function copy(): Collection
+    public function copy(): self
     {
         return new self($this);
     }
