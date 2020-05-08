@@ -13,21 +13,21 @@ interface Collection extends \Traversable, \Countable, \JsonSerializable
     /**
      * Removes all values from the collection.
      */
-    function clear();
+    public function clear();
 
     /**
      * Returns the size of the collection.
      *
      * @return int
      */
-    function count(): int;
+    public function count(): int;
 
     /**
      * Returns a shallow copy of the collection.
      *
      * @return Collection a copy of the collection.
      */
-    function copy(): Collection;
+    public function copy(): Collection;
 
     /**
      * Returns whether the collection is empty.
@@ -37,7 +37,7 @@ interface Collection extends \Traversable, \Countable, \JsonSerializable
      *
      * @return bool
      */
-    function isEmpty(): bool;
+    public function isEmpty(): bool;
 
     /**
      * Returns an array representation of the collection.
@@ -48,5 +48,5 @@ interface Collection extends \Traversable, \Countable, \JsonSerializable
      *
      * @return array
      */
-    function toArray(): array;
+    public function toArray(): array;
 }

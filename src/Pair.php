@@ -88,8 +88,10 @@ final class Pair implements \JsonSerializable
 
     /**
      * Returns a string representation of the pair.
+     *
+     * @return string a string representation of the pair.
      */
-    public function __toString()
+    public function __toString(): string
     {
         return 'object(' . get_class($this) . ')';
     }
