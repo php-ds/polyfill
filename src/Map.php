@@ -394,6 +394,10 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     /**
      * Completely removes a pair from the internal array by position. It is
      * important to remove it from the array and not just use 'unset'.
+     *
+     * @param int $position
+     *
+     * @return mixed
      */
     private function delete(int $position)
     {
@@ -435,9 +439,7 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     }
 
     /**
-     * Returns a reversed copy of the map.
-     *
-     * @return Map
+     * Sorts the map into the reversed order.
      */
     public function reverse()
     {

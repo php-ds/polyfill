@@ -20,15 +20,15 @@ interface Hashable
      *
      * @return mixed
      */
-    function hash();
+    public function hash();
 
     /**
      * Determines if two objects should be considered equal. Both objects will
      * be instances of the same class but may not be the same instance.
      *
-     * @param $obj An instance of the same class to compare to.
+     * @param $obj self An instance of the same class to compare to.
      *
      * @return bool
      */
-    function equals($obj): bool;
+    public function equals($obj): bool;
 }
