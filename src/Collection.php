@@ -25,9 +25,9 @@ interface Collection extends \Traversable, \Countable, \JsonSerializable
     /**
      * Returns a shallow copy of the collection.
      *
-     * @return Collection a copy of the collection.
+     * @return static a copy of the collection.
      */
-    function copy(): Collection;
+    function copy();
 
     /**
      * Returns whether the collection is empty.

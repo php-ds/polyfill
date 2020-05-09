@@ -39,7 +39,7 @@ trait GenericCollection
      */
     public function copy(): self
     {
-        return new self($this);
+        return new static($this);
     }
 
     /**

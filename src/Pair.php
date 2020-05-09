@@ -52,10 +52,8 @@ final class Pair implements \JsonSerializable
 
     /**
      * Returns a copy of the Pair
-     *
-     * @return Pair
      */
-    public function copy(): Pair
+    public function copy(): self
     {
         return new self($this->key, $this->value);
     }
