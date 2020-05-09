@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0"
+        "php": ">=7.0.0",
+        "ext-json": "*"
     },
     "require-dev": {
         "php-ds/tests": "^1.2"
