@@ -31,6 +31,11 @@ trait GenericSequence
         foreach ($values as $value) {
             $this->push($value);
         }
+
+        $this->capacity = max(
+            $values === null ? 0 : count($values),
+            $this::MIN_CAPACITY
+        );
     }
 
     /**
