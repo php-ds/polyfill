@@ -104,6 +104,6 @@ trait Capacity
      */
     protected function shouldIncreaseCapacity(): bool
     {
-        return count($this) >= $this->capacity;
+        return count($this) > $this->capacity;
     }
 }
