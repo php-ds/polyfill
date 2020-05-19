@@ -1,6 +1,8 @@
 <?php
 namespace Ds\Traits;
 
+use Ds\Deque;
+
 /**
  * Common to structures that deal with an internal capacity. While none of the
  * PHP implementations actually make use of a capacity, it's important to keep
@@ -104,6 +106,10 @@ trait Capacity
      */
     protected function shouldIncreaseCapacity(): bool
     {
-        return count($this) > $this->capacity;
+        if ($this instanceof Deque) {
+            return count($this) > $this->capacity;
+        }
+
+        return count($this) >= $this->capacity;
     }
 }
