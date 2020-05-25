@@ -17,8 +17,6 @@ trait Capacity
 
     /**
      * Returns the current capacity.
-     *
-     * @return int
      */
     public function capacity(): int
     {

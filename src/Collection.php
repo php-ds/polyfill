@@ -7,6 +7,10 @@ namespace Ds;
  * traversable, countable, and can be converted to json using json_encode().
  *
  * @package Ds
+ *
+ * @template-covariant TKey
+ * @template-covariant TValue
+ * @extends Traversable<TKey, TValue>
  */
 interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
 {
@@ -26,6 +30,8 @@ interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
      * Returns a shallow copy of the collection.
      *
      * @return static a copy of the collection.
+     *
+     * @psalm-return static<TKey, TValue>
      */
     function copy();
 
@@ -34,8 +40,6 @@ interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
      *
      * This should be equivalent to a count of zero, but is not required.
      * Implementations should define what empty means in their own context.
-     *
-     * @return bool
      */
     function isEmpty(): bool;
 
@@ -46,7 +50,7 @@ interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
      * Some implementations may throw an exception if an array representation
      * could not be created.
      *
-     * @return array
+     * @return array<TKey, TValue>
      */
     function toArray(): array;
 }
