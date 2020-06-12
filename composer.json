@@ -15,6 +15,9 @@
     "require-dev": {
         "php-ds/tests": "^1.2"
     },
+    "provide": {
+        "ext-ds": "1.0.0"
+    },
     "suggest": {
         "ext-ds": "to improve performance and reduce memory usage"
     },
