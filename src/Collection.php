@@ -8,7 +8,7 @@ namespace Ds;
  *
  * @package Ds
  */
-interface Collection extends \Traversable, \Countable, \JsonSerializable
+interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
 {
     /**
      * Removes all values from the collection.
