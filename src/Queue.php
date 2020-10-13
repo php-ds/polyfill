@@ -10,7 +10,7 @@ use OutOfBoundsException;
  *
  * @package Ds
  */
-final class Queue implements \IteratorAggregate, \ArrayAccess, Collection
+final class Queue implements Collection, \ArrayAccess 
 {
     use Traits\GenericCollection;
 

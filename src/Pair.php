@@ -6,17 +6,20 @@ use OutOfBoundsException;
 /**
  * A pair which represents a key and an associated value.
  *
+ * @property mixed $key
+ * @property mixed $value
+ *
  * @package Ds
  */
 final class Pair implements \JsonSerializable
 {
     /**
-     * @param mixed $key The pair's key
+     * @var mixed The pair's key
      */
     public $key;
 
     /**
-     * @param mixed $value The pair's value
+     * @var mixed The pair's value
      */
     public $value;
 
@@ -33,6 +36,20 @@ final class Pair implements \JsonSerializable
     }
 
     /**
+     *
+     * @param mixed $name
+     *
+     * @return mixed|null
+     */
+    public function __isset($name)
+    {
+        if ($name === 'key' || $name === 'value') {
+            return $this->$name !== null;
+        }
+        return false;
+    }
+
+    /**
      * This allows unset($pair->key) to not completely remove the property,
      * but be set to null instead.
      *
@@ -46,7 +63,34 @@ final class Pair implements \JsonSerializable
             $this->$name = null;
             return;
         }
+        throw new OutOfBoundsException();
+    }
 
+    /**
+     * @param mixed $name
+     *
+     * @return mixed|null
+     */
+    public function &__get($name)
+    {
+        if ($name === 'key' || $name === 'value') {
+            return $this->$name;
+        }
+        throw new OutOfBoundsException();
+    }
+
+    /**
+     * @param mixed $name
+     * @param mixed $value
+     *
+     * @return mixed|null
+     */
+    public function __set($name, $value)
+    {
+        if ($name === 'key' || $name === 'value') {
+            $this->$name = $value;
+            return;
+        }
         throw new OutOfBoundsException();
     }
 
@@ -69,11 +113,14 @@ final class Pair implements \JsonSerializable
     }
 
     /**
-     * @inheritDoc
+     * @return array
      */
     public function toArray(): array
     {
-        return ['key' => $this->key, 'value' => $this->value];
+        return [
+            'key'   => $this->key,
+            'value' => $this->value,
+        ];
     }
 
     /**

@@ -11,11 +11,16 @@ namespace Ds;
  *
  * @package Ds
  */
-final class Deque implements \IteratorAggregate, \ArrayAccess, Sequence
+final class Deque implements Sequence
 {
     use Traits\GenericCollection;
     use Traits\GenericSequence;
     use Traits\SquaredCapacity;
 
     const MIN_CAPACITY = 8;
+
+    protected function shouldIncreaseCapacity(): bool
+    {
+        return count($this) >= $this->capacity;
+    }
 }

@@ -38,6 +38,21 @@ trait SquaredCapacity
      */
     protected function increaseCapacity()
     {
-        $this->capacity = $this->square(max(count($this) + 1, $this->capacity * $this->getGrowthFactor()));
+        $this->capacity = $this->square(
+            max(
+                count($this) + 1,
+                $this->capacity * $this->getGrowthFactor()
+            )
+        );
+    }
+
+    /**
+     * @param int $total
+     */
+    protected function ensureCapacity(int $total)
+    {
+        while ($total > $this->capacity()) {
+            $this->increaseCapacity();
+        }
     }
 }

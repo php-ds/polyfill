@@ -10,7 +10,7 @@ use OutOfRangeException;
  *
  * @package Ds
  */
-final class Set implements \IteratorAggregate, \ArrayAccess, Collection
+final class Set implements Collection, \ArrayAccess 
 {
     use Traits\GenericCollection;
 

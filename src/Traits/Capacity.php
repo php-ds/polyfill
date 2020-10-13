@@ -78,27 +78,13 @@ trait Capacity
     }
 
     /**
-     * Called when capacity should be increased to accommodate new values.
+     * @param int $total
      */
-    protected function increaseCapacity()
+    protected function ensureCapacity(int $total)
     {
-        $this->capacity = max($this->count(), $this->capacity * $this->getGrowthFactor());
-    }
-
-    /**
-     * Called when capacity should be decrease if it drops below a threshold.
-     */
-    protected function decreaseCapacity()
-    {
-        $this->capacity = max(self::MIN_CAPACITY, $this->capacity  * $this->getDecayFactor());
-    }
-
-    /**
-     * @return bool whether capacity should be increased.
-     */
-    protected function shouldDecreaseCapacity(): bool
-    {
-        return count($this) <= $this->capacity * $this->getTruncateThreshold();
+        if ($total > $this->capacity()) {
+            $this->capacity = max($total, $this->nextCapacity());
+        }
     }
 
     /**
@@ -106,10 +92,41 @@ trait Capacity
      */
     protected function shouldIncreaseCapacity(): bool
     {
-        if ($this instanceof Deque) {
-            return count($this) > $this->capacity;
-        }
+        return $this->count() >= $this->capacity();
+    }
 
-        return count($this) >= $this->capacity;
+    protected function nextCapacity(): int
+    {
+        return $this->capacity() * $this->getGrowthFactor();
+    }
+
+    /**
+     * Called when capacity should be increased to accommodate new values.
+     */
+    protected function increaseCapacity()
+    {
+        $this->capacity = max(
+            $this->count(),
+            $this->nextCapacity()
+        );
+    }
+
+    /**
+     * Called when capacity should be decrease if it drops below a threshold.
+     */
+    protected function decreaseCapacity()
+    {
+        $this->capacity = max(
+            self::MIN_CAPACITY,
+            $this->capacity()  * $this->getDecayFactor()
+        );
+    }
+
+    /**
+     * @return bool whether capacity should be increased.
+     */
+    protected function shouldDecreaseCapacity(): bool
+    {
+        return count($this) <= $this->capacity() * $this->getTruncateThreshold();
     }
 }

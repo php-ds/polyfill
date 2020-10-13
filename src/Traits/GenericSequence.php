@@ -25,7 +25,7 @@ trait GenericSequence
     public function __construct($values = null)
     {
         if ($values) {
-            $this->pushAll($values);
+            $this->push(...$values);
         }
     }
 
@@ -53,7 +53,7 @@ trait GenericSequence
     public function merge($values): Sequence
     {
         $copy = $this->copy();
-        $copy->pushAll($values);
+        $copy->push(...$values);
         return $copy;
     }
 
@@ -129,6 +129,7 @@ trait GenericSequence
         }
 
         array_splice($this->array, $index, 0, $values);
+        $this->checkCapacity();
     }
 
     /**
@@ -175,23 +176,15 @@ trait GenericSequence
     }
 
     /**
-     * Pushes all values of either an array or traversable object.
-     */
-    private function pushAll($values)
-    {
-        foreach ($values as $value) {
-            $this->array[] = $value;
-        }
-
-        $this->checkCapacity();
-    }
-
-    /**
      * @inheritDoc
      */
     public function push(...$values)
     {
-        $this->pushAll($values);
+        $this->ensureCapacity($this->count() + count($values));
+
+        foreach ($values as $value) {
+            $this->array[] = $value;
+        }
     }
 
     /**

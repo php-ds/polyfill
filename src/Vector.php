@@ -9,7 +9,7 @@ namespace Ds;
  *
  * @package Ds
  */
-final class Vector implements \IteratorAggregate, \ArrayAccess, Sequence
+final class Vector implements Sequence
 {
     use Traits\GenericCollection;
     use Traits\GenericSequence;

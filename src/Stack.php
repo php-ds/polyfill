@@ -10,7 +10,7 @@ use OutOfBoundsException;
  *
  * @package Ds
  */
-final class Stack implements \IteratorAggregate, \ArrayAccess, Collection
+final class Stack implements Collection, \ArrayAccess
 {
     use Traits\GenericCollection;
 

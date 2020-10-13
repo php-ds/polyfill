@@ -12,7 +12,7 @@ use UnderflowException;
  *
  * @package Ds
  */
-final class Map implements \IteratorAggregate, \ArrayAccess, Collection
+final class Map implements Collection, \ArrayAccess
 {
     use Traits\GenericCollection;
     use Traits\SquaredCapacity;
@@ -693,5 +693,18 @@ final class Map implements \IteratorAggregate, \ArrayAccess, Collection
     public function offsetExists($offset)
     {
         return $this->get($offset, null) !== null;
+    }
+
+    /**
+     * Returns a representation that can be natively converted to JSON, which is
+     * called when invoking json_encode.
+     *
+     * @return mixed
+     *
+     * @see \JsonSerializable
+     */
+    public function jsonSerialize()
+    {
+        return (object) $this->toArray();
     }
 }

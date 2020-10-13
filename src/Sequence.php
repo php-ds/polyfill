@@ -11,7 +11,7 @@ namespace Ds;
  *
  * @package Ds
  */
-interface Sequence extends Collection
+interface Sequence extends Collection, \ArrayAccess 
 {
     /**
      * Ensures that enough memory is allocated for a required capacity.

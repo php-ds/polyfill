@@ -71,12 +71,4 @@ trait GenericCollection
     {
         return 'object(' . get_class($this) . ')';
     }
-
-    /**
-     * Returns self as iterator.
-     */
-    public function getIterator(): Traversable
-    {
-        return $this;
-    }
 }

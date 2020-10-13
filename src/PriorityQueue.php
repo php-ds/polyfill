@@ -10,7 +10,7 @@ use UnderflowException;
  *
  * @package Ds
  */
-final class PriorityQueue implements \IteratorAggregate, Collection
+final class PriorityQueue implements Collection
 {
     use Traits\GenericCollection;
     use Traits\SquaredCapacity;
