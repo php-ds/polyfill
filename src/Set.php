@@ -426,8 +426,7 @@ final class Set implements Collection, \ArrayAccess
             $this->add($value);
             return;
         }
-
-        throw new OutOfBoundsException();
+        throw new Error();
     }
 
     /**

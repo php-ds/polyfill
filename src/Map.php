@@ -1,6 +1,7 @@
 <?php
 namespace Ds;
 
+use Error;
 use OutOfBoundsException;
 use OutOfRangeException;
 use Traversable;
@@ -675,7 +676,6 @@ final class Map implements Collection, \ArrayAccess
         if ($pair) {
             return $pair->value;
         }
-
         throw new OutOfBoundsException();
     }
 

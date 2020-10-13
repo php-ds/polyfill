@@ -140,7 +140,7 @@ final class Stack implements Collection, \ArrayAccess
         if ($offset === null) {
             $this->push($value);
         } else {
-            throw new OutOfBoundsException();
+            throw new Error();
         }
     }
 
