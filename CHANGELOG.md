@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] - 2020-10-13
+### Changed
+- Implement ArrayAccess consistently
+### Fixed
+- Return types were incorrectly nullable in some cases
+- Deque capacity was inconsistent with the extension
+
 ## [1.2.0] - 2017-08-03
 ### Changed
 - Minor capacity updates
