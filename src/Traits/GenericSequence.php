@@ -16,16 +16,20 @@ trait GenericSequence
 {
     /**
      * @var array internal array used to store the values of the sequence.
+     *
+     * @psalm-var array<TValue>
      */
     private $array = [];
 
     /**
-     * @inheritDoc
+     * @param iterable $values
+     *
+     * @psalm-param iterable<TValue> $values
      */
-    public function __construct($values = null)
+    public function __construct(iterable $values = [])
     {
-        if ($values) {
-            $this->push(...$values);
+        foreach ($values as $value) {
+            $this->push($value);
         }
     }
 

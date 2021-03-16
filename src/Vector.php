@@ -8,6 +8,9 @@ namespace Ds;
  * growth factor isn't bound to a specific multiple or exponent.
  *
  * @package Ds
+ *
+ * @template TValue
+ * @implements Sequence<TValue>
  */
 final class Vector implements Sequence
 {

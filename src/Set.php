@@ -9,6 +9,9 @@ use OutOfRangeException;
  * A sequence of unique values.
  *
  * @package Ds
+ *
+ * @template TValue
+ * @implements Collection<int, TValue>
  */
 final class Set implements Collection, \ArrayAccess 
 {
@@ -18,6 +21,8 @@ final class Set implements Collection, \ArrayAccess
 
     /**
      * @var Map internal map to store the values.
+     *
+     * @psalm-var Map<int, TValue>
      */
     private $table;
 
@@ -25,14 +30,16 @@ final class Set implements Collection, \ArrayAccess
      * Creates a new set using the values of an array or Traversable object.
      * The keys of either will not be preserved.
      *
-     * @param array|\Traversable|null $values
+     * @param iterable $values
+     *
+     * @psalm-param iterable<TValue> $values
      */
-    public function __construct($values = null)
+    public function __construct(iterable $values = [])
     {
         $this->table = new Map();
 
-        if (func_num_args()) {
-            $this->add(...$values);
+        foreach ($values as $value) {
+            $this->add($value);
         }
     }
 
@@ -40,6 +47,8 @@ final class Set implements Collection, \ArrayAccess
      * Adds zero or more values to the set.
      *
      * @param mixed ...$values
+     *
+     * @psalm-param TValue ...$values
      */
     public function add(...$values)
     {
@@ -63,8 +72,6 @@ final class Set implements Collection, \ArrayAccess
 
     /**
      * Returns the current capacity of the set.
-     *
-     * @return int
      */
     public function capacity(): int
     {
@@ -86,6 +93,8 @@ final class Set implements Collection, \ArrayAccess
      *
      * @return bool true if at least one value was provided and the set
      *              contains all given values, false otherwise.
+     *
+     * @psalm-param TValue ...$values
      */
     public function contains(...$values): bool
     {
@@ -124,6 +133,10 @@ final class Set implements Collection, \ArrayAccess
      * @param Set $set
      *
      * @return Set
+     *
+     * @template TValue2
+     * @psalm-param Set<TValue2> $set
+     * @psalm-return Set<TValue>
      */
     public function diff(Set $set): Set
     {
@@ -139,6 +152,10 @@ final class Set implements Collection, \ArrayAccess
      * @param Set $set
      *
      * @return Set
+     *
+     * @template TValue2
+     * @psalm-param Set<TValue2> $set
+     * @psalm-return Set<TValue|TValue2>
      */
     public function xor(Set $set): Set
     {
@@ -154,6 +171,9 @@ final class Set implements Collection, \ArrayAccess
      *                                 false: skip the value.
      *
      * @return Set
+     *
+     * @psalm-param (callable(TValue): bool)|null $callback
+     * @psalm-return Set<TValue>
      */
     public function filter(callable $callback = null): Set
     {
@@ -164,6 +184,8 @@ final class Set implements Collection, \ArrayAccess
      * Returns the first value in the set.
      *
      * @return mixed the first value in the set.
+     *
+     * @psalm-return TValue
      */
     public function first()
     {
@@ -173,11 +195,11 @@ final class Set implements Collection, \ArrayAccess
     /**
      * Returns the value at a specified position in the set.
      *
-     * @param int $position
-     *
      * @return mixed|null
      *
      * @throws OutOfRangeException
+     *
+     * @psalm-return TValue
      */
     public function get(int $position)
     {
@@ -195,6 +217,10 @@ final class Set implements Collection, \ArrayAccess
      * @param Set $set
      *
      * @return Set
+     *
+     * @template TValue2
+     * @psalm-param Set<TValue2> $set
+     * @psalm-return Set<TValue&TValue2>
      */
     public function intersect(Set $set): Set
     {
@@ -213,9 +239,7 @@ final class Set implements Collection, \ArrayAccess
      * Joins all values of the set into a string, adding an optional 'glue'
      * between them. Returns an empty string if the set is empty.
      *
-     * @param string $glue
-     *
-     * @return string
+     * @param string|null $glue
      */
     public function join(string $glue = null): string
     {
@@ -226,6 +250,8 @@ final class Set implements Collection, \ArrayAccess
      * Returns the last value in the set.
      *
      * @return mixed the last value in the set.
+     *
+     * @psalm-return TValue
      */
     public function last()
     {
@@ -242,6 +268,11 @@ final class Set implements Collection, \ArrayAccess
      *
      * @return mixed The carry value of the final iteration, or the initial
      *               value if the set was empty.
+     *
+     * @template TCarry
+     * @psalm-param callable(TCarry, TValue): TCarry $callback
+     * @psalm-param TCarry $initial
+     * @psalm-return TCarry
      */
     public function reduce(callable $callback, $initial = null)
     {
@@ -258,6 +289,8 @@ final class Set implements Collection, \ArrayAccess
      * Removes zero or more values from the set.
      *
      * @param mixed ...$values
+     *
+     * @psalm-param TValue ...$values
      */
     public function remove(...$values)
     {
@@ -278,6 +311,8 @@ final class Set implements Collection, \ArrayAccess
      * Returns a reversed copy of the set.
      *
      * @return Set
+     *
+     * @psalm-return Set<TValue>
      */
     public function reversed(): Set
     {
@@ -307,6 +342,8 @@ final class Set implements Collection, \ArrayAccess
      *                    end of the set.
      *
      * @return Set
+     *
+     * @psalm-return Set<TValue>
      */
     public function slice(int $offset, int $length = null): Set
     {
@@ -321,6 +358,8 @@ final class Set implements Collection, \ArrayAccess
      *
      * @param callable|null $comparator Accepts two values to be compared.
      *                                  Should return the result of a <=> b.
+     *
+     * @psalm-param (callable(TValue, TValue): int)|null $comparator
      */
     public function sort(callable $comparator = null)
     {
@@ -335,6 +374,9 @@ final class Set implements Collection, \ArrayAccess
      *                                  Should return the result of a <=> b.
      *
      * @return Set
+     *
+     * @psalm-param (callable(TValue, TValue): int)|null $comparator
+     * @psalm-return Set<TValue>
      */
     public function sorted(callable $comparator = null): Set
     {
@@ -349,7 +391,11 @@ final class Set implements Collection, \ArrayAccess
      *
      * @param array|\Traversable $values
      *
-     * @return \Ds\Set
+     * @return Set
+     *
+     * @template TValue2
+     * @psalm-param iterable<TValue2> $values
+     * @psalm-return Set<TValue|TValue2>
      */
     public function merge($values): Set
     {
@@ -389,6 +435,10 @@ final class Set implements Collection, \ArrayAccess
      * @param Set $set
      *
      * @return Set
+     *
+     * @template TValue2
+     * @psalm-param Set<TValue2> $set
+     * @psalm-return Set<TValue|TValue2>
      */
     public function union(Set $set): Set
     {

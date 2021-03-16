@@ -9,6 +9,9 @@ use UnderflowException;
  * always be at the front of the queue.
  *
  * @package Ds
+ *
+ * @template TValue
+ * @implements Collection<int, TValue>
  */
 final class PriorityQueue implements Collection
 {
@@ -21,7 +24,7 @@ final class PriorityQueue implements Collection
     const MIN_CAPACITY = 8;
 
     /**
-     * @var array
+     * @var array<int, PriorityNode<TValue>>
      */
     private $heap = [];
 
@@ -75,6 +78,8 @@ final class PriorityQueue implements Collection
      * @return mixed
      *
      * @throw UnderflowException
+     *
+     * @psalm-return TValue
      */
     public function peek()
     {
@@ -124,9 +129,6 @@ final class PriorityQueue implements Collection
     /**
      * Compares two indices of the heap.
      *
-     * @param int $a
-     * @param int $b
-     *
      * @return int
      */
     private function compare(int $a, int $b)
@@ -140,9 +142,6 @@ final class PriorityQueue implements Collection
 
     /**
      * Swaps the nodes at two indices of the heap.
-     *
-     * @param int $a
-     * @param int $b
      */
     private function swap(int $a, int $b)
     {
@@ -173,8 +172,6 @@ final class PriorityQueue implements Collection
     /**
      * Starts the process of sifting down a given node index to ensure that
      * the heap's properties are preserved.
-     *
-     * @param int $node
      */
     private function siftDown(int $node)
     {
@@ -219,6 +216,8 @@ final class PriorityQueue implements Collection
      * Returns and removes the value with the highest priority in the queue.
      *
      * @return mixed
+     *
+     * @psalm-return TValue
      */
     public function pop()
     {
@@ -245,8 +244,6 @@ final class PriorityQueue implements Collection
 
     /**
      * Sifts a node up the heap until it's in the right position.
-     *
-     * @param int $leaf
      */
     private function siftUp(int $leaf)
     {
@@ -266,7 +263,8 @@ final class PriorityQueue implements Collection
      * Pushes a value into the queue, with a specified priority.
      *
      * @param mixed $value
-     * @param int   $priority
+     *
+     * @psalm-param TValue $value
      */
     public function push($value, int $priority)
     {
@@ -306,11 +304,15 @@ final class PriorityQueue implements Collection
 
 /**
  * @internal
+ *
+ * @template TValue
  */
 final class PriorityNode
 {
     /**
      * @var mixed
+     *
+     * @psalm-var TValue
      */
     public $value;
 
@@ -328,6 +330,8 @@ final class PriorityNode
      * @param mixed $value
      * @param int   $priority
      * @param int   $stamp
+     *
+     * @psalm-param TValue $value
      */
     public function __construct($value, int $priority, int $stamp)
     {

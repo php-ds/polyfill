@@ -9,6 +9,9 @@ use OutOfBoundsException;
  * value at the front of the queue and iterates in that order, destructively.
  *
  * @package Ds
+ *
+ * @template TValue
+ * @implements Collection<int, TValue>
  */
 final class Queue implements Collection, \ArrayAccess 
 {
@@ -16,17 +19,21 @@ final class Queue implements Collection, \ArrayAccess
 
     /**
      * @var Deque internal deque to store values.
+     *
+     * @psalm-var Deque<TValue>
      */
     private $deque;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
      *
-     * @param array|\Traversable $values
+     * @param iterable<mixed> $values
+     *
+     * @psalm-param iterable<TValue> $values
      */
-    public function __construct($values = null)
+    public function __construct(iterable $values = [])
     {
-        $this->deque = new Deque($values ?: []);
+        $this->deque = new Deque($values);
     }
 
     /**
@@ -44,8 +51,6 @@ final class Queue implements Collection, \ArrayAccess
 
     /**
      * Returns the current capacity of the queue.
-     *
-     * @return int
      */
     public function capacity(): int
     {
@@ -79,7 +84,9 @@ final class Queue implements Collection, \ArrayAccess
     /**
      * Returns the value at the front of the queue without removing it.
      *
-     * @return
+     * @return mixed
+     *
+     * @psalm-return TValue
      */
     public function peek()
     {
@@ -90,6 +97,8 @@ final class Queue implements Collection, \ArrayAccess
      * Returns and removes the value at the front of the Queue.
      *
      * @return mixed
+     *
+     * @psalm-return TValue
      */
     public function pop()
     {
@@ -100,6 +109,8 @@ final class Queue implements Collection, \ArrayAccess
      * Pushes zero or more values into the front of the queue.
      *
      * @param mixed ...$values
+     *
+     * @psalm-param TValue ...$values
      */
     public function push(...$values)
     {

@@ -12,6 +12,10 @@ use UnderflowException;
  * array used in a similar context. Keys can be any type, but must be unique.
  *
  * @package Ds
+ *
+ * @template TKey
+ * @template TValue
+ * @implements Collection<TKey, TValue>
  */
 final class Map implements Collection, \ArrayAccess
 {
@@ -22,19 +26,24 @@ final class Map implements Collection, \ArrayAccess
 
     /**
      * @var array internal array to store pairs
+     *
+     * @psalm-var array<int, Pair>
      */
     private $pairs = [];
 
     /**
      * Creates a new instance.
      *
-     * @param array|\Traversable|null $values
+     * @param iterable<mixed, mixed> $values
+     *
+     * @psalm-param iterable<TKey, TValue> $values
      */
-    public function __construct($values = null)
+    public function __construct(iterable $values = [])
     {
         if (func_num_args()) {
             $this->putAll($values);
         }
+
     }
 
     /**
@@ -42,6 +51,8 @@ final class Map implements Collection, \ArrayAccess
      *
      * @param callable $callback Accepts two arguments: key and value, should
      *                           return what the updated value will be.
+     *
+     * @psalm-param callable(TKey, TValue): TValue $callback
      */
     public function apply(callable $callback)
     {
@@ -65,6 +76,8 @@ final class Map implements Collection, \ArrayAccess
      * @return Pair
      *
      * @throws UnderflowException
+     *
+     * @psalm-return Pair<TKey, TValue>
      */
     public function first(): Pair
     {
@@ -81,6 +94,8 @@ final class Map implements Collection, \ArrayAccess
      * @return Pair
      *
      * @throws UnderflowException
+     *
+     * @psalm-return Pair<TKey, TValue>
      */
     public function last(): Pair
     {
@@ -94,11 +109,11 @@ final class Map implements Collection, \ArrayAccess
     /**
      * Return the pair at a specified position in the Map
      *
-     * @param int $position
-     *
      * @return Pair
      *
      * @throws OutOfRangeException
+     *
+     * @psalm-return Pair<TKey, TValue>
      */
     public function skip(int $position): Pair
     {
@@ -116,6 +131,11 @@ final class Map implements Collection, \ArrayAccess
      * @param array|\Traversable $values
      *
      * @return Map
+     *
+     * @template TKey2
+     * @template TValue2
+     * @psalm-param iterable<TKey2, TValue2> $values
+     * @psalm-return Map<TKey|TKey2, TValue|TValue2>
      */
     public function merge($values): Map
     {
@@ -135,6 +155,11 @@ final class Map implements Collection, \ArrayAccess
      *                 whose keys are also present in the given map. In other
      *                 words, returns a copy of the current map with all keys
      *                 removed that are not also in the other map.
+     *
+     * @template TKey2
+     * @template TValue2
+     * @psalm-param Map<TKey2, TValue2> $map
+     * @psalm-return Map<TKey&TKey2, TValue>
      */
     public function intersect(Map $map): Map
     {
@@ -151,6 +176,10 @@ final class Map implements Collection, \ArrayAccess
      *
      * @return Map The result of removing all keys from the current instance
      *                 that are present in a given map.
+     *
+     * @template TValue2
+     * @psalm-param Map<TKey, TValue2> $map
+     * @psalm-return Map<TKey, TValue>
      */
     public function diff(Map $map): Map
     {
@@ -165,7 +194,8 @@ final class Map implements Collection, \ArrayAccess
      * @param mixed $a
      * @param mixed $b
      *
-     * @return bool
+     * @psalm-param TKey $a
+     * @psalm-param TKey $b
      */
     private function keysAreEqual($a, $b): bool
     {
@@ -182,6 +212,8 @@ final class Map implements Collection, \ArrayAccess
      * @param $key
      *
      * @return Pair|null
+     *
+     * @psalm-return Pair<TKey, TValue>|null
      */
     private function lookupKey($key)
     {
@@ -198,6 +230,8 @@ final class Map implements Collection, \ArrayAccess
      * @param $value
      *
      * @return Pair|null
+     *
+     * @psalm-return Pair<TKey, TValue>|null
      */
     private function lookupValue($value)
     {
@@ -213,7 +247,7 @@ final class Map implements Collection, \ArrayAccess
      *
      * @param mixed $key
      *
-     * @return bool
+     * @psalm-param TKey $key
      */
     public function hasKey($key): bool
     {
@@ -225,7 +259,7 @@ final class Map implements Collection, \ArrayAccess
      *
      * @param mixed $value
      *
-     * @return bool
+     * @psalm-param TValue $value
      */
     public function hasValue($value): bool
     {
@@ -249,6 +283,9 @@ final class Map implements Collection, \ArrayAccess
      *                                false: skip the value.
      *
      * @return Map
+     *
+     * @psalm-param (callable(TKey, TValue): bool)|null $callback
+     * @psalm-return Map<TKey, TValue>
      */
     public function filter(callable $callback = null): Map
     {
@@ -274,6 +311,11 @@ final class Map implements Collection, \ArrayAccess
      *
      * @throws OutOfBoundsException if no default was provided and the key is
      *                               not associated with a value.
+     *
+     * @template TDefault
+     * @psalm-param TKey $key
+     * @psalm-param TDefault $default
+     * @psalm-return TValue|TDefault
      */
     public function get($key, $default = null)
     {
@@ -293,6 +335,8 @@ final class Map implements Collection, \ArrayAccess
      * Returns a set of all the keys in the map.
      *
      * @return Set
+     *
+     * @psalm-return Set<TKey>
      */
     public function keys(): Set
     {
@@ -312,6 +356,10 @@ final class Map implements Collection, \ArrayAccess
      *                           return what the updated value will be.
      *
      * @return Map
+     *
+     * @template TNewValue
+     * @psalm-param callable(TKey, TValue): TNewValue $callback
+     * @psalm-return Map<TKey, TNewValue>
      */
     public function map(callable $callback): Map
     {
@@ -327,6 +375,8 @@ final class Map implements Collection, \ArrayAccess
      * Returns a sequence of pairs representing all associations.
      *
      * @return Sequence
+     *
+     * @psalm-return Sequence<Pair<TKey, TValue>>
      */
     public function pairs(): Sequence
     {
@@ -343,6 +393,9 @@ final class Map implements Collection, \ArrayAccess
      *
      * @param mixed $key
      * @param mixed $value
+     *
+     * @psalm-param TKey $key
+     * @psalm-param TValue $value
      */
     public function put($key, $value)
     {
@@ -361,9 +414,11 @@ final class Map implements Collection, \ArrayAccess
      * Creates associations for all keys and corresponding values of either an
      * array or iterable object.
      *
-     * @param \Traversable|array $values
+     * @param iterable<mixed, mixed> $values
+     *
+     * @psalm-param iterable<TKey, TValue> $values
      */
-    public function putAll($values)
+    public function putAll(iterable $values)
     {
         foreach ($values as $key => $value) {
             $this->put($key, $value);
@@ -380,6 +435,11 @@ final class Map implements Collection, \ArrayAccess
      *
      * @return mixed The carry value of the final iteration, or the initial
      *               value if the map was empty.
+     *
+     * @template TCarry
+     * @psalm-param callable(TCarry, TKey, TValue): TCarry $callback
+     * @psalm-param TCarry $initial
+     * @psalm-return TCarry
      */
     public function reduce(callable $callback, $initial = null)
     {
@@ -395,6 +455,10 @@ final class Map implements Collection, \ArrayAccess
     /**
      * Completely removes a pair from the internal array by position. It is
      * important to remove it from the array and not just use 'unset'.
+     *
+     * @return mixed
+     *
+     * @psalm-return TValue
      */
     private function delete(int $position)
     {
@@ -418,6 +482,11 @@ final class Map implements Collection, \ArrayAccess
      *
      * @throws \OutOfBoundsException if no default was provided and the key is
      *                               not associated with a value.
+     *
+     * @template TDefault
+     * @psalm-param TKey $key
+     * @psalm-param TDefault $default
+     * @psalm-return TValue|TDefault
      */
     public function remove($key, $default = null)
     {
@@ -436,9 +505,7 @@ final class Map implements Collection, \ArrayAccess
     }
 
     /**
-     * Returns a reversed copy of the map.
-     *
-     * @return Map
+     * Reverses the map in-place
      */
     public function reverse()
     {
@@ -449,6 +516,8 @@ final class Map implements Collection, \ArrayAccess
      * Returns a reversed copy of the map.
      *
      * @return Map
+     *
+     * @psalm-return Map<TKey, TValue>
      */
     public function reversed(): Map
     {
@@ -480,6 +549,8 @@ final class Map implements Collection, \ArrayAccess
      *                        the end of the map.
      *
      * @return Map
+     *
+     * @psalm-return Map<TKey, TValue>
      */
     public function slice(int $offset, int $length = null): Map
     {
@@ -504,6 +575,8 @@ final class Map implements Collection, \ArrayAccess
      * The map will be sorted by value.
      *
      * @param callable|null $comparator Accepts two values to be compared.
+     *
+     * @psalm-param (callable(TValue, TValue): int)|null $comparator
      */
     public function sort(callable $comparator = null)
     {
@@ -526,6 +599,9 @@ final class Map implements Collection, \ArrayAccess
      * @param callable|null $comparator Accepts two values to be compared.
      *
      * @return Map
+     *
+     * @psalm-param (callable(TValue, TValue): int)|null $comparator
+     * @psalm-return Map<TKey, TValue>
      */
     public function sorted(callable $comparator = null): Map
     {
@@ -540,6 +616,8 @@ final class Map implements Collection, \ArrayAccess
      * The map will be sorted by key.
      *
      * @param callable|null $comparator Accepts two keys to be compared.
+     *
+     * @psalm-param (callable(TKey, TKey): int)|null $comparator
      */
     public function ksort(callable $comparator = null)
     {
@@ -562,6 +640,9 @@ final class Map implements Collection, \ArrayAccess
      * @param callable|null $comparator Accepts two keys to be compared.
      *
      * @return Map
+     *
+     * @psalm-param (callable(TKey, TKey): int)|null $comparator
+     * @psalm-return Map<TKey, TValue>
      */
     public function ksorted(callable $comparator = null): Map
     {
@@ -598,6 +679,8 @@ final class Map implements Collection, \ArrayAccess
      * Returns a sequence of all the associated values in the Map.
      *
      * @return Sequence
+     *
+     * @psalm-return Sequence<TValue>
      */
     public function values(): Sequence
     {
@@ -616,6 +699,11 @@ final class Map implements Collection, \ArrayAccess
      *
      * @return Map A new map containing all the pairs of the current
      *                 instance as well as another map.
+     *
+     * @template TKey2
+     * @template TValue2
+     * @psalm-param Map<TKey2, TValue2> $map
+     * @psalm-return Map<TKey|TKey2, TValue|TValue2>
      */
     public function union(Map $map): Map
     {
@@ -630,6 +718,11 @@ final class Map implements Collection, \ArrayAccess
      *
      * @return Map A new map containing keys in the current instance as well
      *                 as another map, but not in both.
+     *
+     * @template TKey2
+     * @template TValue2
+     * @psalm-param Map<TKey2, TValue2> $map
+     * @psalm-return Map<TKey|TKey2, TValue|TValue2>
      */
     public function xor(Map $map): Map
     {
@@ -650,6 +743,8 @@ final class Map implements Collection, \ArrayAccess
 
     /**
      * Returns a representation to be used for var_dump and print_r.
+     *
+     * @psalm-return array<Pair<TKey, TValue>>
      */
     public function __debugInfo()
     {

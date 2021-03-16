@@ -10,6 +10,9 @@ namespace Ds;
  *  - Only allowed to access values by index in the range [0, size - 1].
  *
  * @package Ds
+ *
+ * @template TValue
+ * @extends Collection<int, TValue>
  */
 interface Sequence extends Collection, \ArrayAccess 
 {
@@ -27,6 +30,8 @@ interface Sequence extends Collection, \ArrayAccess
      * return value as the new value.
      *
      * @param callable $callback Accepts the value, returns the new value.
+     *
+     * @psalm-param callable(TValue): TValue $callback
      */
     function apply(callable $callback);
 
@@ -44,6 +49,8 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @return bool true if at least one value was provided and the sequence
      *              contains all given values, false otherwise.
+     *
+     * @psalm-param TValue ...$values
      */
     function contains(...$values): bool;
 
@@ -56,6 +63,9 @@ interface Sequence extends Collection, \ArrayAccess
      *                                false: skip the value.
      *
      * @return Sequence
+     *
+     * @psalm-param (callable(TValue): bool)|null $callback
+     * @psalm-return Sequence<TValue>
      */
     function filter(callable $callback = null): Sequence;
 
@@ -64,7 +74,9 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @param mixed $value
      *
-     * @return int|bool
+     * @return int|false
+     *
+     * @psalm-param TValue $value
      */
     function find($value);
 
@@ -74,17 +86,19 @@ interface Sequence extends Collection, \ArrayAccess
      * @return mixed
      *
      * @throws \UnderflowException if the sequence is empty.
+     *
+     * @psalm-return TValue
      */
     function first();
 
     /**
      * Returns the value at a given index (position) in the sequence.
      *
-     * @param int $index
-     *
      * @return mixed
      *
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
+     *
+     * @psalm-return TValue
      */
     function get(int $index);
 
@@ -94,20 +108,17 @@ interface Sequence extends Collection, \ArrayAccess
      * Each value after the index will be moved one position to the right.
      * Values may be inserted at an index equal to the size of the sequence.
      *
-     * @param int   $index
      * @param mixed ...$values
      *
      * @throws \OutOfRangeException if the index is not in the range [0, n]
+     *
+     * @psalm-param TValue ...$values
      */
     function insert(int $index, ...$values);
 
     /**
      * Joins all values of the sequence into a string, adding an optional 'glue'
      * between them. Returns an empty string if the sequence is empty.
-     *
-     * @param string $glue
-     *
-     * @return string
      */
     function join(string $glue = null): string;
 
@@ -117,6 +128,8 @@ interface Sequence extends Collection, \ArrayAccess
      * @return mixed
      *
      * @throws \UnderflowException if the sequence is empty.
+     *
+     * @psalm-return TValue
      */
     function last();
 
@@ -127,6 +140,10 @@ interface Sequence extends Collection, \ArrayAccess
      * @param callable $callback
      *
      * @return Sequence
+     *
+     * @template TNewValue
+     * @psalm-param callable(TValue): TNewValue $callback
+     * @psalm-return Sequence<TNewValue>
      */
     function map(callable $callback): Sequence;
 
@@ -136,6 +153,10 @@ interface Sequence extends Collection, \ArrayAccess
      * @param array|\Traversable $values
      *
      * @return Sequence
+     *
+     * @template TValue2
+     * @psalm-param iterable<TValue2> $values
+     * @psalm-return Sequence<TValue|TValue2>
      */
     function merge($values): Sequence;
 
@@ -145,6 +166,8 @@ interface Sequence extends Collection, \ArrayAccess
      * @return mixed what was the last value in the sequence.
      *
      * @throws \UnderflowException if the sequence is empty.
+     *
+     * @psalm-return TValue
      */
     function pop();
 
@@ -152,6 +175,8 @@ interface Sequence extends Collection, \ArrayAccess
      * Adds zero or more values to the end of the sequence.
      *
      * @param mixed ...$values
+     *
+     * @psalm-param TValue ...$values
      */
     function push(...$values);
 
@@ -165,6 +190,11 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @return mixed The carry value of the final iteration, or the initial
      *               value if the sequence was empty.
+     *
+     * @template TCarry
+     * @psalm-param callable(TCarry, TValue): TCarry $callback
+     * @psalm-param TCarry $initial
+     * @psalm-return TCarry
      */
     function reduce(callable $callback, $initial = null);
 
@@ -176,6 +206,8 @@ interface Sequence extends Collection, \ArrayAccess
      * @return mixed the removed value.
      *
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
+     *
+     * @psalm-return TValue
      */
     function remove(int $index);
 
@@ -188,6 +220,8 @@ interface Sequence extends Collection, \ArrayAccess
      * Returns a reversed copy of the sequence.
      *
      * @return Sequence
+     *
+     * @psalm-return Sequence<TValue>
      */
     function reversed();
 
@@ -203,10 +237,11 @@ interface Sequence extends Collection, \ArrayAccess
     /**
      * Replaces the value at a given index in the sequence with a new value.
      *
-     * @param int   $index
      * @param mixed $value
      *
      * @throws \OutOfRangeException if the index is not in the range [0, size-1]
+     *
+     * @psalm-param TValue $value
      */
     function set(int $index, $value);
 
@@ -216,6 +251,8 @@ interface Sequence extends Collection, \ArrayAccess
      * @return mixed what was the first value in the sequence.
      *
      * @throws \UnderflowException if the sequence was empty.
+     *
+     * @psalm-return TValue
      */
     function shift();
 
@@ -239,6 +276,8 @@ interface Sequence extends Collection, \ArrayAccess
      *                    end of the sequence.
      *
      * @return Sequence
+     *
+     * @psalm-return Sequence<TValue>
      */
     function slice(int $index, int $length = null): Sequence;
 
@@ -247,6 +286,8 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @param callable|null $comparator Accepts two values to be compared.
      *                                  Should return the result of a <=> b.
+     *
+     * @psalm-param (callable(TValue, TValue): int)|null $comparator
      */
     function sort(callable $comparator = null);
 
@@ -258,6 +299,9 @@ interface Sequence extends Collection, \ArrayAccess
      *                                  Should return the result of a <=> b.
      *
      * @return Sequence
+     *
+     * @psalm-param (callable(TValue, TValue): int)|null $comparator
+     * @psalm-return Sequence<TValue>
      */
     function sorted(callable $comparator = null): Sequence;
 
@@ -269,9 +313,18 @@ interface Sequence extends Collection, \ArrayAccess
     function sum();
 
     /**
+     * @inheritDoc
+     *
+     * @return list<TValue>
+     */
+    function toArray(): array;
+
+    /**
      * Adds zero or more values to the front of the sequence.
      *
      * @param mixed ...$values
+     *
+     * @psalm-param TValue ...$values
      */
     function unshift(...$values);
 }

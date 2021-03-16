@@ -10,16 +10,23 @@ use OutOfBoundsException;
  * @property mixed $value
  *
  * @package Ds
+ *
+ * @template-covariant TKey
+ * @template-covariant TValue
  */
 final class Pair implements \JsonSerializable
 {
     /**
      * @var mixed The pair's key
+     *
+     * @psalm-param TKey $key
      */
     public $key;
 
     /**
      * @var mixed The pair's value
+     *
+     * @psalm-param TValue $value
      */
     public $value;
 
@@ -28,6 +35,9 @@ final class Pair implements \JsonSerializable
      *
      * @param mixed $key
      * @param mixed $value
+     *
+     * @psalm-param TKey $key
+     * @psalm-param TValue $value
      */
     public function __construct($key = null, $value = null)
     {
@@ -53,11 +63,9 @@ final class Pair implements \JsonSerializable
      * This allows unset($pair->key) to not completely remove the property,
      * but be set to null instead.
      *
-     * @param mixed $name
-     *
-     * @return mixed|null
+     * @return void
      */
-    public function __unset($name)
+    public function __unset(string $name)
     {
         if ($name === 'key' || $name === 'value') {
             $this->$name = null;
@@ -96,6 +104,8 @@ final class Pair implements \JsonSerializable
 
     /**
      * Returns a copy of the Pair
+     *
+     * @psalm-return self<TKey, TValue>
      */
     public function copy(): self
     {
@@ -106,6 +116,8 @@ final class Pair implements \JsonSerializable
      * Returns a representation to be used for var_dump and print_r.
      *
      * @return array
+     *
+     * @psalm-return array{key: TKey, value: TValue}
      */
     public function __debugInfo()
     {
@@ -113,7 +125,9 @@ final class Pair implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @inheritDoc
+     *
+     * @psalm-return array{key: TKey, value: TValue}
      */
     public function toArray(): array
     {
@@ -125,6 +139,8 @@ final class Pair implements \JsonSerializable
 
     /**
      * @inheritDoc
+     *
+     * @psalm-return array{key: TKey, value: TValue}
      */
     public function jsonSerialize()
     {

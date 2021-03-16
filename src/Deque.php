@@ -10,6 +10,9 @@ namespace Ds;
  * at both ends of the buffer, ie. shift, unshift, push and pop are all O(1).
  *
  * @package Ds
+ *
+ * @template TValue
+ * @implements Sequence<TValue>
  */
 final class Deque implements Sequence
 {

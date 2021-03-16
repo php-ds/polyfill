@@ -9,6 +9,9 @@ use OutOfBoundsException;
  * value at the top of the structure and iterates in that order, destructively.
  *
  * @package Ds
+ *
+ * @template TValue
+ * @implements Sequence<TValue>
  */
 final class Stack implements Collection, \ArrayAccess
 {
@@ -16,17 +19,21 @@ final class Stack implements Collection, \ArrayAccess
 
     /**
      * @var Vector internal vector to store values of the stack.
+     *
+     * @psalm-var Vector<TValue>
      */
     private $vector;
 
     /**
      * Creates an instance using the values of an array or Traversable object.
      *
-     * @param array|\Traversable $values
+     * @param iterable<mixed> $values
+     *
+     * @psalm-param iterable<TValue> $values
      */
-    public function __construct($values = null)
+    public function __construct(iterable $values = [])
     {
-        $this->vector = new Vector($values ?: []);
+        $this->vector = new Vector($values);
     }
 
     /**
@@ -47,8 +54,6 @@ final class Stack implements Collection, \ArrayAccess
 
     /**
      * Returns the number of elements in the Stack
-     *
-     * @return int
      */
     public function count(): int
     {
@@ -70,8 +75,6 @@ final class Stack implements Collection, \ArrayAccess
 
     /**
      * Returns the current capacity of the stack.
-     *
-     * @return int
      */
     public function capacity(): int
     {
@@ -84,6 +87,8 @@ final class Stack implements Collection, \ArrayAccess
      * @return mixed
      *
      * @throws \UnderflowException if the stack is empty.
+     *
+     * @psalm-return TValue
      */
     public function peek()
     {
@@ -96,6 +101,8 @@ final class Stack implements Collection, \ArrayAccess
      * @return mixed
      *
      * @throws \UnderflowException if the stack is empty.
+     *
+     * @psalm-return TValue
      */
     public function pop()
     {
@@ -106,6 +113,8 @@ final class Stack implements Collection, \ArrayAccess
      * Pushes zero or more values onto the top of the stack.
      *
      * @param mixed ...$values
+     *
+     * @psalm-param TValue ...$values
      */
     public function push(...$values)
     {
