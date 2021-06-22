@@ -798,6 +798,7 @@ final class Map implements Collection, \ArrayAccess
      *
      * @see \JsonSerializable
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return (object) $this->toArray();

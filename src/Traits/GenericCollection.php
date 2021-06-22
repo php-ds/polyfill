@@ -27,6 +27,7 @@ trait GenericCollection
      *
      * @see \JsonSerializable
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();
