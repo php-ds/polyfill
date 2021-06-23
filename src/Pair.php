@@ -142,6 +142,7 @@ final class Pair implements \JsonSerializable
      *
      * @psalm-return array{key: TKey, value: TValue}
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();
