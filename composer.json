@@ -28,7 +28,7 @@
         "ext-ds": "to improve performance and reduce memory usage"
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "php --no-php-ini ./vendor/bin/phpunit"
     },
     "autoload": {
         "psr-4" : {
