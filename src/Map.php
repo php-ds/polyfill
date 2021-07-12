@@ -300,10 +300,16 @@ final class Map implements Collection, \ArrayAccess
             return null;
         }
 
-        $pairRefs = $this->table[$hash];
-        foreach ($pairRefs as $pairRef) {
-            if ($this->keysAreEqual($pairRef->pair->key, $key)) {
-                return $pairRef;
+        $hashMatch = $this->table[$hash];
+        if ($hashMatch instanceof PairRef) {
+            if ($this->keysAreEqual($hashMatch->pair->key, $key)) {
+                return $hashMatch;
+            }
+        } else {
+            foreach ($hashMatch as $pairRef) {
+                if ($this->keysAreEqual($pairRef->pair->key, $key)) {
+                    return $pairRef;
+                }
             }
         }
 
@@ -499,9 +505,14 @@ final class Map implements Collection, \ArrayAccess
             $this->pairRefs[$pairIndex] = $pairRef;
 
             if (!array_key_exists($hash, $this->table)) {
-                $this->table[$hash] = [$pairRef];
+                $this->table[$hash] = $pairRef;
             } else {
-                $this->table[$hash][] = $pairRef;
+                $hashMatch =& $this->table[$hash];
+                if (!is_array($hashMatch)) {
+                    $this->table[$hash] = [$hashMatch, $pairRef];
+                } else {
+                    $hashMatch[] = $pairRef;
+                }
             }
         }
     }
@@ -568,11 +579,21 @@ final class Map implements Collection, \ArrayAccess
         unset($this->pairRefs[$pairRef->pairIndex]);
 
         // Remove from lookup table.
-        $key = $pairRef->pair->key;
-        foreach ($this->table[$hash] as $position => $hashedPairRef) {
-            if ($this->keysAreEqual($hashedPairRef->pair->key, $key)) {
-                array_splice($this->table[$hash], $position, 1);
-                break;
+
+        $hashMatch =& $this->table[$hash];
+
+        if ($hashMatch instanceof PairRef) {
+            unset($this->table[$hash]);
+        } else {
+            $key = $pairRef->pair->key;
+            foreach ($hashMatch as $position => $hashedPairRef) {
+                if ($this->keysAreEqual($hashedPairRef->pair->key, $key)) {
+                    array_splice($hashMatch, $position, 1);
+                    if (count($hashMatch) === 1) {
+                        $hashMatch = reset($hashMatch);
+                    }
+                    break;
+                }
             }
         }
 
