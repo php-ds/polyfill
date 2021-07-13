@@ -382,7 +382,9 @@ final class Map implements Collection, \ArrayAccess
     {
         $filtered = new self();
 
-        foreach ($this as $key => $value) {
+        foreach ($this->pairRefs as $pairRef) {
+            $key = $pairRef->key;
+            $value = $pairRef->value;
             if ($callback ? $callback($key, $value) : $value) {
                 $filtered->put($key, $value);
             }
