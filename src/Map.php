@@ -734,6 +734,7 @@ final class Map implements Collection, \ArrayAccess
     /**
      * @inheritDoc
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         foreach ($this->pairs as $pair) {
@@ -754,6 +755,7 @@ final class Map implements Collection, \ArrayAccess
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         $this->put($offset, $value);
@@ -764,6 +766,7 @@ final class Map implements Collection, \ArrayAccess
      *
      * @throws OutOfBoundsException
      */
+    #[\ReturnTypeWillChange]
     public function &offsetGet($offset)
     {
         $pair = $this->lookupKey($offset);
@@ -777,6 +780,7 @@ final class Map implements Collection, \ArrayAccess
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         $this->remove($offset, null);
@@ -785,6 +789,7 @@ final class Map implements Collection, \ArrayAccess
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return $this->get($offset, null) !== null;

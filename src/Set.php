@@ -458,6 +458,7 @@ final class Set implements Collection, \ArrayAccess
     /**
      * Get iterator
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         foreach ($this->table as $key => $value) {
@@ -470,6 +471,7 @@ final class Set implements Collection, \ArrayAccess
      *
      * @throws OutOfBoundsException
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if ($offset === null) {
@@ -482,6 +484,7 @@ final class Set implements Collection, \ArrayAccess
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->table->skip($offset)->key;
@@ -492,6 +495,7 @@ final class Set implements Collection, \ArrayAccess
      *
      * @throws Error
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         throw new Error();
@@ -502,6 +506,7 @@ final class Set implements Collection, \ArrayAccess
      *
      * @throws Error
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new Error();
