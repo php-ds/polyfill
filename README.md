@@ -1,6 +1,6 @@
 # Data Structures for PHP 7
 
-[![Build Status](https://travis-ci.org/php-ds/polyfill.svg?branch=master)](https://travis-ci.org/php-ds/polyfill)
+[![Build Status](https://github.com/php-ds/polyfill/workflows/CI/badge.svg)](https://github.com/php-ds/polyfill/actions?query=workflow%3A%22CI%22+branch%3Amaster)
 [![Packagist](https://img.shields.io/packagist/v/php-ds/php-ds.svg)](https://packagist.org/packages/php-ds/php-ds)
 
 This is a compatibility polyfill for the [extension](https://github.com/php-ds/extension). You should include this package as a dependency of your project
