@@ -80,7 +80,7 @@ trait GenericSequence
     public function contains(...$values): bool
     {
         foreach ($values as $value) {
-            if ($this->find($value) === false) {
+            if ($this->find($value) === null) {
                 return false;
             }
         }
@@ -101,7 +101,9 @@ trait GenericSequence
      */
     public function find($value)
     {
-        return array_search($value, $this->array, true);
+        $offset = array_search($value, $this->array, true);
+
+        return $offset === false ? null : $offset;
     }
 
     /**
