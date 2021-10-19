@@ -70,11 +70,11 @@ interface Sequence extends Collection, \ArrayAccess
     function filter(callable $callback = null): Sequence;
 
     /**
-     * Returns the index of a given value, or false if it could not be found.
+     * Returns the index of a given value, or null if it could not be found.
      *
      * @param mixed $value
      *
-     * @return int|false
+     * @return int|null
      *
      * @psalm-param TValue $value
      */
