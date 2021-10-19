@@ -18,10 +18,7 @@ final class PriorityQueue implements Collection
     use Traits\GenericCollection;
     use Traits\SquaredCapacity;
 
-    /**
-     * @var int
-     */
-    const MIN_CAPACITY = 8;
+    public const MIN_CAPACITY = 8;
 
     /**
      * @var array<int, PriorityNode<TValue>>
