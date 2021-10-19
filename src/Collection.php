@@ -17,14 +17,14 @@ interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
     /**
      * Removes all values from the collection.
      */
-    function clear();
+    public function clear();
 
     /**
      * Returns the size of the collection.
      *
      * @return int
      */
-    function count(): int;
+    public function count(): int;
 
     /**
      * Returns a shallow copy of the collection.
@@ -33,7 +33,7 @@ interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
      *
      * @psalm-return static<TKey, TValue>
      */
-    function copy();
+    public function copy();
 
     /**
      * Returns whether the collection is empty.
@@ -41,7 +41,7 @@ interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
      * This should be equivalent to a count of zero, but is not required.
      * Implementations should define what empty means in their own context.
      */
-    function isEmpty(): bool;
+    public function isEmpty(): bool;
 
     /**
      * Returns an array representation of the collection.
@@ -52,5 +52,5 @@ interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
      *
      * @return array<TKey, TValue>
      */
-    function toArray(): array;
+    public function toArray(): array;
 }
