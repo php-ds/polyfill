@@ -18,7 +18,7 @@ final class Vector implements Sequence
     use Traits\GenericSequence;
     use Traits\Capacity;
 
-    const MIN_CAPACITY = 8;
+    public const MIN_CAPACITY = 8;
 
     protected function getGrowthFactor(): float
     {

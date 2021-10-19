@@ -22,7 +22,7 @@ final class Map implements Collection, \ArrayAccess
     use Traits\GenericCollection;
     use Traits\SquaredCapacity;
 
-    const MIN_CAPACITY = 8;
+    public const MIN_CAPACITY = 8;
 
     /**
      * @var array internal array to store pairs

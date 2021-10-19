@@ -17,7 +17,7 @@ final class Set implements Collection, \ArrayAccess
 {
     use Traits\GenericCollection;
 
-    const MIN_CAPACITY = Map::MIN_CAPACITY;
+    public const MIN_CAPACITY = Map::MIN_CAPACITY;
 
     /**
      * @var Map internal map to store the values.
