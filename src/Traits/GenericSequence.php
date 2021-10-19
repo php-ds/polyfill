@@ -371,6 +371,7 @@ trait GenericSequence
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if ($offset === null) {
@@ -383,6 +384,7 @@ trait GenericSequence
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function &offsetGet($offset)
     {
         if ( ! $this->validIndex($offset)) {
@@ -395,6 +397,7 @@ trait GenericSequence
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         if (is_integer($offset) && $this->validIndex($offset)) {
@@ -405,6 +408,7 @@ trait GenericSequence
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return is_integer($offset)

@@ -141,6 +141,7 @@ final class Queue implements Collection, \ArrayAccess
      *
      * @throws OutOfBoundsException
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if ($offset === null) {
@@ -155,6 +156,7 @@ final class Queue implements Collection, \ArrayAccess
      *
      * @throws Error
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         throw new Error();
@@ -165,6 +167,7 @@ final class Queue implements Collection, \ArrayAccess
      *
      * @throws Error
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new Error();
