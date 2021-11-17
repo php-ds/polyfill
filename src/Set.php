@@ -259,6 +259,22 @@ final class Set implements Collection, \ArrayAccess
     }
 
     /**
+     * Returns a new set using the results of applying a callback to each
+     * value.
+     *
+     * @param callable $callback
+     *
+     * @return Set
+     *
+     * @template TNewValue
+     * @psalm-param callable(TValue): TNewValue $callback
+     * @psalm-return Set<TNewValue>
+     */
+    public function map(callable $callback) {
+        return new self(array_map($callback, $this->toArray()));
+    }
+
+    /**
      * Iteratively reduces the set to a single value using a callback.
      *
      * @param callable $callback Accepts the carry and current value, and
