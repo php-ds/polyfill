@@ -291,6 +291,7 @@ final class PriorityQueue implements Collection
     /**
      * @inheritDoc
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         while ( ! $this->isEmpty()) {

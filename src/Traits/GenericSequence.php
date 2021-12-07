@@ -350,8 +350,9 @@ trait GenericSequence
     }
 
     /**
-     *
+     * @inheritDoc
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         foreach ($this->array as $value) {

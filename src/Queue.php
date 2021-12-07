@@ -128,6 +128,7 @@ final class Queue implements Collection, \ArrayAccess
     /**
      * Get iterator
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         while ( ! $this->isEmpty()) {

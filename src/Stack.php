@@ -130,8 +130,9 @@ final class Stack implements Collection, \ArrayAccess
     }
 
     /**
-     *
+     * @inheritDoc
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         while ( ! $this->isEmpty()) {
