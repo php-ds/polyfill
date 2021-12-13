@@ -731,6 +731,9 @@ final class Map implements Collection, \ArrayAccess
         });
     }
 
+    /**
+     * @inheritDoc
+     */
     #[\ReturnTypeWillChange]
     public function getIterator()
     {
