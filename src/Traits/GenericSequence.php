@@ -349,9 +349,6 @@ trait GenericSequence
         return $index >= 0 && $index < count($this);
     }
 
-    /**
-     * @inheritDoc
-     */
     #[\ReturnTypeWillChange]
     public function getIterator()
     {

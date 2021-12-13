@@ -129,9 +129,6 @@ final class Stack implements Collection, \ArrayAccess
         return array_reverse($this->vector->toArray());
     }
 
-    /**
-     * @inheritDoc
-     */
     #[\ReturnTypeWillChange]
     public function getIterator()
     {

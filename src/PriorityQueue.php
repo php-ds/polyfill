@@ -288,9 +288,6 @@ final class PriorityQueue implements Collection
         return $array;
     }
 
-    /**
-     * @inheritDoc
-     */
     #[\ReturnTypeWillChange]
     public function getIterator()
     {
