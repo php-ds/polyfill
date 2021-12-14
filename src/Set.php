@@ -243,7 +243,7 @@ final class Set implements Collection, \ArrayAccess
      */
     public function join(string $glue = null): string
     {
-        return implode($glue, $this->toArray());
+        return implode($glue ?? '', $this->toArray());
     }
 
     /**
