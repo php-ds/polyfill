@@ -8,18 +8,18 @@
     colors="true"
 >
     <testsuites>
-        <testsuite>
+        <testsuite name="DS Tests">
             <directory>vendor/php-ds/tests/tests</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
+    <coverage>
+        <include>
             <directory>src</directory>
-        </whitelist>
-    </filter>
-    <logging>
-        <log type="coverage-html" target="build/logs/coverage" />
-        <log type="coverage-text" target="build/logs/coverage.txt" />
-        <log type="coverage-clover" target="build/logs/coverage.xml" />
-    </logging>
+        </include>
+        <report>
+            <clover outputFile="build/logs/coverage.xml" />
+            <html outputDirectory="build/logs/coverage" />
+            <text outputFile="build/logs/coverage.txt" />
+        </report>
+    </coverage>
 </phpunit>
