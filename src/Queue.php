@@ -178,6 +178,7 @@ final class Queue implements Collection, \ArrayAccess
      *
      * @throws Error
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         throw new Error();

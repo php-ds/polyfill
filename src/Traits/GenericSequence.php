@@ -148,7 +148,7 @@ trait GenericSequence
      */
     public function join(string $glue = null): string
     {
-        return implode($glue, $this->array);
+        return implode($glue ?? '', $this->array);
     }
 
     /**

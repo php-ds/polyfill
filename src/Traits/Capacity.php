@@ -11,7 +11,7 @@ use Ds\Deque;
 trait Capacity
 {
     /**
-     * @var integer internal capacity
+     * @var int internal capacity
      */
     private $capacity = self::MIN_CAPACITY;
 
@@ -95,7 +95,7 @@ trait Capacity
 
     protected function nextCapacity(): int
     {
-        return $this->capacity() * $this->getGrowthFactor();
+        return (int) ($this->capacity() * $this->getGrowthFactor());
     }
 
     /**
@@ -116,7 +116,7 @@ trait Capacity
     {
         $this->capacity = max(
             self::MIN_CAPACITY,
-            $this->capacity()  * $this->getDecayFactor()
+            (int) ($this->capacity()  * $this->getDecayFactor())
         );
     }
 

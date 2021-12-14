@@ -120,7 +120,7 @@ final class PriorityQueue implements Collection
      */
     private function parent(int $index): int
     {
-        return ($index - 1) / 2;
+        return (int) (($index - 1) / 2);
     }
 
     /**
