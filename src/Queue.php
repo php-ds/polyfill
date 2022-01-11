@@ -106,7 +106,7 @@ final class Queue implements Collection, \ArrayAccess
     }
 
     /**
-     * Pushes zero or more values into the front of the queue.
+     * Pushes zero or more values into the back of the queue.
      *
      * @param mixed ...$values
      *
