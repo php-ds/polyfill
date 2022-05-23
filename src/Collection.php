@@ -10,7 +10,7 @@ namespace Ds;
  *
  * @template-covariant TKey
  * @template-covariant TValue
- * @extends Traversable<TKey, TValue>
+ * @extends \IteratorAggregate<TKey, TValue>
  */
 interface Collection extends \IteratorAggregate, \Countable, \JsonSerializable
 {
