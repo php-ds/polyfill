@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+- `Collection` PHPDoc now correctly states that it extends `IteratorAggregate`, rather than just `Traversable`.
+
+## [1.4.1] - 2022-03-09
+
+## [1.4.0] - 2021-11-17
+
 ## [1.3.0] - 2020-10-13
 ### Changed
 - Implement ArrayAccess consistently
