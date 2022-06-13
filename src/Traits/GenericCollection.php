@@ -3,6 +3,8 @@ namespace Ds\Traits;
 
 /**
  * Common to structures that implement the base collection interface.
+ * @template-covariant TKey
+ * @template-covariant TValue
  */
 trait GenericCollection
 {
@@ -37,6 +39,8 @@ trait GenericCollection
      * Creates a shallow copy of the collection.
      *
      * @return static a shallow copy of the collection.
+     *
+     * @psalm-return static<TKey, TValue>
      */
     public function copy(): self
     {
@@ -51,6 +55,8 @@ trait GenericCollection
      * could not be created (for example when object are used as keys).
      *
      * @return array
+     *
+     * @psalm-return array<TKey, TValue>
      */
     abstract public function toArray(): array;
 

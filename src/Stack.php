@@ -12,6 +12,7 @@ use OutOfBoundsException;
  *
  * @template TValue
  * @implements Sequence<TValue>
+ * @template-use Traits\GenericCollection<int, TValue>
  */
 final class Stack implements Collection, \ArrayAccess
 {
