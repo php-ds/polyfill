@@ -11,6 +11,8 @@ namespace Ds;
  *
  * @template TValue
  * @implements Sequence<TValue>
+ * @template-use Traits\GenericCollection<int, TValue>
+ * @template-use Traits\GenericSequence<TValue>
  */
 final class Vector implements Sequence
 {

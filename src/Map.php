@@ -16,6 +16,7 @@ use UnderflowException;
  * @template TKey
  * @template TValue
  * @implements Collection<TKey, TValue>
+ * @template-use Traits\GenericCollection<TKey, TValue>
  */
 final class Map implements Collection, \ArrayAccess
 {
