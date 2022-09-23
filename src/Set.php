@@ -92,8 +92,8 @@ final class Set implements Collection, \ArrayAccess
      *
      * @param mixed ...$values
      *
-     * @return bool true if at least one value was provided and the set
-     *              contains all given values, false otherwise.
+     * @return bool false if any of the provided values are not in the set;
+     *              true otherwise.
      *
      * @psalm-param TValue ...$values
      */
