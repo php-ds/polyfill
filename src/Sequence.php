@@ -13,6 +13,7 @@ namespace Ds;
  *
  * @template TValue
  * @extends Collection<int, TValue>
+ * @extends \ArrayAccess<int, TValue>
  */
 interface Sequence extends Collection, \ArrayAccess
 {

@@ -1,10 +1,8 @@
 <?php
 namespace Ds;
 
-use Error;
 use OutOfBoundsException;
 use OutOfRangeException;
-use Traversable;
 use UnderflowException;
 
 /**
@@ -16,6 +14,7 @@ use UnderflowException;
  * @template TKey
  * @template TValue
  * @implements Collection<TKey, TValue>
+ * @implements \ArrayAccess<TKey, TValue>
  * @template-use Traits\GenericCollection<TKey, TValue>
  */
 final class Map implements Collection, \ArrayAccess
