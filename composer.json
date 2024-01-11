@@ -1,6 +1,7 @@
 {
     "name": "php-ds/php-ds",
     "license": "MIT",
+    "description": "Specialized data structures as alternatives to the PHP array",
     "keywords": ["php", "ds", "data structures", "polyfill"],
     "authors": [
         {
