@@ -177,7 +177,7 @@ final class Set implements Collection, \ArrayAccess
      * @psalm-param (callable(TValue): bool)|null $callback
      * @psalm-return Set<TValue>
      */
-    public function filter(callable $callback = null): Set
+    public function filter(?callable $callback = null): Set
     {
         return new self(array_filter($this->toArray(), $callback ?: 'boolval'));
     }
@@ -243,7 +243,7 @@ final class Set implements Collection, \ArrayAccess
      *
      * @param string|null $glue
      */
-    public function join(string $glue = null): string
+    public function join(?string $glue = null): string
     {
         return implode($glue ?? '', $this->toArray());
     }
@@ -363,7 +363,7 @@ final class Set implements Collection, \ArrayAccess
      *
      * @psalm-return Set<TValue>
      */
-    public function slice(int $offset, int $length = null): Set
+    public function slice(int $offset, ?int $length = null): Set
     {
         $sliced = new self();
         $sliced->table = $this->table->slice($offset, $length);
@@ -379,7 +379,7 @@ final class Set implements Collection, \ArrayAccess
      *
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      */
-    public function sort(callable $comparator = null)
+    public function sort(?callable $comparator = null)
     {
         $this->table->ksort($comparator);
     }
@@ -396,7 +396,7 @@ final class Set implements Collection, \ArrayAccess
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      * @psalm-return Set<TValue>
      */
-    public function sorted(callable $comparator = null): Set
+    public function sorted(?callable $comparator = null): Set
     {
         $sorted = $this->copy();
         $sorted->table->ksort($comparator);
