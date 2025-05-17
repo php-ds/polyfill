@@ -96,7 +96,7 @@ trait GenericSequence
      * @psalm-param (callable(TValue): bool)|null $callback
      * @psalm-return Sequence<TValue>
      */
-    public function filter(callable $callback = null): Sequence
+    public function filter(?callable $callback = null): Sequence
     {
         return new self(array_filter($this->array, $callback ?: 'boolval'));
     }
@@ -159,7 +159,7 @@ trait GenericSequence
     /**
      *
      */
-    public function join(string $glue = null): string
+    public function join(?string $glue = null): string
     {
         return implode($glue ?? '', $this->array);
     }
@@ -318,7 +318,7 @@ trait GenericSequence
     /**
      * @psalm-return Sequence<TValue>
      */
-    public function slice(int $offset, int $length = null): Sequence
+    public function slice(int $offset, ?int $length = null): Sequence
     {
         if (func_num_args() === 1) {
             $length = count($this);
@@ -330,7 +330,7 @@ trait GenericSequence
     /**
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      */
-    public function sort(callable $comparator = null)
+    public function sort(?callable $comparator = null)
     {
         if ($comparator) {
             usort($this->array, $comparator);
@@ -343,7 +343,7 @@ trait GenericSequence
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      * @psalm-return Sequence<TValue>
      */
-    public function sorted(callable $comparator = null): Sequence
+    public function sorted(?callable $comparator = null): Sequence
     {
         $copy = $this->copy();
         $copy->sort($comparator);
