@@ -63,7 +63,7 @@ trait GenericSequence
      * @psalm-param iterable<TValue2> $values
      * @psalm-return Sequence<TValue|TValue2>
      */
-    public function merge($values): Sequence
+    public function merge($values): static
     {
         $copy = $this->copy();
         $copy->push(...$values);
@@ -96,7 +96,7 @@ trait GenericSequence
      * @psalm-param (callable(TValue): bool)|null $callback
      * @psalm-return Sequence<TValue>
      */
-    public function filter(?callable $callback = null): Sequence
+    public function filter(?callable $callback = null): static
     {
         return new self(array_filter($this->array, $callback ?: 'boolval'));
     }
@@ -183,7 +183,7 @@ trait GenericSequence
      * @psalm-param callable(TValue): TNewValue $callback
      * @psalm-return Sequence<TNewValue>
      */
-    public function map(callable $callback): Sequence
+    public function map(callable $callback): static
     {
         return new self(array_map($callback, $this->array));
     }
@@ -255,7 +255,7 @@ trait GenericSequence
     /**
      * @psalm-return Sequence<TValue>
      */
-    public function reversed(): Sequence
+    public function reversed(): static
     {
         return new self(array_reverse($this->array));
     }
@@ -318,7 +318,7 @@ trait GenericSequence
     /**
      * @psalm-return Sequence<TValue>
      */
-    public function slice(int $offset, ?int $length = null): Sequence
+    public function slice(int $offset, ?int $length = null): static
     {
         if (func_num_args() === 1) {
             $length = count($this);
@@ -343,7 +343,7 @@ trait GenericSequence
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      * @psalm-return Sequence<TValue>
      */
-    public function sorted(?callable $comparator = null): Sequence
+    public function sorted(?callable $comparator = null): static
     {
         $copy = $this->copy();
         $copy->sort($comparator);
@@ -355,7 +355,7 @@ trait GenericSequence
      */
     public function sum()
     {
-        return array_sum($this->array);
+        return @array_sum($this->array);
     }
 
     /**
@@ -375,6 +375,17 @@ trait GenericSequence
     private function validIndex(int $index)
     {
         return $index >= 0 && $index < count($this);
+    }
+
+    public function __serialize(): array
+    {
+        return $this->toArray();
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->array = array_values($data);
+        $this->capacity = max(count($this->array), self::MIN_CAPACITY);
     }
 
     /**

@@ -65,7 +65,7 @@ trait GenericCollection
      *
      * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return $this->toArray();
     }
@@ -74,7 +74,7 @@ trait GenericCollection
      * Returns a string representation of the collection, which is invoked when
      * the collection is converted to a string.
      */
-    public function __toString()
+    public function __toString(): string
     {
         return 'object(' . get_class($this) . ')';
     }

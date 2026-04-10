@@ -121,7 +121,7 @@ trait Capacity
     }
 
     /**
-     * @return bool whether capacity should be increased.
+     * @return bool whether capacity should be decreased.
      */
     protected function shouldDecreaseCapacity(): bool
     {

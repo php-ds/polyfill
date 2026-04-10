@@ -10,11 +10,10 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
-        "ext-json": "*"
+        "php": ">=8.2"
     },
     "require-dev": {
-        "php-ds/tests": "^1.5"
+        "php-ds/tests": "^1.8"
     },
     "provide": {
         "ext-ds": "1.5.0"

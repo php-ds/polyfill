@@ -441,7 +441,7 @@ final class Set implements Collection, \ArrayAccess
      */
     public function sum()
     {
-        return array_sum($this->toArray());
+        return @array_sum($this->toArray());
     }
 
     /**
@@ -528,6 +528,19 @@ final class Set implements Collection, \ArrayAccess
     public function offsetUnset($offset)
     {
         throw new Error();
+    }
+
+    public function __serialize(): array
+    {
+        return $this->toArray();
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->table = new Map();
+        foreach ($data as $value) {
+            $this->add($value);
+        }
     }
 
     /**

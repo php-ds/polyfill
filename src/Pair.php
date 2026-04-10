@@ -148,10 +148,21 @@ final class Pair implements \JsonSerializable
         return $this->toArray();
     }
 
+    public function __serialize(): array
+    {
+        return $this->toArray();
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->key   = $data['key'];
+        $this->value = $data['value'];
+    }
+
     /**
      * Returns a string representation of the pair.
      */
-    public function __toString()
+    public function __toString(): string
     {
         return 'object(' . get_class($this) . ')';
     }

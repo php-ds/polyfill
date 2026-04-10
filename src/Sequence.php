@@ -68,7 +68,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param (callable(TValue): bool)|null $callback
      * @psalm-return Sequence<TValue>
      */
-    public function filter(?callable $callback = null): Sequence;
+    public function filter(?callable $callback = null): static;
 
     /**
      * Returns the index of a given value, or null if it could not be found.
@@ -146,7 +146,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param callable(TValue): TNewValue $callback
      * @psalm-return Sequence<TNewValue>
      */
-    public function map(callable $callback): Sequence;
+    public function map(callable $callback): static;
 
     /**
      * Returns the result of adding all given values to the sequence.
@@ -159,7 +159,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param iterable<TValue2> $values
      * @psalm-return Sequence<TValue|TValue2>
      */
-    public function merge($values): Sequence;
+    public function merge($values): static;
 
     /**
      * Removes the last value in the sequence, and returns it.
@@ -280,7 +280,7 @@ interface Sequence extends Collection, \ArrayAccess
      *
      * @psalm-return Sequence<TValue>
      */
-    public function slice(int $index, ?int $length = null): Sequence;
+    public function slice(int $index, ?int $length = null): static;
 
     /**
      * Sorts the sequence in-place, based on an optional callable comparator.
@@ -304,7 +304,7 @@ interface Sequence extends Collection, \ArrayAccess
      * @psalm-param (callable(TValue, TValue): int)|null $comparator
      * @psalm-return Sequence<TValue>
      */
-    public function sorted(?callable $comparator = null): Sequence;
+    public function sorted(?callable $comparator = null): static;
 
     /**
      * Returns the sum of all values in the sequence.

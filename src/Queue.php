@@ -187,6 +187,16 @@ final class Queue implements Collection, \ArrayAccess
         throw new Error();
     }
 
+    public function __serialize(): array
+    {
+        return $this->deque->toArray();
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->deque = new Deque($data);
+    }
+
     /**
      * Ensures that the internal sequence will be cloned too.
      */

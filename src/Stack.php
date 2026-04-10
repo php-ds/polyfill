@@ -190,6 +190,16 @@ final class Stack implements Collection, \ArrayAccess
         throw new Error();
     }
 
+    public function __serialize(): array
+    {
+        return $this->vector->toArray();
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->vector = new Vector($data);
+    }
+
     /**
      * Ensures that the internal vector will be cloned too.
      */

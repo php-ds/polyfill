@@ -808,4 +808,33 @@ final class Map implements Collection, \ArrayAccess
     {
         return (object) $this->toArray();
     }
+
+    public function __serialize(): array
+    {
+        $data = [];
+        foreach ($this->pairs as $pair) {
+            $data[] = [$pair->key, $pair->value];
+        }
+        return $data;
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->pairs = [];
+        foreach ($data as $entry) {
+            $this->put($entry[0], $entry[1]);
+        }
+    }
+
+    /**
+     * Ensures that the internal pairs array will be cloned too.
+     */
+    public function __clone()
+    {
+        $pairs = [];
+        foreach ($this->pairs as $pair) {
+            $pairs[] = $pair->copy();
+        }
+        $this->pairs = $pairs;
+    }
 }

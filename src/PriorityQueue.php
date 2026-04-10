@@ -288,6 +288,40 @@ final class PriorityQueue implements Collection
         return $array;
     }
 
+    public function __serialize(): array
+    {
+        $heap = $this->heap;
+        $data = [];
+        while ( ! $this->isEmpty()) {
+            $node = $this->heap[0];
+            $data[] = [$this->pop(), $node->priority];
+        }
+        $this->heap = $heap;
+        return $data;
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->heap = [];
+        $this->stamp = 0;
+        $this->capacity = self::MIN_CAPACITY;
+        foreach ($data as $entry) {
+            $this->push($entry[0], $entry[1]);
+        }
+    }
+
+    /**
+     * Ensures that the internal heap array will be cloned too.
+     */
+    public function __clone()
+    {
+        $heap = [];
+        foreach ($this->heap as $node) {
+            $heap[] = new PriorityNode($node->value, $node->priority, $node->stamp);
+        }
+        $this->heap = $heap;
+    }
+
     /**
      * @inheritDoc
      */
