@@ -13,20 +13,27 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "php-ds/tests": "^1.8"
+        "php-ds/tests": "@dev",
+        "phpunit/phpunit": "^11.0"
     },
     "provide": {
-        "ext-ds": "1.5.0"
+        "ext-ds": "2.0.0"
     },
     "suggest": {
         "ext-ds": "to improve performance and reduce memory usage"
     },
-    "scripts": {
-        "test": "phpunit"
-    },
-    "autoload": {
-        "psr-4" : {
-            "Ds\\": "src"
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../tests"
         }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Ds\\": "src"
+        },
+        "files": [
+            "src/functions.php"
+        ]
     }
 }

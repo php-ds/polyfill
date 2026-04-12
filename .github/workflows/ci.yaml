@@ -1,4 +1,4 @@
-name: "CI"
+name: CI
 
 on:
   pull_request:
@@ -9,59 +9,32 @@ on:
 
 jobs:
   phpunit:
-    name: "PHPUnit"
-    runs-on: "ubuntu-20.04"
-
+    name: PHPUnit - PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        php-version:
-          - "7.4"
-          - "8.0"
-          - "8.1"
+        php:
           - "8.2"
           - "8.3"
-        dependencies:
-          - "highest"
+          - "8.4"
+          - "8.5"
 
     steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v2"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
         with:
-          fetch-depth: 2
+          php-version: ${{ matrix.php }}
+          coverage: pcov
+          ini-values: zend.assertions=1
 
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
         with:
-          php-version: "${{ matrix.php-version }}"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
+          composer-options: "--prefer-dist"
 
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
-        with:
-          dependency-versions: "${{ matrix.dependencies }}"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit"
-
-  upload_coverage:
-    name: "Upload coverage to Codecov"
-    runs-on: "ubuntu-20.04"
-    needs:
-      - "phpunit"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v2"
-        with:
-          fetch-depth: 2
-
-      - name: "Download coverage files"
-        uses: "actions/download-artifact@v2"
-        with:
-          path: "reports"
-
-      - name: "Upload to Codecov"
-        uses: "codecov/codecov-action@v1"
-        with:
-          directory: reports
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit

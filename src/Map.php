@@ -6,808 +6,375 @@ use OutOfRangeException;
 use UnderflowException;
 
 /**
- * A Map is a sequential collection of key-value pairs, almost identical to an
- * array used in a similar context. Keys can be any type, but must be unique.
- *
- * @package Ds
- *
- * @template TKey
- * @template TValue
- * @implements Collection<TKey, TValue>
- * @implements \ArrayAccess<TKey, TValue>
- * @template-use Traits\GenericCollection<TKey, TValue>
+ * A Map is a sequential collection of key-value pairs.
+ * Keys can be any type, but must be unique.
  */
-final class Map implements Collection, \ArrayAccess
+final class Map implements \IteratorAggregate, \Countable, \JsonSerializable, \ArrayAccess
 {
     use Traits\GenericCollection;
     use Traits\SquaredCapacity;
 
     public const MIN_CAPACITY = 8;
 
-    /**
-     * @var array internal array to store pairs
-     *
-     * @psalm-var array<int, Pair>
-     */
-    private $pairs = [];
+    private array $pairs = [];
 
-    /**
-     * Creates a new instance.
-     *
-     * @param iterable<mixed, mixed> $values
-     *
-     * @psalm-param iterable<TKey, TValue> $values
-     */
     public function __construct(iterable $values = [])
     {
         if (func_num_args()) {
             $this->putAll($values);
         }
-
     }
 
-    /**
-     * Updates all values by applying a callback function to each value.
-     *
-     * @param callable $callback Accepts two arguments: key and value, should
-     *                           return what the updated value will be.
-     *
-     * @psalm-param callable(TKey, TValue): TValue $callback
-     */
-    public function apply(callable $callback)
+    // -- Key equality --------------------------------------------------------
+
+    private function keysAreEqual(mixed $a, mixed $b): bool
     {
-        foreach ($this->pairs as &$pair) {
-            $pair->value = $callback($pair->key, $pair->value);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function clear()
-    {
-        $this->pairs = [];
-        $this->capacity = self::MIN_CAPACITY;
-    }
-
-    /**
-     * Return the first Pair from the Map
-     *
-     * @return Pair
-     *
-     * @throws UnderflowException
-     *
-     * @psalm-return Pair<TKey, TValue>
-     */
-    public function first(): Pair
-    {
-        if ($this->isEmpty()) {
-            throw new UnderflowException();
-        }
-
-        return $this->pairs[0];
-    }
-
-    /**
-     * Return the last Pair from the Map
-     *
-     * @return Pair
-     *
-     * @throws UnderflowException
-     *
-     * @psalm-return Pair<TKey, TValue>
-     */
-    public function last(): Pair
-    {
-        if ($this->isEmpty()) {
-            throw new UnderflowException();
-        }
-
-        return $this->pairs[count($this->pairs) - 1];
-    }
-
-    /**
-     * Return the pair at a specified position in the Map
-     *
-     * @return Pair
-     *
-     * @throws OutOfRangeException
-     *
-     * @psalm-return Pair<TKey, TValue>
-     */
-    public function skip(int $position): Pair
-    {
-        if ($position < 0 || $position >= count($this->pairs)) {
-            throw new OutOfRangeException();
-        }
-
-        return $this->pairs[$position]->copy();
-    }
-
-    /**
-     * Returns the result of associating all keys of a given traversable object
-     * or array with their corresponding values, as well as those of this map.
-     *
-     * @param array|\Traversable $values
-     *
-     * @return Map
-     *
-     * @template TKey2
-     * @template TValue2
-     * @psalm-param iterable<TKey2, TValue2> $values
-     * @psalm-return Map<TKey|TKey2, TValue|TValue2>
-     */
-    public function merge($values): Map
-    {
-        $merged = new self($this);
-        $merged->putAll($values);
-        return $merged;
-    }
-
-    /**
-     * Creates a new map containing the pairs of the current instance whose keys
-     * are also present in the given map. In other words, returns a copy of the
-     * current map with all keys removed that are not also in the other map.
-     *
-     * @param Map $map The other map.
-     *
-     * @return Map A new map containing the pairs of the current instance
-     *                 whose keys are also present in the given map. In other
-     *                 words, returns a copy of the current map with all keys
-     *                 removed that are not also in the other map.
-     *
-     * @template TKey2
-     * @template TValue2
-     * @psalm-param Map<TKey2, TValue2> $map
-     * @psalm-return Map<TKey&TKey2, TValue>
-     */
-    public function intersect(Map $map): Map
-    {
-        return $this->filter(function($key) use ($map) {
-            return $map->hasKey($key);
-        });
-    }
-
-    /**
-     * Returns the result of removing all keys from the current instance that
-     * are present in a given map.
-     *
-     * @param Map $map The map containing the keys to exclude.
-     *
-     * @return Map The result of removing all keys from the current instance
-     *                 that are present in a given map.
-     *
-     * @template TValue2
-     * @psalm-param Map<TKey, TValue2> $map
-     * @psalm-return Map<TKey, TValue>
-     */
-    public function diff(Map $map): Map
-    {
-        return $this->filter(function($key) use ($map) {
-            return ! $map->hasKey($key);
-        });
-    }
-
-    /**
-     * Determines whether two keys are equal.
-     *
-     * @param mixed $a
-     * @param mixed $b
-     *
-     * @psalm-param TKey $a
-     * @psalm-param TKey $b
-     */
-    private function keysAreEqual($a, $b): bool
-    {
-        if (is_object($a) && $a instanceof Hashable) {
+        if (is_object($a) && $a instanceof Key) {
             return get_class($a) === get_class($b) && $a->equals($b);
         }
-
         return $a === $b;
     }
 
-    /**
-     * Attempts to look up a key in the table.
-     *
-     * @param $key
-     *
-     * @return Pair|null
-     *
-     * @psalm-return Pair<TKey, TValue>|null
-     */
-    private function lookupKey($key)
+    private function lookupKey(mixed $key): ?Pair
     {
         foreach ($this->pairs as $pair) {
             if ($this->keysAreEqual($pair->key, $key)) {
                 return $pair;
             }
         }
+        return null;
     }
 
-    /**
-     * Attempts to look up a value in the table.
-     *
-     * @param $value
-     *
-     * @return Pair|null
-     *
-     * @psalm-return Pair<TKey, TValue>|null
-     */
-    private function lookupValue($value)
+    private function lookupValue(mixed $value): ?Pair
     {
         foreach ($this->pairs as $pair) {
             if ($pair->value === $value) {
                 return $pair;
             }
         }
+        return null;
     }
 
-    /**
-     * Returns whether an association a given key exists.
-     *
-     * @param mixed $key
-     *
-     * @psalm-param TKey $key
-     */
-    public function hasKey($key): bool
-    {
-        return $this->lookupKey($key) !== null;
-    }
+    // -- Basic operations ----------------------------------------------------
 
-    /**
-     * Returns whether an association for a given value exists.
-     *
-     * @param mixed $value
-     *
-     * @psalm-param TValue $value
-     */
-    public function hasValue($value): bool
-    {
-        return $this->lookupValue($value) !== null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function count(): int
-    {
-        return count($this->pairs);
-    }
-
-    /**
-     * Returns a new map containing only the values for which a predicate
-     * returns true. A boolean test will be used if a predicate is not provided.
-     *
-     * @param callable|null $callback Accepts a key and a value, and returns:
-     *                                true : include the value,
-     *                                false: skip the value.
-     *
-     * @return Map
-     *
-     * @psalm-param (callable(TKey, TValue): bool)|null $callback
-     * @psalm-return Map<TKey, TValue>
-     */
-    public function filter(?callable $callback = null): Map
-    {
-        $filtered = new self();
-
-        foreach ($this as $key => $value) {
-            if ($callback ? $callback($key, $value) : $value) {
-                $filtered->put($key, $value);
-            }
-        }
-
-        return $filtered;
-    }
-
-    /**
-     * Returns the value associated with a key, or an optional default if the
-     * key is not associated with a value.
-     *
-     * @param mixed $key
-     * @param mixed $default
-     *
-     * @return mixed The associated value or fallback default if provided.
-     *
-     * @throws OutOfBoundsException if no default was provided and the key is
-     *                               not associated with a value.
-     *
-     * @template TDefault
-     * @psalm-param TKey $key
-     * @psalm-param TDefault $default
-     * @psalm-return TValue|TDefault
-     */
-    public function get($key, $default = null)
-    {
-        if (($pair = $this->lookupKey($key))) {
-            return $pair->value;
-        }
-
-        // Check if a default was provided.
-        if (func_num_args() === 1) {
-            throw new OutOfBoundsException();
-        }
-
-        return $default;
-    }
-
-    /**
-     * Returns a set of all the keys in the map.
-     *
-     * @return Set
-     *
-     * @psalm-return Set<TKey>
-     */
-    public function keys(): Set
-    {
-        $key = function($pair) {
-            return $pair->key;
-        };
-
-        return new Set(array_map($key, $this->pairs));
-    }
-
-    /**
-     * Returns a new map using the results of applying a callback to each value.
-     *
-     * The keys will be equal in both maps.
-     *
-     * @param callable $callback Accepts two arguments: key and value, should
-     *                           return what the updated value will be.
-     *
-     * @return Map
-     *
-     * @template TNewValue
-     * @psalm-param callable(TKey, TValue): TNewValue $callback
-     * @psalm-return Map<TKey, TNewValue>
-     */
-    public function map(callable $callback): Map
-    {
-        $mapped = new self();
-        foreach ($this->pairs as $pair) {
-            $mapped->put($pair->key, $callback($pair->key, $pair->value));
-        }
-
-        return $mapped;
-    }
-
-    /**
-     * Returns a sequence of pairs representing all associations.
-     *
-     * @return Sequence
-     *
-     * @psalm-return Sequence<Pair<TKey, TValue>>
-     */
-    public function pairs(): Sequence
-    {
-        $copy = function($pair) {
-            return $pair->copy();
-        };
-
-        return new Vector(array_map($copy, $this->pairs));
-    }
-
-    /**
-     * Associates a key with a value, replacing a previous association if there
-     * was one.
-     *
-     * @param mixed $key
-     * @param mixed $value
-     *
-     * @psalm-param TKey $key
-     * @psalm-param TValue $value
-     */
-    public function put($key, $value)
+    public function put(mixed $key, mixed $value): void
     {
         $pair = $this->lookupKey($key);
 
         if ($pair) {
-            $pair->value = $value;
-
+            // Readonly pair — need to replace
+            foreach ($this->pairs as $i => $p) {
+                if ($p === $pair) {
+                    $this->pairs[$i] = new Pair($key, $value);
+                    return;
+                }
+            }
         } else {
             $this->checkCapacity();
             $this->pairs[] = new Pair($key, $value);
         }
     }
 
-    /**
-     * Creates associations for all keys and corresponding values of either an
-     * array or iterable object.
-     *
-     * @param iterable<mixed, mixed> $values
-     *
-     * @psalm-param iterable<TKey, TValue> $values
-     */
-    public function putAll(iterable $values)
+    public function putAll(iterable $values): void
     {
         foreach ($values as $key => $value) {
             $this->put($key, $value);
         }
     }
 
-    /**
-     * Iteratively reduces the map to a single value using a callback.
-     *
-     * @param callable $callback Accepts the carry, key, and value, and
-     *                           returns an updated carry value.
-     *
-     * @param mixed|null $initial Optional initial carry value.
-     *
-     * @return mixed The carry value of the final iteration, or the initial
-     *               value if the map was empty.
-     *
-     * @template TCarry
-     * @psalm-param callable(TCarry, TKey, TValue): TCarry $callback
-     * @psalm-param TCarry $initial
-     * @psalm-return TCarry
-     */
-    public function reduce(callable $callback, $initial = null)
+    public function get(mixed $key, mixed $default = null): mixed
     {
-        $carry = $initial;
-
-        foreach ($this->pairs as $pair) {
-            $carry = $callback($carry, $pair->key, $pair->value);
+        if (($pair = $this->lookupKey($key))) {
+            return $pair->value;
         }
-
-        return $carry;
+        if (func_num_args() === 1) {
+            throw new OutOfBoundsException();
+        }
+        return $default;
     }
 
-    /**
-     * Completely removes a pair from the internal array by position. It is
-     * important to remove it from the array and not just use 'unset'.
-     *
-     * @return mixed
-     *
-     * @psalm-return TValue
-     */
-    private function delete(int $position)
-    {
-        $pair  = $this->pairs[$position];
-        $value = $pair->value;
-
-        array_splice($this->pairs, $position, 1, null);
-        $this->checkCapacity();
-
-        return $value;
-    }
-
-    /**
-     * Removes a key's association from the map and returns the associated value
-     * or a provided default if provided.
-     *
-     * @param mixed $key
-     * @param mixed $default
-     *
-     * @return mixed The associated value or fallback default if provided.
-     *
-     * @throws \OutOfBoundsException if no default was provided and the key is
-     *                               not associated with a value.
-     *
-     * @template TDefault
-     * @psalm-param TKey $key
-     * @psalm-param TDefault $default
-     * @psalm-return TValue|TDefault
-     */
-    public function remove($key, $default = null)
+    public function remove(mixed $key, mixed $default = null): mixed
     {
         foreach ($this->pairs as $position => $pair) {
             if ($this->keysAreEqual($pair->key, $key)) {
                 return $this->delete($position);
             }
         }
-
-        // Check if a default was provided
         if (func_num_args() === 1) {
-            throw new \OutOfBoundsException();
+            throw new OutOfBoundsException();
         }
-
         return $default;
     }
 
-    /**
-     * Reverses the map in-place
-     */
-    public function reverse()
+    private function delete(int $position): mixed
+    {
+        $pair = $this->pairs[$position];
+        $value = $pair->value;
+        array_splice($this->pairs, $position, 1, null);
+        $this->checkCapacity();
+        return $value;
+    }
+
+    public function hasKey(mixed $key): bool
+    {
+        return $this->lookupKey($key) !== null;
+    }
+
+    public function hasValue(mixed $value): bool
+    {
+        return $this->lookupValue($value) !== null;
+    }
+
+    // -- Accessors -----------------------------------------------------------
+
+    public function first(): Pair
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+        return $this->pairs[0];
+    }
+
+    public function last(): Pair
+    {
+        if ($this->isEmpty()) {
+            throw new UnderflowException();
+        }
+        return $this->pairs[count($this->pairs) - 1];
+    }
+
+    public function skip(int $position): Pair
+    {
+        if ($position < 0 || $position >= count($this->pairs)) {
+            throw new OutOfRangeException();
+        }
+        return clone $this->pairs[$position];
+    }
+
+    public function keys(): Set
+    {
+        return new Set(array_map(fn($pair) => $pair->key, $this->pairs));
+    }
+
+    public function values(): Seq
+    {
+        return new Seq(array_map(fn($pair) => $pair->value, $this->pairs));
+    }
+
+    public function pairs(): Seq
+    {
+        return new Seq(array_map(fn($pair) => clone $pair, $this->pairs));
+    }
+
+    // -- Mutators ------------------------------------------------------------
+
+    public function apply(callable $callback): void
+    {
+        foreach ($this->pairs as $i => $pair) {
+            $this->pairs[$i] = new Pair($pair->key, $callback($pair->key, $pair->value));
+        }
+    }
+
+    public function clear(): void
+    {
+        $this->pairs = [];
+        $this->capacity = self::MIN_CAPACITY;
+    }
+
+    public function reverse(): void
     {
         $this->pairs = array_reverse($this->pairs);
     }
 
-    /**
-     * Returns a reversed copy of the map.
-     *
-     * @return Map
-     *
-     * @psalm-return Map<TKey, TValue>
-     */
-    public function reversed(): Map
+    public function sort(?callable $comparator = null): void
+    {
+        if ($comparator) {
+            usort($this->pairs, fn($a, $b) => $comparator($a->value, $b->value));
+        } else {
+            usort($this->pairs, fn($a, $b) => $a->value <=> $b->value);
+        }
+    }
+
+    public function ksort(?callable $comparator = null): void
+    {
+        if ($comparator) {
+            usort($this->pairs, fn($a, $b) => $comparator($a->key, $b->key));
+        } else {
+            usort($this->pairs, fn($a, $b) => $a->key <=> $b->key);
+        }
+    }
+
+    // -- Derived maps --------------------------------------------------------
+
+    public function filter(?callable $callback = null): self
+    {
+        $filtered = new self();
+        foreach ($this as $key => $value) {
+            if ($callback ? $callback($key, $value) : $value) {
+                $filtered->put($key, $value);
+            }
+        }
+        return $filtered;
+    }
+
+    public function map(callable $callback): self
+    {
+        $mapped = new self();
+        foreach ($this->pairs as $pair) {
+            $mapped->put($pair->key, $callback($pair->key, $pair->value));
+        }
+        return $mapped;
+    }
+
+    public function merge(iterable $values): self
+    {
+        $merged = new self($this);
+        $merged->putAll($values);
+        return $merged;
+    }
+
+    public function reversed(): self
     {
         $reversed = new self();
         $reversed->pairs = array_reverse($this->pairs);
-
         return $reversed;
     }
 
-    /**
-     * Returns a sub-sequence of a given length starting at a specified offset.
-     *
-     * @param int $offset      If the offset is non-negative, the map will
-     *                         start at that offset in the map. If offset is
-     *                         negative, the map will start that far from the
-     *                         end.
-     *
-     * @param int|null $length If a length is given and is positive, the
-     *                         resulting set will have up to that many pairs in
-     *                         it. If the requested length results in an
-     *                         overflow, only pairs up to the end of the map
-     *                         will be included.
-     *
-     *                         If a length is given and is negative, the map
-     *                         will stop that many pairs from the end.
-     *
-     *                        If a length is not provided, the resulting map
-     *                        will contains all pairs between the offset and
-     *                        the end of the map.
-     *
-     * @return Map
-     *
-     * @psalm-return Map<TKey, TValue>
-     */
-    public function slice(int $offset, ?int $length = null): Map
-    {
-        $map = new self();
-
-        if (func_num_args() === 1) {
-            $slice = array_slice($this->pairs, $offset);
-        } else {
-            $slice = array_slice($this->pairs, $offset, $length);
-        }
-
-        foreach ($slice as $pair) {
-            $map->put($pair->key, $pair->value);
-        }
-
-        return $map;
-    }
-
-    /**
-     * Sorts the map in-place, based on an optional callable comparator.
-     *
-     * The map will be sorted by value.
-     *
-     * @param callable|null $comparator Accepts two values to be compared.
-     *
-     * @psalm-param (callable(TValue, TValue): int)|null $comparator
-     */
-    public function sort(?callable $comparator = null)
-    {
-        if ($comparator) {
-            usort($this->pairs, function($a, $b) use ($comparator) {
-                return $comparator($a->value, $b->value);
-            });
-
-        } else {
-            usort($this->pairs, function($a, $b) {
-                return $a->value <=> $b->value;
-            });
-        }
-    }
-
-    /**
-     * Returns a sorted copy of the map, based on an optional callable
-     * comparator. The map will be sorted by value.
-     *
-     * @param callable|null $comparator Accepts two values to be compared.
-     *
-     * @return Map
-     *
-     * @psalm-param (callable(TValue, TValue): int)|null $comparator
-     * @psalm-return Map<TKey, TValue>
-     */
-    public function sorted(?callable $comparator = null): Map
+    public function sorted(?callable $comparator = null): self
     {
         $copy = $this->copy();
         $copy->sort($comparator);
         return $copy;
     }
 
-    /**
-     * Sorts the map in-place, based on an optional callable comparator.
-     *
-     * The map will be sorted by key.
-     *
-     * @param callable|null $comparator Accepts two keys to be compared.
-     *
-     * @psalm-param (callable(TKey, TKey): int)|null $comparator
-     */
-    public function ksort(?callable $comparator = null)
-    {
-        if ($comparator) {
-            usort($this->pairs, function($a, $b) use ($comparator) {
-                return $comparator($a->key, $b->key);
-            });
-
-        } else {
-            usort($this->pairs, function($a, $b) {
-                return $a->key <=> $b->key;
-            });
-        }
-    }
-
-    /**
-     * Returns a sorted copy of the map, based on an optional callable
-     * comparator. The map will be sorted by key.
-     *
-     * @param callable|null $comparator Accepts two keys to be compared.
-     *
-     * @return Map
-     *
-     * @psalm-param (callable(TKey, TKey): int)|null $comparator
-     * @psalm-return Map<TKey, TValue>
-     */
-    public function ksorted(?callable $comparator = null): Map
+    public function ksorted(?callable $comparator = null): self
     {
         $copy = $this->copy();
         $copy->ksort($comparator);
         return $copy;
     }
 
-    /**
-     * Returns the sum of all values in the map.
-     *
-     * @return int|float The sum of all the values in the map.
-     */
-    public function sum()
+    public function slice(int $offset, ?int $length = null): self
     {
-        return $this->values()->sum();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function toArray(): array
-    {
-        $array = [];
-
-        foreach ($this->pairs as $pair) {
-            $array[$pair->key] = $pair->value;
+        $map = new self();
+        if (func_num_args() === 1) {
+            $slice = array_slice($this->pairs, $offset);
+        } else {
+            $slice = array_slice($this->pairs, $offset, $length);
         }
-
-        return $array;
+        foreach ($slice as $pair) {
+            $map->put($pair->key, $pair->value);
+        }
+        return $map;
     }
 
-    /**
-     * Returns a sequence of all the associated values in the Map.
-     *
-     * @return Sequence
-     *
-     * @psalm-return Sequence<TValue>
-     */
-    public function values(): Sequence
+    // -- Set operations ------------------------------------------------------
+
+    public function intersect(self $map): self
     {
-        $value = function($pair) {
-            return $pair->value;
-        };
-
-        return new Vector(array_map($value, $this->pairs));
+        return $this->filter(fn($key) => $map->hasKey($key));
     }
 
-    /**
-     * Creates a new map that contains the pairs of the current instance as well
-     * as the pairs of another map.
-     *
-     * @param Map $map The other map, to combine with the current instance.
-     *
-     * @return Map A new map containing all the pairs of the current
-     *                 instance as well as another map.
-     *
-     * @template TKey2
-     * @template TValue2
-     * @psalm-param Map<TKey2, TValue2> $map
-     * @psalm-return Map<TKey|TKey2, TValue|TValue2>
-     */
-    public function union(Map $map): Map
+    public function diff(self $map): self
+    {
+        return $this->filter(fn($key) => !$map->hasKey($key));
+    }
+
+    public function union(self $map): self
     {
         return $this->merge($map);
     }
 
-    /**
-     * Creates a new map using keys of either the current instance or of another
-     * map, but not of both.
-     *
-     * @param Map $map
-     *
-     * @return Map A new map containing keys in the current instance as well
-     *                 as another map, but not in both.
-     *
-     * @template TKey2
-     * @template TValue2
-     * @psalm-param Map<TKey2, TValue2> $map
-     * @psalm-return Map<TKey|TKey2, TValue|TValue2>
-     */
-    public function xor(Map $map): Map
+    public function xor(self $map): self
     {
-        return $this->merge($map)->filter(function($key) use ($map) {
-            return $this->hasKey($key) ^ $map->hasKey($key);
-        });
+        return $this->merge($map)->filter(
+            fn($key) => $this->hasKey($key) ^ $map->hasKey($key)
+        );
     }
 
-    /**
-     * @inheritDoc
-     */
+    // -- Reduce / aggregate --------------------------------------------------
+
+    public function reduce(callable $callback, mixed $initial = null): mixed
+    {
+        $carry = $initial;
+        foreach ($this->pairs as $pair) {
+            $carry = $callback($carry, $pair->key, $pair->value);
+        }
+        return $carry;
+    }
+
+    public function sum(): int|float
+    {
+        return $this->values()->sum();
+    }
+
+    // -- Collection ----------------------------------------------------------
+
+    public function count(): int
+    {
+        return count($this->pairs);
+    }
+
+    public function toArray(): array
+    {
+        $array = [];
+        foreach ($this->pairs as $pair) {
+            $array[$pair->key] = $pair->value;
+        }
+        return $array;
+    }
+
+    // -- Iteration -----------------------------------------------------------
+
     #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         foreach ($this->pairs as $pair) {
             yield $pair->key => $pair->value;
         }
     }
 
-    /**
-     * Returns a representation to be used for var_dump and print_r.
-     *
-     * @psalm-return array<Pair<TKey, TValue>>
-     */
-    public function __debugInfo()
-    {
-        return $this->pairs()->toArray();
-    }
+    // -- ArrayAccess ---------------------------------------------------------
 
-    /**
-     * @inheritdoc
-     */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->put($offset, $value);
     }
 
-    /**
-     * @inheritdoc
-     *
-     * @throws OutOfBoundsException
-     */
     #[\ReturnTypeWillChange]
-    public function &offsetGet($offset)
+    public function &offsetGet(mixed $offset): mixed
     {
         $pair = $this->lookupKey($offset);
-
         if ($pair) {
-            return $pair->value;
+            // readonly pair — return copy of value
+            $v = $pair->value;
+            return $v;
         }
         throw new OutOfBoundsException();
     }
 
-    /**
-     * @inheritdoc
-     */
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset(mixed $offset): void
     {
         $this->remove($offset, null);
     }
 
-    /**
-     * @inheritdoc
-     */
     #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset): bool
     {
         return $this->get($offset, null) !== null;
     }
 
-    /**
-     * Returns a representation that can be natively converted to JSON, which is
-     * called when invoking json_encode.
-     *
-     * @return mixed
-     *
-     * @see \JsonSerializable
-     */
+    // -- JSON ----------------------------------------------------------------
+
     #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return (object) $this->toArray();
     }
+
+    // -- Serialization -------------------------------------------------------
 
     public function __serialize(): array
     {
@@ -826,15 +393,19 @@ final class Map implements Collection, \ArrayAccess
         }
     }
 
-    /**
-     * Ensures that the internal pairs array will be cloned too.
-     */
+    // -- Cloning -------------------------------------------------------------
+
     public function __clone()
     {
         $pairs = [];
         foreach ($this->pairs as $pair) {
-            $pairs[] = $pair->copy();
+            $pairs[] = clone $pair;
         }
         $this->pairs = $pairs;
+    }
+
+    public function __debugInfo(): array
+    {
+        return $this->pairs()->toArray();
     }
 }

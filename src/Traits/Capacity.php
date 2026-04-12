@@ -1,8 +1,6 @@
 <?php
 namespace Ds\Traits;
 
-use Ds\Deque;
-
 /**
  * Common to structures that deal with an internal capacity. While none of the
  * PHP implementations actually make use of a capacity, it's important to keep
